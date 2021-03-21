@@ -16,7 +16,7 @@ export default function Transactor(provider, gasPrice, etherscan) {
       const network = await provider.getNetwork();
       console.log("network", network);
       const options = {
-        dappId: "0b58206a-f3c0-4701-a62f-73c7243e8c77", // GET YOUR OWN KEY AT https://account.blocknative.com
+        dappId: "6cf66bae-0fa2-4d79-a97a-1eff0061117c", // GET YOUR OWN KEY AT https://account.blocknative.com
         system: "ethereum",
         networkId: network.chainId,
         // darkMode: Boolean, // (default: false)
@@ -52,7 +52,7 @@ export default function Transactor(provider, gasPrice, etherscan) {
           result = await signer.sendTransaction(tx);
         }
         console.log("RESULT:", result);
-        // console.log("Notify", notify);
+        console.log("Notify", notify);
 
         // if it is a valid Notify.js network, use that, if not, just send a default notification
         if ([1, 3, 4, 5, 42, 100].indexOf(network.chainId) >= 0) {

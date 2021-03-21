@@ -70,7 +70,7 @@ export default function Owners({contractName, ownerEvents, signaturesRequired, a
         </div>
         <div style={{margin:8,padding:8}}>
           <Button onClick={()=>{
-            //console.log("METHOD",setMethodName)
+            console.log("METHOD",setMethodName)
             let calldata = readContracts[contractName].interface.encodeFunctionData(methodName,[newOwner,newSignaturesRequired])
             console.log("calldata",calldata)
             setData(calldata)
