@@ -29,9 +29,12 @@ contract Allocator is ReentrancyGuard {
     uint256 denominator = governorContract.denominator();
     address[] memory recipients = governorContract.getRecipients();
     uint8[] memory ratios = governorContract.getRatios();
+    uint8 length = governorContract.recipientsLength();
 
-    for(uint8 i = 0; i < governorContract.recipientsLength(); i++){
-      uint256 amount = balance * ratios[i] / denominator;
+    for(uint8 i = 0; i < length; i++){
+      uint256 next = balance * ratios[i];
+      require( next>balance, "overflow :(");
+      uint256 amount = next / denominator;
       tokenContract.transfer( recipients[i], amount );
       emit Distribute( tokenAddress, recipients[i], amount );
     }
