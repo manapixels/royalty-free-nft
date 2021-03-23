@@ -6,9 +6,12 @@
 
 > Allows the community to send funds to a credibly neutral token distributor.
 
+
+---
+---
 ---
 
-## 🏃‍♀️ Quick Start
+# 🏃‍♀️ Quick Start
 
 required: [Node](https://nodejs.org/dist/latest-v12.x/) plus [Yarn](https://classic.yarnpkg.com/en/docs/install/) and [Git](https://git-scm.com/downloads)
 

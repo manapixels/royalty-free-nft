@@ -109,6 +109,15 @@ module.exports = {
             runs: 200
           }
         }
+      },
+      {
+        version: "0.6.7",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200
+          }
+        }
       }
     ],
 
@@ -268,7 +277,7 @@ task("generate", "Create a mnemonic for builder deploys", async (_, { ethers }) 
   fs.writeFileSync("./mnemonic.txt", mnemonic.toString())
 });
 
-task("mine", "Looks for a deployer account that will give leading zeros")
+task("mineContractAddress", "Looks for a deployer account that will give leading zeros")
   .addParam("searchFor", "String to search for")
   .setAction(async (taskArgs, { network, ethers }) => {
 
