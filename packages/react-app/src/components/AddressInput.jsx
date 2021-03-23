@@ -150,6 +150,7 @@ export default function AddressInput(props) {
         id={"0xAddress"}//name it something other than address for auto fill doxxing
         name={"0xAddress"}//name it something other than address for auto fill doxxing
         autoComplete="off"
+        style={{fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif'}}
         autoFocus={props.autoFocus}
         placeholder={props.placeholder ? props.placeholder : "address"}
         value={ens || currentValue}

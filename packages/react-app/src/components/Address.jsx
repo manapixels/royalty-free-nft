@@ -66,22 +66,25 @@ export default function Address(props) {
       </span>
     );
   }
-
+  let extraStyle = {}
+  if(props.invert){
+    extraStyle.color = "#FFFFFF"
+  }
   let text;
   if (props.onChange) {
     text = (
-      <Text editable={{ onChange: props.onChange }} copyable={{ text: address }}>
-        <a /*style={{ color: "#222222" }}*/ target={"_blank"} href={etherscanLink} rel="noopener noreferrer">
+      <Text editable={{ onChange: props.onChange }}   >
+        <span style={extraStyle}>
           {displayAddress}
-        </a>
+        </span>
       </Text>
     );
   } else {
     text = (
-      <Text copyable={{ text: address }}>
-        <a /*style={{ color: "#222222" }}*/ target={"_blank"} href={etherscanLink} rel="noopener noreferrer">
+      <Text>
+        <span style={extraStyle}>
           {displayAddress}
-        </a>
+        </span>
       </Text>
     );
   }
@@ -90,7 +93,7 @@ export default function Address(props) {
   return (
     <span>
       <span style={{ verticalAlign: "middle" }}>
-        <Blockies seed={address.toLowerCase()} size={8} scale={props.fontSize?props.fontSize/7:4} />
+        <Blockies seed={address.toLowerCase()} size={8} scale={3} />
       </span>
       <span style={{ verticalAlign: "middle", paddingLeft: 8, fontSize: props.fontSize?props.fontSize:28 }}>{text}</span>
 

@@ -56,7 +56,7 @@ export default function Account({
       modalButtons.push(
         <span style={{ verticalAlign: "middle", paddingLeft: 16, fontSize: 32 }}>
           <Tooltip title="Disconnect Wallet">
-            <LogoutOutlined key="logoutbutton" onClick={logoutOfWeb3Modal} />
+            <LogoutOutlined key="logoutbutton" style={{color:"#FFFFFF"}} onClick={logoutOfWeb3Modal} />
           </Tooltip>
         </span>
       );
@@ -64,7 +64,7 @@ export default function Account({
       modalButtons.push(
         <span style={{ verticalAlign: "middle", paddingLeft: 16, fontSize: 32 }}>
           <Tooltip title="Connect Wallet">
-            <LoginOutlined key="loginbutton" onClick={loadWeb3Modal} />
+            <LoginOutlined key="loginbutton" style={{color:"#FFFFFF"}} onClick={loadWeb3Modal} />
           </Tooltip>
         </span>
       );

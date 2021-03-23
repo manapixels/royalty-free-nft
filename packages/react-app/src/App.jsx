@@ -38,11 +38,11 @@ const { ethers } = require("ethers");
 
 
 /// 📡 What chain are your contracts deployed to?
-const cachedNetwork = window.localStorage.getItem("network")
-let targetNetwork =  NETWORKS[cachedNetwork?cachedNetwork:'ethereum']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
-if(!targetNetwork){
-  targetNetwork =  NETWORKS['ethereum'];
-}
+//const cachedNetwork = window.localStorage.getItem("network")
+//let targetNetwork =  NETWORKS[cachedNetwork?cachedNetwork:'ethereum']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+//if(!targetNetwork){
+let targetNetwork =  NETWORKS['xdai'];
+//}
 // 😬 Sorry for all the console logging
 const DEBUG = false
 
@@ -127,7 +127,7 @@ function App(props) {
 
 
   //if you don't have any money, scan the other networks for money
-  usePoller(()=>{
+  /*usePoller(()=>{
     if(!cachedNetwork){
       if(balance==0){
         checkBalances(address)
@@ -147,7 +147,7 @@ function App(props) {
         checkBalances(address)
       }
     }
-  },3777)
+  },3777)*/
 
 
   // Just plug in different 🛰 providers to get your balance on different chains:
@@ -221,7 +221,7 @@ function App(props) {
       </div>
     )
   }
-
+/*
   let options = []
   for(let id in NETWORKS){
     options.push(
@@ -243,7 +243,7 @@ function App(props) {
       {options}
     </Select>
   )
-
+*/
 
   const loadWeb3Modal = useCallback(async () => {
     const provider = await web3Modal.connect();
@@ -308,47 +308,59 @@ function App(props) {
 
   const [loading, setLoading] = useState(false);
 
-  const walletDisplay = web3Modal && web3Modal.cachedProvider ? "":<Wallet address={address} provider={userProvider} ensProvider={mainnetProvider} price={price} />
+  const walletDisplay = web3Modal && web3Modal.cachedProvider ? "":<Wallet invert={true} address={address} provider={userProvider} ensProvider={mainnetProvider} price={price} />
 
   return (
-    <div className="App">
-      {networkDisplay}
-      <div className="site-page-header-ghost-wrapper">
-        <Header extra={
-          [
-            <Address
-              fontSize={32}
-              address={address}
-              ensProvider={mainnetProvider}
-              blockExplorer={blockExplorer}
-            />,
-            /*<span style={{ verticalAlign: "middle", paddingLeft: 16, fontSize: 32 }}>
-              <Tooltip title="History">
-                <HistoryOutlined onClick={async () => {
-                  window.open("https://zapper.fi/transactions?address="+address)
-                }}/>
-              </Tooltip>
-            </span>,*/
-            walletDisplay,
-            <Account
-              address={address}
-              localProvider={localProvider}
-              userProvider={userProvider}
-              mainnetProvider={mainnetProvider}
-              price={price}
-              web3Modal={web3Modal}
-              loadWeb3Modal={loadWeb3Modal}
-              logoutOfWeb3Modal={logoutOfWeb3Modal}
-              blockExplorer={blockExplorer}
-            />
-          ]
-        }/>
+    <div className="App" style={{fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: 24}}>
+      <div style={{background:"url('./GTGS21_Hero_image_March21.jpg')",backgroundSize: "cover"}}>
+
+        {networkDisplay}
+        <div className="site-page-header-ghost-wrapper">
+          <Header extra={
+            [
+              <Address
+                fontSize={32}
+                address={address}
+                ensProvider={mainnetProvider}
+                blockExplorer={blockExplorer}
+                invert={true}
+              />,
+              /*<span style={{ verticalAlign: "middle", paddingLeft: 16, fontSize: 32 }}>
+                <Tooltip title="History">
+                  <HistoryOutlined onClick={async () => {
+                    window.open("https://zapper.fi/transactions?address="+address)
+                  }}/>
+                </Tooltip>
+              </span>,*/
+              walletDisplay,
+              <Account
+                address={address}
+                localProvider={localProvider}
+                userProvider={userProvider}
+                mainnetProvider={mainnetProvider}
+                price={price}
+                web3Modal={web3Modal}
+                loadWeb3Modal={loadWeb3Modal}
+                logoutOfWeb3Modal={logoutOfWeb3Modal}
+                blockExplorer={blockExplorer}
+              />
+            ]
+          }/>
+        </div>
       </div>
 
-      {/* ✏️ Edit the header and change the title to your project name */}
 
-      <div style={{ clear:"both", opacity:yourLocalBalance?1:0.2, width:500, margin:"auto" }}>
-        <Balance value={yourLocalBalance} size={52} price={price} /><span style={{verticalAlign:"middle"}}>{networkSelect}</span>
+      {/* ✏️ Edit the header and change the title to your project name *//*{networkSelect}*/}
+
+      <div style={{ clear:"both", opacity:yourLocalBalance?1:0.2, width:500, margin:"auto", marginTop:32}}>
+        <>
+          <div style={{opacity:0.5}}>
+            <Balance value={yourLocalBalance} size={24} /><span style={{verticalAlign:"middle"}}> xDAI</span>
+          </div>
+          <div>
+            <Balance value={yourLocalBalance} size={52} price={price} /><span style={{verticalAlign:"middle"}}></span>
+          </div>
+        </>
       </div>
 
 
@@ -493,9 +505,7 @@ function App(props) {
 */}
 
 
-<div style={{zIndex:-1,padding:64, opacity:0.5, fontSize:12 }}>
-  created with <span style={{marginRight:4}}>🏗</span><a href="https://github.com/austintgriffith/scaffold-eth#-scaffold-eth" target="_blank">scaffold-eth</a>
-</div>
+
 <div style={{padding:32}}>
 </div>
 
@@ -507,7 +517,7 @@ function App(props) {
 
   <div style={{ transform:"scale(2.7)",transformOrigin:"70% 80%", position: "fixed", textAlign: "right", right: 0, bottom: 16, padding: 10 }}>
 
-     <Button type={"primary"}  shape="circle" size={"large"} onClick={()=>{
+     <Button type={"primary"} shape="circle" size={"large"} onClick={()=>{
        scanner(true)
      }}>
        <ScanOutlined style={{color:"#FFFFFF"}}/>
@@ -522,7 +532,7 @@ function App(props) {
 
 
 
-🗺 Extra UI like gas price, eth price, faucet, and support: */}
+🗺 Extra UI like gas price, eth price, faucet, and support:
 <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
   <Row align="middle" gutter={[16, 16]}>
     <Col span={12}>
@@ -546,6 +556,8 @@ function App(props) {
     </Col>
   </Row>
 </div>
+*/}
+
 
 
     </div>
