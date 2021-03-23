@@ -32,6 +32,23 @@ const main = async () => {
     const WETH9 = await deploy("WETH9")
     const allocator = await deploy("Allocator",[ governor.address, WETH9.address ])
 
+    const deployerWallet = ethers.provider.getSigner()
+
+    console.log("      💵 Sending 1 ETH to the contract and it should get converted to WETH9...")
+    await deployerWallet.sendTransaction({
+      to: allocator.address,
+      value: ethers.utils.parseEther("1")
+    })
+
+    console.log("      💰 Checking contract token balance of WETH9:")
+    let allocatorTokenBalance = utils.formatEther( await WETH9.balanceOf(allocator.address) )
+
+    console.log("            WETH9 balance of Allocator: ",allocatorTokenBalance)
+
+    console.log("      🍡 Splitting up tokens based on Governor's schedule...")
+    let allocationResult = await allocator.distribute(WETH9.address)
+
+
     console.log("ADDRESS IS",allocator.address)
     console.log("GAS LIMIT",allocator.deployTransaction.gasLimit.toNumber())
     console.log("GAS PRICE",allocator.deployTransaction.gasPrice.toNumber())
