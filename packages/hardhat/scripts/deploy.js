@@ -7,7 +7,7 @@ const R = require("ramda");
 
 const main = async () => {
 
-  //deployer is 0x02f6e9f21a4aac2eae9865a90ea8f5ee741d9b58 <-- hit with faucet funds
+  //deployer 0x7acd55e343eb6fb19559f57c9821c1c9e2f10c86
 
   console.log("\n\n 📡 Deploying...\n");
 
@@ -15,8 +15,8 @@ const main = async () => {
 
   if(!existingGovernorAddress){
 
-    const governor = await deploy("Governor",[
-      "0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1",//"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", //gnosis safe with auryn, austin, and owocki as owners
+    /*const governor = await deploy("Governor",[
+      "0x34aA3F359A9D614239015126635CE7732c18fDF3",//"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", //gnosis safe with auryn, austin, and owocki as owners
       [
         "0xFcC41c4614bD464bA28ad96f93aAdaA7bA6c8680",//clr fund
         "0xde21F729137C5Af1b01d73aF1dC21eFfa2B8a0d6",// gitcoin
@@ -27,11 +27,14 @@ const main = async () => {
         33,
         33
       ]
-    ])
+    ])*/
 
-    const WETH9 = await deploy("WETH9")
-    const allocator = await deploy("Allocator",[ governor.address, WETH9.address ])
+    const mainnetGovAddress = "0xd64A7eBc7155083a6356651109061c0E834e3451"
 
+    //const WETH9 = await deploy("WETH9")
+    const allocator = await deploy("Allocator",[ mainnetGovAddress, "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2" ])
+
+/*
     const deployerWallet = ethers.provider.getSigner()
 
     console.log("      💵 Sending 1 ETH to the contract and it should get converted to WETH9...")
@@ -47,7 +50,7 @@ const main = async () => {
 
     console.log("      🍡 Splitting up tokens based on Governor's schedule...")
     let allocationResult = await allocator.distribute(WETH9.address)
-
+*/
 
     console.log("ADDRESS IS",allocator.address)
     console.log("GAS LIMIT",allocator.deployTransaction.gasLimit.toNumber())
