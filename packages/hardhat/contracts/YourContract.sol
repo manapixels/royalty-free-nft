@@ -2,22 +2,20 @@ pragma solidity >=0.6.0 <0.9.0;
 //SPDX-License-Identifier: MIT
 
 import "hardhat/console.sol";
-//import "@openzeppelin/contracts/access/Ownable.sol"; //https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol
+import "@openzeppelin/contracts/access/Ownable.sol"; //https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol
 
-contract YourContract {
+contract YourContract is Ownable{
 
-  event SetPurpose(address sender, string purpose);
+  receive() external payable { }
 
-  string public purpose = "Building Unstoppable Apps";
-
-  constructor() {
-    // what should we do on deploy?
+  function drop(address payable[] memory  wallets, uint256 amount) public payable onlyOwner {
+    for(uint16 i = 0;i<wallets.length;i++){
+      wallets[i].transfer(amount);
+    }
   }
 
-  function setPurpose(string memory newPurpose) public {
-    purpose = newPurpose;
-    console.log(msg.sender,"set purpose to",purpose);
-    emit SetPurpose(msg.sender, purpose);
+  function withdraw() public onlyOwner {
+    msg.sender.transfer(address(this).balance);
   }
 
 }

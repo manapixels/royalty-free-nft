@@ -7,9 +7,48 @@ const R = require("ramda");
 
 const main = async () => {
 
-  console.log("\n\n 📡 Deploying...\n");
+  const predeployedContract = ""
 
-  const yourContract = await deploy("YourContract") // <-- add in constructor args like line 19 vvvv
+  let yourContract
+  if(!predeployedContract){
+
+    console.log("\n\n 📡 Deploying...\n");
+    yourContract = await deploy("YourContract") // <-- add in constructor args like line 19 vvvv
+
+  }else{
+
+    console.log("\n\n 📡 Loading preexisting contract...\n");
+    yourContract = await ethers.getContractAt('YourContract', predeployedContract)
+
+    let addresses = []
+    let links = []
+
+    let domain = "http://localhost:3000/pk#"
+    let amount = 0.01 //ETH
+    let count = 100
+
+    for(let c=0;c<count;c++){
+      let randomPk = ethers.utils.keccak256(Math.floor(Math.random()*1000000000000000))
+      let randomWallet = new ethers.Wallet(randomPk)
+      addresses.push(randomWallet.address)
+      links.push(domain+randomPk)
+    }
+
+    console.log("addresses",addresses,"links",links)
+
+    console.log(" 🛰 AIR DROPPING... ")
+    await yourContract.drop(addresses,utils.parseEther(""+amount),{value: utils.parseEther(""+(amount*count))})
+
+    fs.writeFileSync("wallets"+Date.now()+".json",JSON.stringify(links))
+
+  }
+
+
+  //console.log("\n\n ⏳ Waiting...\n");
+  //await sleep(1)
+
+  //console.log("\n\n 🚶‍♀️ Transfering Ownership...\n");
+  //await yourContract.transferOwnership("0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1")
 
   //const yourContract = await ethers.getContractAt('YourContract', "0xaAC799eC2d00C013f1F11c37E654e59B0429DF6A") //<-- if you want to instantiate a version of a contract at a specific address!
   //const secondContract = await deploy("SecondContract")
