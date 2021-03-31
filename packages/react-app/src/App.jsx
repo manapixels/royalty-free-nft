@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
+import StackGrid from 'react-stack-grid';
 import "antd/dist/antd.css";
 import {  JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import "./App.css";
-import { Row, Col, Button, Menu, Alert, Switch as SwitchD } from "antd";
+import { Row, Col, Button, Menu, Alert, Switch as SwitchD, Card } from "antd";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { useUserAddress } from "eth-hooks";
@@ -14,7 +15,8 @@ import { formatEther, parseEther } from "@ethersproject/units";
 //import Hints from "./Hints";
 import { Hints, ExampleUI, Subgraph } from "./views"
 import { useThemeSwitcher } from "react-css-theme-switcher";
-import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS } from "./constants";
+import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS, NIFTIES_ABI, NIFTIES_ADDRESS, NFTIES_ABI, NFTIES_ADDRESS } from "./constants";
+import { ConsoleSqlOutlined } from "@ant-design/icons";
 /*
     Welcome to 🏗 scaffold-eth !
 
@@ -36,7 +38,7 @@ import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS } from "./constants"
 
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS['localhost']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS['mainnet']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true
@@ -122,6 +124,17 @@ function App(props) {
   const myMainnetDAIBalance = useContractReader({DAI: mainnetDAIContract},"DAI", "balanceOf",["0x34aA3F359A9D614239015126635CE7732c18fDF3"])
   console.log("🥇 myMainnetDAIBalance:",myMainnetDAIBalance)
 
+  // use Nfties contract
+  const nftiesContract = useExternalContractLoader(mainnetProvider, NFTIES_ADDRESS, NFTIES_ABI);
+  console.log(nftiesContract);
+  // use Nifties contract
+  const niftiesContract = useExternalContractLoader(mainnetProvider, NIFTIES_ADDRESS, NIFTIES_ABI);
+  console.log(niftiesContract);
+
+  const createEvents = useEventListener({niftiesContract: niftiesContract} , "niftiesContract", "Create", mainnetProvider, 1);
+  console.log("📟 createEvents events:", createEvents)
+
+
 
   // keep track of a variable from the contract in the local React state:
   const purpose = useContractReader(readContracts,"YourContract", "purpose")
@@ -197,6 +210,25 @@ function App(props) {
     )
   }
 
+
+  let galleryList = [];
+  createEvents.map((item, index) => {
+    let asset = createEvents[index];
+    galleryList.push(
+      <Card style={{width:200}} key={asset._id.toNumber()}
+      actions={[]}
+      title={(
+        <div>
+          {asset._id.toNumber()}
+        </div>
+      )}
+    >
+      <img style={{maxWidth:130}} src={asset._uri}/>
+    </Card>
+
+    );
+  })
+
   return (
     <div className="App">
 
@@ -221,9 +253,49 @@ function App(props) {
           <Menu.Item key="/subgraph">
             <Link onClick={()=>{setRoute("/subgraph")}} to="/subgraph">Subgraph</Link>
           </Menu.Item>
+          <Menu.Item key="/nfties">
+            <Link onClick={()=>{setRoute("/nfties")}} to="/nfties">Nfties</Link>
+          </Menu.Item>
+          <Menu.Item key="/nifties">
+            <Link onClick={()=>{setRoute("/nifties")}} to="/nifties">Nifties</Link>
+          </Menu.Item>
+          <Menu.Item key="/gallery">
+            <Link onClick={()=>{setRoute("/gallery")}} to="/gallery">Gallery</Link>
+          </Menu.Item>
         </Menu>
 
         <Switch>
+          <Route path="/gallery">
+          <div style={{ maxWidth:820, margin: "auto", marginTop:32, paddingBottom:256 }}>
+              <StackGrid
+                columnWidth={200}
+                gutterWidth={16}
+                gutterHeight={16}
+              >
+                {galleryList}
+              </StackGrid>
+            </div>
+          </Route>
+          <Route path="/nfties">
+            <Contract
+              name="Nfties"
+              customContract={nftiesContract}
+              signer={userProvider.getSigner()}
+              provider={mainnetProvider}
+              address={address}
+              blockExplorer={blockExplorer}
+            />
+          </Route>
+          <Route path="/nifties">
+          <Contract
+              name="Nifties"
+              customContract={niftiesContract}
+              signer={userProvider.getSigner()}
+              provider={mainnetProvider}
+              address={address}
+              blockExplorer={blockExplorer}
+            />
+          </Route>
           <Route exact path="/">
             {/*
                 🎛 this scaffolding is full of commonly used components
