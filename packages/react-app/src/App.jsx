@@ -4,25 +4,24 @@ import "antd/dist/antd.css";
 import {  JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import { SendOutlined, CaretUpOutlined, HistoryOutlined, ScanOutlined } from "@ant-design/icons";
 import "./App.css";
-import { Tooltip, Select, Row, Col, Button, Menu, Alert, Spin, Switch as SwitchD } from "antd";
+import { message, Tooltip, Select, Row, Col, Button, Menu, Alert, Spin, Switch as SwitchD } from "antd";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { useUserAddress } from "eth-hooks";
 import { useLocalStorage, usePoller, useExchangePrice, useGasPrice, useUserProvider, useContractLoader, useContractReader, useEventListener, useBalance, useExternalContractLoader } from "./hooks";
-import { Wallet, AddressInput, EtherInput, Header, Account, Faucet, Ramp, Contract, GasGauge, ThemeSwitch, QRPunkBlockie, Address, Balance } from "./components";
+import { Wallet, AddressInput, EtherInput, Header, Account, Faucet, Ramp, Contract, GasGauge, ThemeSwitch, QRBlockie, Address, Balance } from "./components";
 import { Transactor } from "./helpers";
 import { formatEther, parseEther } from "@ethersproject/units";
 //import Hints from "./Hints";
 import { Hints, ExampleUI, Subgraph } from "./views"
 import { useThemeSwitcher } from "react-css-theme-switcher";
-import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS } from "./constants";
+import { INFURA_ID, RAD_ADDRESS, RAD_ABI, NETWORK, NETWORKS } from "./constants";
 const { ethers } = require("ethers");
 /*
     Welcome to 🏗 scaffold-eth !
 
     Code:
     https://github.com/austintgriffith/scaffold-eth
-
     Support:
     https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA
     or DM @austingriffith on twitter or telegram
@@ -39,9 +38,9 @@ const { ethers } = require("ethers");
 
 /// 📡 What chain are your contracts deployed to?
 const cachedNetwork = window.localStorage.getItem("network")
-let targetNetwork =  NETWORKS[cachedNetwork?cachedNetwork:'ethereum']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+let targetNetwork =  NETWORKS[cachedNetwork?cachedNetwork:'rad']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 if(!targetNetwork){
-  targetNetwork =  NETWORKS['ethereum'];
+  targetNetwork =  NETWORKS['rad'];
 }
 // 😬 Sorry for all the console logging
 const DEBUG = false
@@ -97,6 +96,9 @@ function App(props) {
   /* 💵 This hook will get the price of ETH from 🦄 Uniswap: */
   const price = useExchangePrice(targetNetwork,mainnetProvider);
 
+  /* 💵 This hook will get the price of ETH from 🦄 Uniswap: */
+  const ethPrice = useExchangePrice(NETWORKS['ethereum'],mainnetProvider);
+
   /* 🔥 This hook will get the price of Gas from ⛽️ EtherGasStation */
   const gasPrice = useGasPrice(targetNetwork,"fast");
   // Use your injected provider from 🦊 Metamask or if you don't have it then instantly generate a 🔥 burner wallet.
@@ -119,11 +121,24 @@ function App(props) {
   // Faucet Tx can be used to send funds from the faucet
   const faucetTx = Transactor(localProvider, gasPrice)
 
+  const radContract = useExternalContractLoader(mainnetProvider, RAD_ADDRESS, RAD_ABI)
+  console.log("🌱 rad contract on mainnet:",radContract)
+
+  const radContractWrite = useExternalContractLoader(userProvider, RAD_ADDRESS, RAD_ABI)
+
+
   // 🏗 scaffold-eth is full of handy hooks like this one to get your balance:
-  const yourLocalBalance = useBalance(localProvider, address);
+  let yourLocalBalance = useBalance(localProvider, address);
   if(DEBUG) console.log("💵 yourLocalBalance",yourLocalBalance?formatEther(yourLocalBalance):"...")
 
-  const balance = yourLocalBalance && formatEther(yourLocalBalance)
+  const radBalance = useContractReader({radContract: radContract},"radContract", "balanceOf",[ address ])
+  console.log("🥇 radBalance:",radBalance && formatEther(radBalance))
+
+  if(targetNetwork.name=="rad"){
+    yourLocalBalance = radBalance
+  }
+
+  let balance = yourLocalBalance && formatEther(yourLocalBalance)
 
 
   //if you don't have any money, scan the other networks for money
@@ -191,13 +206,17 @@ function App(props) {
 
   let networkDisplay = ""
   if(localChainId && selectedChainId && localChainId != selectedChainId ){
+
+    const selectedNetworkName = NETWORK(selectedChainId).erc20On?NETWORK(selectedChainId).erc20On:NETWORK(selectedChainId).name
+    const localNetworkName = NETWORK(localChainId).erc20On?NETWORK(localChainId).erc20On:NETWORK(localChainId).name
+
     networkDisplay = (
       <div style={{zIndex:2, position:'absolute', right:0,top:16,padding:8}}>
         <Alert
           message={"⚠️ Wrong Network"}
           description={(
             <div>
-              You have <b>{NETWORK(selectedChainId).name}</b> selected and you need to be on <Button onClick={async ()=>{
+              You have <b>{selectedNetworkName}</b> selected and you need to be on <Button onClick={async ()=>{
                  let ethereum = window.ethereum;
                  const data = [{
                      chainId: "0x"+targetNetwork.chainId.toString(16),
@@ -207,12 +226,17 @@ function App(props) {
                      blockExplorerUrls: [targetNetwork.blockExplorer],
                  }]
                  console.log("data",data)
+                 message.warning(
+                   <span style={{position:"relative"}}>
+                     Please change your MetaMask network to {localNetworkName} --->
+                   </span>
+                 );
+
                  const tx = await ethereum.request({method: 'wallet_addEthereumChain', params:data}).catch()
                  if (tx) {
-                     console.log(tx)
-
+                   console.log(tx)
                  }
-              }}>{NETWORK(localChainId).name}</Button>.
+              }}>{localNetworkName}</Button>.
             </div>
           )}
           type="error"
@@ -233,7 +257,7 @@ function App(props) {
 
   const networkSelect = (
     <Select defaultValue={targetNetwork.name} style={{ textAlign:"left", width: 120 }} onChange={(value)=>{
-      if(targetNetwork.chainId != NETWORKS[value].chainId){
+      if(targetNetwork.name != NETWORKS[value].name){
         window.localStorage.setItem("network",value);
         setTimeout(() => {
           window.location.reload();
@@ -304,7 +328,7 @@ function App(props) {
   }
   //console.log("startingAddress",startingAddress)
   const [amount, setAmount] = useState();
-  const [toAddress, setToAddress] = useLocalStorage("punkWalletToAddress", startingAddress)
+  const [toAddress, setToAddress] = useLocalStorage("radWalletToAddress", startingAddress)
 
   const [loading, setLoading] = useState(false);
 
@@ -352,7 +376,7 @@ function App(props) {
 
 
       <div style={{padding:16,cursor:"pointer",backgroundColor:"#FFFFFF",width:420,margin:"auto"}}>
-        <QRPunkBlockie withQr={true} address={address} />
+        <QRBlockie withQr={true} address={address} />
       </div>
 
       <div style={{position:"relative", width:320, margin:"auto",textAlign:"center",marginTop:32}}>
@@ -397,12 +421,21 @@ function App(props) {
                 value = parseEther("" + floatVal);
               }
 
-              let result = tx({
-                to: toAddress,
-                value,
-                gasPrice: gasPrice,
-                gasLimit: 21000
-              });
+              let result
+              if(targetNetwork.name=="rad"){
+                result = tx( radContractWrite.transfer(toAddress,value,{
+                  gasPrice: gasPrice
+                }));
+              }else{
+                result = tx({
+                  to: toAddress,
+                  value,
+                  gasPrice: gasPrice,
+                  gasLimit: 21000
+                });
+              }
+
+
               //setToAddress("")
               setAmount("")
               result = await result
@@ -497,7 +530,7 @@ function App(props) {
 
 
 <div style={{zIndex:-1,padding:64, opacity:0.5, fontSize:12 }}>
-  created with <span style={{marginRight:4}}>🏗</span><a href="https://github.com/austintgriffith/scaffold-eth#-scaffold-eth" target="_blank">scaffold-eth</a>
+  <span style={{marginRight:4}}>🌱</span><a href="https://radicle.xyz/" target="_blank">radicle.xyz</a>
 </div>
 <div style={{padding:32}}>
 </div>
@@ -521,17 +554,35 @@ function App(props) {
 
 
 
-
 🗺 Extra UI like gas price, eth price, faucet, and support: */}
 <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
   <Row align="middle" gutter={[16, 16]}>
-    <Col span={12}>
-      <Ramp price={price} address={address} networks={NETWORKS}/>
-    </Col>
+    {
+      targetNetwork.name=="rad"?(
+        <>
+          <Col span={7}>
+            <Ramp price={price} address={address} networks={NETWORKS} customColor={NETWORKS['rad'].color} link={"https://radicle.xyz/blog/introducing-rad.html"}/>
+          </Col>
+          <Col span={9}>
+            <Ramp price={ethPrice} address={address} networks={NETWORKS} customColor={NETWORKS['ethereum'].color}/>
+          </Col>
+          <Col span={8} style={{ textAlign: "center", opacity: 0.8 }}>
+            <GasGauge gasPrice={gasPrice} />
+          </Col>
+        </>
+      ):(
+        <>
+          <Col span={12}>
+            <Ramp price={price} address={address} networks={NETWORKS}/>
+          </Col>
+          <Col span={12} style={{ textAlign: "center", opacity: 0.8 }}>
+            <GasGauge gasPrice={gasPrice} />
+          </Col>
+        </>
+      )
+    }
 
-    <Col span={12} style={{ textAlign: "center", opacity: 0.8 }}>
-      <GasGauge gasPrice={gasPrice} />
-    </Col>
+
   </Row>
 
   <Row align="middle" gutter={[4, 4]}>

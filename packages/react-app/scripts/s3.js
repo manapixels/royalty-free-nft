@@ -3,7 +3,7 @@ const fs = require("fs");
 
 const directoryName = "build";
 
-const BUCKETNAME = "punkwallet.io"; // <<---- SET YOUR BUCKET NAME AND CREATE aws.json ** see below vvvvvvvvvv
+const BUCKETNAME = "radwallet.io"; // <<---- SET YOUR BUCKET NAME AND CREATE aws.json ** see below vvvvvvvvvv
 
 if (!BUCKETNAME) {
   console.log("☢️   Enter a bucket name in packages/react-app/scripts/s3.js ");
@@ -32,7 +32,7 @@ const options = {
 
 // optional cloudfront invalidation rule
 const invalidation = {
- awsDistributionId: "E3D4GB8Y5ZDQB0",
+ awsDistributionId: "E1ZKD38WXBOF7J",
  awsInvalidationPath: "/*"
 }
 

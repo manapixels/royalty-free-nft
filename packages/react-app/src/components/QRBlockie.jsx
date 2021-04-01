@@ -46,22 +46,17 @@ export default function QRPunkBlockie(props) {
        message.success(
          <span style={{position:"relative"}}>
           Copied Address
-          <div style={{position:"absolute",left:-60,top:-14}}>
-            <div style={{position:"relative",width:iconPunkSize, height:iconPunkSize-1, overflow: "hidden"}}>
-              <img src="/punks.png" style={{position:"absolute",left:-iconPunkSize*x,top:(-iconPunkSize*y),width:iconPunkSize*100, height:iconPunkSize*100,imageRendering:"pixelated"}} />
-            </div>
-          </div>
          </span>
        );
     }}>
 
-      <div style={{position:"absolute",opacity:0.5,left:hardcodedSizeForNow/2-46,top:hardcodedSizeForNow/2-46}}>
+      <div style={{position:"absolute",opacity:1,left:hardcodedSizeForNow/2-46,top:hardcodedSizeForNow/2-46}}>
         <Blockie address={props.address} scale={11.5}/>
       </div>
 
-      <div style={{position:"absolute",left:hardcodedSizeForNow/2-53,top:hardcodedSizeForNow/2-65}}>
-        <div style={{position:"relative",width:punkSize, height:punkSize-1, overflow: "hidden"}}>
-          <img src="/punks.png" style={{position:"absolute",left:-punkSize*x,top:(-punkSize*y)-1,width:punkSize*100, height:punkSize*100,imageRendering:"pixelated"}} />
+      <div style={{position:"absolute",left:155,top:150}}>
+        <div style={{fontSize:64}}>
+
         </div>
       </div>
 

@@ -8,8 +8,8 @@ export default function Header( props ) {
 
       <PageHeader
         title={(
-          <a href="https://punkwallet.io">
-            {window.innerWidth<600?"🧑‍🎤":"🧑‍🎤  PunkWallet.io"}
+          <a href="https://radwallet.io">
+            {window.innerWidth<600?"🌱":"🌱  radwallet.io"}
           </a>
         )}
         subTitle=""

@@ -5,7 +5,7 @@ import { Input, Badge, Spin, message } from "antd";
 import { useLookupAddress } from "eth-hooks";
 import Blockie from "./Blockie";
 
-import { QRPunkBlockie } from ".";
+import { QRBlockie } from ".";
 // probably we need to change value={toAddress} to address={toAddress}
 
 /*
@@ -125,14 +125,6 @@ export default function AddressInput(props) {
   );
 
 
-
-  const punkSize = 45
-
-  let part1 = currentValue && currentValue.substr(2,20)
-  let part2= currentValue && currentValue.substr(22)
-  const x = parseInt(part1, 16)%100
-  const y = parseInt(part2, 16)%100
-
   props.hoistScanner(()=>{
     setScan(!scan)
   })
@@ -141,7 +133,7 @@ export default function AddressInput(props) {
     <div>
 
         <div style={{position:"absolute",left:-202,top:-88}}>
-          { currentValue && currentValue.length>41 ? <QRPunkBlockie scale={0.6} address={currentValue} /> : "" }
+          { currentValue && currentValue.length>41 ? <QRBlockie scale={0.6} address={currentValue} /> : "" }
         </div>
 
       {scanner}

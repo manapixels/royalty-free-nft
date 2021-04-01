@@ -1,6 +1,4 @@
-# 🏗 scaffold-eth - 🧑‍🎤 [PunkWallet.io](https://PunkWallet.io)
-
-![image](https://user-images.githubusercontent.com/2653167/111859677-3234d900-8908-11eb-9614-815f5b945705.png)
+# 🏗 scaffold-eth - 🌱 [radwallet.io](https://radwallet.io)
 
 ---
 
@@ -10,9 +8,9 @@ required: [Node](https://nodejs.org/dist/latest-v12.x/) plus [Yarn](https://clas
 
 
 ```bash
-git clone -b punk-wallet https://github.com/austintgriffith/scaffold-eth.git punk-wallet
+git clone -b radwallet https://github.com/austintgriffith/scaffold-eth.git radwallet
 
-cd punk-wallet
+cd radwallet
 ```
 
 ```bash
@@ -30,7 +28,7 @@ yarn start
 > in a second terminal window:
 
 ```bash
-cd punk-wallet
+cd radwallet
 yarn chain
 
 ```

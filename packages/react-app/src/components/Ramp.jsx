@@ -13,8 +13,8 @@ import { RampInstantSDK } from "@ramp-network/ramp-instant-sdk";
 
   ~ How can I use? ~
 
-  <Ramp 
-    price={price} 
+  <Ramp
+    price={price}
     address={address}
   />
 
@@ -57,10 +57,14 @@ export default function Ramp(props) {
         size="large"
         shape="round"
         onClick={() => {
-          setModalUp("up");
+          if(props.link){
+            window.open(props.link)
+          }else{
+            setModalUp("up");
+          }
         }}
       >
-        <DollarCircleOutlined style={{ color: "#52c41a" }} /> {typeof props.price == "undefined" ? 0 : props.price.toFixed(2)}
+        <DollarCircleOutlined style={{ color: props.customColor?props.customColor:"#52c41a" }} /> {typeof props.price == "undefined" ? 0 : props.price.toFixed(2)}
       </Button>
       <Modal
         title="Buy ETH"

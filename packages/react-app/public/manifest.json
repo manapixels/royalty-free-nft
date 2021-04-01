@@ -1,7 +1,7 @@
 {
-  "short_name": "PunkWallet.io",
+  "short_name": "radwallet.io",
   "start_url": ".",
-  "name": "PunkWallet.io",
+  "name": "radwallet.io",
   "icons": [
     {
       "src": "favicon.ico",

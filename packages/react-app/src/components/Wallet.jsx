@@ -119,8 +119,8 @@ export default function Wallet(props) {
      extraPkDisplayAdded[wallet.address] = true
      extraPkDisplay.push(
        <div style={{fontSize:38,fontWeight:"bolder",padding:2,backgroundStyle:"#89e789"}}>
-         <div style={{float:"left",position:"relative",width:punkSize, height:punkSize, overflow: "hidden"}}>
-           <img src="/punks.png" style={{position:"absolute",left:-punkSize*myx,top:-punkSize*myy,width:punkSize*100, height:punkSize*100,imageRendering:"pixelated"}} />
+         <div style={{float:"left",position:"relative",width:16, height:punkSize, overflow: "hidden"}}>
+           {/*<img src="/punks.png" style={{position:"absolute",left:-punkSize*myx,top:-punkSize*myy,width:punkSize*100, height:punkSize*100,imageRendering:"pixelated"}} />*/}
          </div>
           <a href={"/pk#"+pk}>
             <Blockie address={wallet.address} scale={4}/> {wallet.address.substr(0,6)}
@@ -141,9 +141,9 @@ export default function Wallet(props) {
            extraPkDisplay.push(
              <div style={{fontSize:32}}>
                 <a href={"/pk#"+pastpk}>
-                  <div style={{float:"left",position:"relative",width:punkSize, height:punkSize, overflow: "hidden"}}>
+                  {/*<div style={{float:"left",position:"relative",width:punkSize, height:punkSize, overflow: "hidden"}}>
                     <img src="/punks.png" style={{position:"absolute",left:-punkSize*x,top:-punkSize*y,width:punkSize*100, height:punkSize*100,imageRendering:"pixelated"}} />
-                  </div>
+                  </div>*/}
                   <Blockie address={pastwallet.address} scale={3.8}/> {pastwallet.address.substr(0,6)}
 
                 </a>
