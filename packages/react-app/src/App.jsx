@@ -140,7 +140,7 @@ function App(props) {
 
   let balance = yourLocalBalance && formatEther(yourLocalBalance)
 
-
+/*
   //if you don't have any money, scan the other networks for money
   usePoller(()=>{
     if(!cachedNetwork){
@@ -163,7 +163,7 @@ function App(props) {
       }
     }
   },3777)
-
+*/
 
   // Just plug in different 🛰 providers to get your balance on different chains:
   const yourMainnetBalance = useBalance(mainnetProvider, address);
