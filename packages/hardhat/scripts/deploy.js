@@ -9,8 +9,14 @@ const main = async () => {
 
   console.log("\n\n 📡 Deploying...\n");
 
-  const yourContract = await deploy("YourContract") // <-- add in constructor args like line 19 vvvv
-
+  const gtgsCollectible = await deploy("GTGSCollectible") // <-- add in constructor args like line 19 vvvv
+  /*
+  console.log("\n\n 🎫 minting...\n");
+  await gtgsCollectible.mint()
+  console.log("\n\n 🎫 minting...\n");
+  await gtgsCollectible.mint()
+  console.log("\n\n 🎫 minting...\n");
+  await gtgsCollectible.mint()
   //const yourContract = await ethers.getContractAt('YourContract', "0xaAC799eC2d00C013f1F11c37E654e59B0429DF6A") //<-- if you want to instantiate a version of a contract at a specific address!
   //const secondContract = await deploy("SecondContract")
 
@@ -18,15 +24,13 @@ const main = async () => {
   // const examplePriceOracle = await deploy("ExamplePriceOracle")
   // const smartContractWallet = await deploy("SmartContractWallet",[exampleToken.address,examplePriceOracle.address])
 
-  /*
-  //If you want to send value to an address from the deployer
+  console.log("\n\n 💸 send a dollar to the frontend...\n");
   const deployerWallet = ethers.provider.getSigner()
   await deployerWallet.sendTransaction({
-    to: "0x34aA3F359A9D614239015126635CE7732c18fDF3",
-    value: ethers.utils.parseEther("0.001")
+    to: "0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1",
+    value: ethers.utils.parseEther("1")
   })
   */
-
 
   /*
   //If you want to send some ETH to a contract on deploy (make your constructor payable!)

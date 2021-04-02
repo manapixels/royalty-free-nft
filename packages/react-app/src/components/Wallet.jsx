@@ -157,6 +157,7 @@ export default function Wallet(props) {
        privateKeyDisplay = (
          <div>
          <b>Private Key:</b>
+           ☢️ DO NOT SHARE THIS WITH ANYONE, EVER ☢️
          <div>
           <Text style={{fontSize:11}} copyable>{pk}</Text>
          </div>

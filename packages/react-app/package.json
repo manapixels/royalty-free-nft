@@ -17,6 +17,8 @@
   "dependencies": {
     "@ant-design/icons": "^4.2.2",
     "@apollo/react-hooks": "^4.0.0",
+    "@dicebear/avatars": "^4.5.4",
+    "@dicebear/avatars-bottts-sprites": "^4.5.4",
     "@ethersproject/address": "^5.0.5",
     "@ethersproject/bignumber": "^5.0.8",
     "@ethersproject/bytes": "^5.0.5",
@@ -54,6 +56,7 @@
     "react-qr-reader": "^2.2.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^3.4.3",
+    "react-stack-grid": "^0.7.1",
     "web3modal": "^1.9.1"
   },
   "devDependencies": {

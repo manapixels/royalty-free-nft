@@ -1,6 +1,9 @@
 import React from "react";
 import Blockies from "react-blockies";
-import { Typography, Skeleton } from "antd";
+
+import { CopyOutlined } from "@ant-design/icons";
+
+import { Typography, Skeleton, message } from "antd";
 import { useLookupAddress } from "../hooks";
 
 // changed value={address} to address={address}
@@ -81,9 +84,23 @@ export default function Address(props) {
     );
   } else {
     text = (
-      <Text>
+      <Text onClick={()=>{
+        const el = document.createElement('textarea');
+        el.value = address;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        const iconHardcodedSizeForNow = 380
+        const iconPunkSize = 40
+        message.success(
+          <span style={{position:"relative"}}>
+           Copied Address
+          </span>
+        );
+      }}>
         <span style={extraStyle}>
-          {displayAddress}
+          {displayAddress} <CopyOutlined style={{color:"#FFFFFF"}}/>
         </span>
       </Text>
     );

@@ -9,7 +9,7 @@ export default function Header( props ) {
       <PageHeader
         title={(
           <a href="/">
-            <img src={"./GTGS21_WEF_white_v1.png"} style={{maxHeight:60}} />
+            <img src={"./GTGS21_white_v1.png"} style={{maxWidth:"16vw",maxHeight:60}} />
           </a>
         )}
         subTitle=""

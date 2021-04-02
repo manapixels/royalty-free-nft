@@ -50,7 +50,7 @@ export const NETWORKS = {
           decimals: 18
         },
         gasPrice:1000000000,
-        rpcUrl: "https://dai.poa.network",
+        rpcUrl: "https://xdai-archive.blockscout.com",//"https://dai.poa.network",
         faucet: "https://xdai-faucet.top/",
         blockExplorer: "https://blockscout.com/poa/xdai/",
     },

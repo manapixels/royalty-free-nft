@@ -2,9 +2,9 @@ import React, { useCallback, useEffect, useState } from "react";
 import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
 import "antd/dist/antd.css";
 import {  JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
-import { SendOutlined, CaretUpOutlined, HistoryOutlined, ScanOutlined } from "@ant-design/icons";
+import { CloseCircleOutlined, WalletOutlined, SendOutlined, CaretUpOutlined, HistoryOutlined, ScanOutlined } from "@ant-design/icons";
 import "./App.css";
-import { Tooltip, Select, Row, Col, Button, Menu, Alert, Spin, Switch as SwitchD } from "antd";
+import { List, Card, Drawer, Tooltip, Select, Row, Col, Button, Menu, Alert, Spin, Switch as SwitchD } from "antd";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { useUserAddress } from "eth-hooks";
@@ -16,6 +16,12 @@ import { formatEther, parseEther } from "@ethersproject/units";
 import { Hints, ExampleUI, Subgraph } from "./views"
 import { useThemeSwitcher } from "react-css-theme-switcher";
 import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS } from "./constants";
+import StackGrid from "react-stack-grid"
+//import Avatars from '@dicebear/avatars';
+//import sprites from '@dicebear/avatars-bottts-sprites';
+
+let options = { dataUri: true};
+//let avatars = new Avatars(sprites, options);
 const { ethers } = require("ethers");
 /*
     Welcome to 🏗 scaffold-eth !
@@ -155,12 +161,12 @@ function App(props) {
   if(DEBUG) console.log("💵 yourMainnetBalance",yourMainnetBalance?formatEther(yourMainnetBalance):"...")
 
   // Load in your local 📝 contract and read a value from it:
-  //const readContracts = useContractLoader(localProvider)
-  //if(DEBUG) console.log("📝 readContracts",readContracts)
+  const readContracts = useContractLoader(localProvider)
+  if(DEBUG) console.log("📝 readContracts",readContracts)
 
   // If you want to make 🔐 write transactions to your contracts, use the userProvider:
-  //const writeContracts = useContractLoader(userProvider)
-  //if(DEBUG) console.log("🔐 writeContracts",writeContracts)
+  const writeContracts = useContractLoader(userProvider)
+  if(DEBUG) console.log("🔐 writeContracts",writeContracts)
 
   // EXTERNAL CONTRACT EXAMPLE:
   //
@@ -178,15 +184,52 @@ function App(props) {
   //console.log("🤗 purpose:",purpose)
 
   //📟 Listen for broadcast events
-  //const setPurposeEvents = useEventListener(readContracts, "YourContract", "SetPurpose", localProvider, 1);
-  //console.log("📟 SetPurpose events:",setPurposeEvents)
+  const mintEvents = useEventListener(readContracts, "GTGSCollectible", "Transfer", localProvider, 1);
+  console.log("📟 mintEvents:",mintEvents)
 
+  const [ yourCollectibles, setYourCollectibles ] = useState()
+
+  useEffect(()=>{
+    const updateYourCollectibles = async () => {
+      let collectibleUpdate = []
+      for(let e in mintEvents){
+        console.log("PARSE",mintEvents[e])
+        try{
+          if(mintEvents[e].tokenId){
+            const tokenIndex = mintEvents[e].tokenId.toNumber()
+
+            console.log("GEtting token owner of ",tokenIndex)
+            const owner = await readContracts.GTGSCollectible.ownerOf(tokenIndex)
+            console.log("ONWER  IS  token index",tokenIndex,owner)
+            //const tokenURI = await readContracts.GTGSCollectible.bytes32TokenURI(tokenIndex)
+            //console.log("got tokenURI",tokenURI)
+
+            collectibleUpdate.push({ id:tokenIndex,  owner: owner })
+  /*
+            const ipfsHash =  tokenURI.replace("https://ipfs.io/ipfs/","")
+            console.log("ipfsHash",ipfsHash)
+
+            const jsonManifestBuffer = await getFromIPFS(ipfsHash)
+
+            try{
+              const jsonManifest = JSON.parse(jsonManifestBuffer.toString())
+              console.log("jsonManifest",jsonManifest)
+
+            }catch(e){console.log(e)}
+            */
+          }
+        }catch(e){console.log(e)}
+      }
+      setYourCollectibles(collectibleUpdate)
+    }
+    updateYourCollectibles()
+  },[ address, mintEvents ])
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
   console.log("🏷 Resolved austingriffith.eth as:",addressFromENS)
   */
 
-
+ ///console.log("yourCollectibles",yourCollectibles)
 
 
   let networkDisplay = ""
@@ -308,7 +351,99 @@ function App(props) {
 
   const [loading, setLoading] = useState(false);
 
+  const [walletUp, setWalletUp] = useState(false);
+
+  const [ transferToAddresses, setTransferToAddresses ] = useState({})
+
   const walletDisplay = web3Modal && web3Modal.cachedProvider ? "":<Wallet invert={true} address={address} provider={userProvider} ensProvider={mainnetProvider} price={price} />
+
+  let closeWalletButton = ""
+  let scanButton = ""
+
+  if(walletUp){
+    closeWalletButton=(
+      <div style={{ zIndex:10000,transform:"scale(2.7)",transformOrigin:"70% 80%", position: "absolute", textAlign: "right", right:-2, top: "9%", padding: 10 }}>
+
+         <Button type={"secondary"} shape="circle" size={"large"} onClick={()=>{
+           setWalletUp(false)
+         }}>
+           <CloseCircleOutlined style={{color:"#666666"}}/>
+         </Button>
+      </div>
+    )
+  }
+
+/*<AddressInput
+  ensProvider={mainnetProvider}
+  placeholder="transfer to address"
+  value={transferToAddresses[id]}
+  onChange={(newValue)=>{
+    let update = {}
+    update[id] = newValue
+    setTransferToAddresses({ ...transferToAddresses, ...update})
+  }}
+/>
+<Button onClick={()=>{
+  console.log("writeContracts",writeContracts)
+  tx( writeContracts.YourCollectible.transferFrom(address, transferToAddresses[id], id) )
+}}>
+  Transfer
+</Button>*/
+
+  let galleryList = []
+  for(let a in yourCollectibles){
+    console.log("loadedAssets",a,yourCollectibles[a])
+
+    let thisCollectible = yourCollectibles[a]
+
+    let cardActions = []
+    /*
+    if(loadedAssets[a].forSale){
+      cardActions.push(
+        <div>
+          <Button onClick={()=>{
+            console.log("gasPrice,",gasPrice)
+            tx( writeContracts.YourCollectible.mintItem(loadedAssets[a].id,{gasPrice:gasPrice}) )
+          }}>
+            Mint
+          </Button>
+        </div>
+      )
+    }else{
+      cardActions.push(
+        <div>
+          owned by: <Address
+            address={loadedAssets[a].owner}
+            ensProvider={mainnetProvider}
+            blockExplorer={blockExplorer}
+            minimized={true}
+          />
+        </div>
+      )
+    }
+    */
+
+    //console.log("RENDER WITH ID")
+
+
+    galleryList.push(
+      <Card style={{width:220}} key={thisCollectible.id}
+        actions={cardActions}
+      >
+        <div style={{width:170,height:300, overflow:"hidden"}}>
+        <img src={"randombots/"+thisCollectible.id+".jpg"} style={{marginLeft:-64,maxWidth:300}} />
+        </div>
+        <div style={{padding:4}}>
+        <Address
+          fontSize={14}
+          address={thisCollectible.owner}
+          ensProvider={mainnetProvider}
+          blockExplorer={blockExplorer}
+        />
+        </div>
+      </Card>
+    )
+  }
 
   return (
     <div className="App" style={{fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: 24}}>
@@ -349,82 +484,150 @@ function App(props) {
         </div>
       </div>
 
+      <div style={{ width:"77vw", margin: "auto", marginTop:32, paddingBottom:32 }}>
 
-      {/* ✏️ Edit the header and change the title to your project name *//*{networkSelect}*/}
+        <Balance value={yourLocalBalance} size={52} price={price} /><span style={{verticalAlign:"middle"}}></span>
 
-      <div style={{ clear:"both", opacity:yourLocalBalance?1:0.2, width:500, margin:"auto", marginTop:32}}>
-        <>
-          <div style={{opacity:0.5}}>
-            <Balance value={yourLocalBalance} size={24} /><span style={{verticalAlign:"middle"}}> xDAI</span>
-          </div>
-          <div>
-            <Balance value={yourLocalBalance} size={52} price={price} /><span style={{verticalAlign:"middle"}}></span>
-          </div>
-        </>
+
+      </div>
+
+      <div style={{ width:"77vw", margin: "auto", marginTop:32, paddingBottom:32 }}>
+
+        <Button type={"primary"} onClick={()=>{
+          console.log("writeContracts",writeContracts)
+          tx( writeContracts.GTGSCollectible.mint() )
+        }}>
+          🎟  Mint
+        </Button>
+
+      </div>
+
+      <div style={{ maxWidth:1024, margin: "auto", marginTop:32, paddingBottom:256 }}>
+        <StackGrid
+          columnWidth={200}
+          gutterWidth={16}
+          gutterHeight={16}
+        >
+          {galleryList}
+        </StackGrid>
       </div>
 
 
-      <div style={{padding:16,cursor:"pointer",backgroundColor:"#FFFFFF",width:420,margin:"auto"}}>
-        <QRPunkBlockie withQr={true} address={address} />
-      </div>
 
-      <div style={{position:"relative", width:320, margin:"auto",textAlign:"center",marginTop:32}}>
-        <div style={{padding: 10}}>
-          <AddressInput
-            ensProvider={mainnetProvider}
-            placeholder="to address"
-            address={toAddress}
-            onChange={setToAddress}
-            hoistScanner={(toggle)=>{
-              scanner=toggle
-            }}
-          />
-        </div>
-        <div style={{padding: 10}}>
-          <EtherInput
-            price={price?price:targetNetwork.price}
-            value={amount}
-            onChange={value => {
-              setAmount(value);
-            }}
-          />
-        </div>
-        <div style={{padding: 10}}>
-          <Button
-            key="submit"
-            type="primary"
-            disabled={loading || !amount || !toAddress }
-            loading={loading}
-            onClick={async () => {
-              setLoading(true)
+      <Drawer
+          title={(
+            <div style={{ opacity:yourLocalBalance?1:0.2, padding:16, width:"100%"}}>
+              <Row style={{width:"100%"}}>
+                <Col style={{width:"50%",textAlign:"right"}}>
+                  <Balance value={yourLocalBalance} size={52} price={price} /><span style={{verticalAlign:"middle"}}></span>
+                </Col>
+                <Col style={{opacity:0.5,width:"50%",textAlign:"left"}}>
+                  <Balance value={yourLocalBalance} size={24} /><span style={{verticalAlign:"middle"}}> xDAI</span>
+                </Col>
+              </Row>
+            </div>
+          )}
+          placement={"bottom"}
+          closable={true}
+          onClose={()=>{
+            setWalletUp(false)
+          }}
+          visible={walletUp}
+          key={"walletDrawer"}
+          height={"90%"}
+        >
+          <div style={{position: "relative"}}>
+              <div style={{padding:16,cursor:"pointer",backgroundColor:"#FFFFFF",width:420,margin:"auto"}}>
+                <QRPunkBlockie withQr={true} address={address} />
+              </div>
 
-              let value;
-              try {
-                value = parseEther("" + amount);
-              } catch (e) {
-                let floatVal = parseFloat(amount).toFixed(8)
-                // failed to parseEther, try something else
-                value = parseEther("" + floatVal);
-              }
+              <div style={{position:"relative", width:320, margin:"auto",textAlign:"center",marginTop:32}}>
+                <div style={{padding: 10}}>
+                  <AddressInput
+                    ensProvider={mainnetProvider}
+                    placeholder="to address"
+                    address={toAddress}
+                    onChange={setToAddress}
+                    hoistScanner={(toggle)=>{
+                      scanner=toggle
+                    }}
+                  />
+                </div>
+                <div style={{padding: 10}}>
+                  <EtherInput
+                    price={price?price:targetNetwork.price}
+                    value={amount}
+                    onChange={value => {
+                      setAmount(value);
+                    }}
+                  />
+                </div>
+                <div style={{padding: 10}}>
+                  <Button
+                    key="sendFunds"
+                    type="primary"
+                    disabled={loading || !amount || !toAddress }
+                    loading={loading}
+                    onClick={async () => {
+                      setLoading(true)
 
-              let result = tx({
-                to: toAddress,
-                value,
-                gasPrice: gasPrice,
-                gasLimit: 21000
-              });
-              //setToAddress("")
-              setAmount("")
-              result = await result
-              console.log(result)
-              setLoading(false)
-            }}
-          >
-            {loading || !amount || !toAddress ? <CaretUpOutlined /> : <SendOutlined style={{color:"#FFFFFF"}} /> } Send
-          </Button>
-        </div>
+                      let value;
+                      try {
+                        value = parseEther("" + amount);
+                      } catch (e) {
+                        let floatVal = parseFloat(amount).toFixed(8)
+                        // failed to parseEther, try something else
+                        value = parseEther("" + floatVal);
+                      }
 
-      </div>
+                      let result = tx({
+                        to: toAddress,
+                        value,
+                        gasPrice: gasPrice,
+                        gasLimit: 21000
+                      });
+                      //setToAddress("")
+                      setAmount("")
+                      result = await result
+                      console.log(result)
+                      setLoading(false)
+                    }}
+                  >
+                    {loading || !amount || !toAddress ? <CaretUpOutlined /> : <SendOutlined style={{color:"#FFFFFF"}} /> } Send
+                  </Button>
+                </div>
+
+
+
+                <div style={{ zIndex: walletUp?1:-1,opacity: walletUp?1:0, transform:"scale(2.7)",transformOrigin:"70% 80%", position: "fixed", textAlign: "right", right: 0, bottom: 160, padding: 10 }}>
+
+                   <Button key={"theScanner"} disabled={!walletUp} type={"primary"} shape="circle" size={"large"} onClick={()=>{
+                     scanner(true)
+                   }}>
+                     <ScanOutlined style={{color:"#FFFFFF"}}/>
+                   </Button>
+                </div>
+              </div>
+            </div>
+      </Drawer>
+
+
+
+
+      {/*
+
+
+        <Contract
+          name="GTGSCollectible"
+          signer={userProvider.getSigner()}
+          provider={localProvider}
+          address={address}
+          blockExplorer={blockExplorer}
+        />
+
+        ✏️ Edit the header and change the title to your project name *//*{networkSelect}*/}
+
+
 
       {/*<BrowserRouter>
 
@@ -509,18 +712,15 @@ function App(props) {
 <div style={{padding:32}}>
 </div>
 
-  {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
-  <div style={{ position: "fixed", textAlign: "right", right: 0, bottom: 16, padding: 10 }}>
-     {faucetHint}
-  </div>
+  {closeWalletButton}
 
-
-  <div style={{ transform:"scale(2.7)",transformOrigin:"70% 80%", position: "fixed", textAlign: "right", right: 0, bottom: 16, padding: 10 }}>
+  <div style={{ zIndex:2,transform:"scale(2.7)",transformOrigin:"70% 80%", position: "fixed", textAlign: "right", right: 0, bottom: 16, padding: 10 }}>
 
      <Button type={"primary"} shape="circle" size={"large"} onClick={()=>{
-       scanner(true)
+       //scanner(true)
+       setWalletUp(true)
      }}>
-       <ScanOutlined style={{color:"#FFFFFF"}}/>
+       <WalletOutlined style={{color:"#FFFFFF"}}/>
      </Button>
   </div>
 
