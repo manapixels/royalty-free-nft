@@ -11,12 +11,15 @@ const main = async () => {
 
   const gtgsCollectible = await deploy("GTGSCollectible") // <-- add in constructor args like line 19 vvvv
 
-/*
+
   const deployerWallet = ethers.provider.getSigner()
   await deployerWallet.sendTransaction({
     to: "0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1",
     value: ethers.utils.parseEther("1")
-  })*/
+  })
+
+
+
 /*
   await gtgsCollectible.mint("11gold.jpg")
   await gtgsCollectible.mint("10gold.jpg")

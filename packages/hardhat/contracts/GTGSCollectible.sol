@@ -7,15 +7,18 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 //import "@openzeppelin/contracts/access/Ownable.sol";
 //learn more: https://docs.openzeppelin.com/contracts/3.x/erc721
 
-// GET LISTED ON OPENSEA: https://testnets.opensea.io/get-listed/step-two
-
 contract GTGSCollectible is ERC721 {
 
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
 
+  uint256 STARTING_PRICE = 0.01 ether;
+
   constructor() public ERC721("GTGSCollectible", "GTGS") {
-    _setBaseURI("http://localhost:3000/previews/");
+    //_setBaseURI("http://localhost:3000/previews/");
+    for(uint8 i=1;i<=10;i++){
+      price[i]=STARTING_PRICE;
+    }
   }
 
   address payable public constant artist = 0x34aA3F359A9D614239015126635CE7732c18fDF3; //austingriffith.eth for testing
@@ -24,7 +27,7 @@ contract GTGSCollectible is ERC721 {
 
   uint256 public constant HARD_LIMIT = 10;
 
-  uint256 public constant startingAt = 0.005 ether;
+  uint256 public constant startingAt = 0.01 ether;
   uint16[HARD_LIMIT] public numerators = [
      1002,
      1004,
@@ -46,10 +49,7 @@ contract GTGSCollectible is ERC721 {
 
   mapping ( address => mapping ( uint256 => uint256 ) ) public balance;
 
-  event Mint(uint256 artwork,uint256 token, address indexed owner);
-
-  event Burn(uint256 artwork,uint256 token, address indexed owner);
-
+  event Stream(uint256 artwork,uint256 token, address indexed owner,uint256 amount,uint256 royalties);
 
   function mint(uint256 artwork)
       public
@@ -57,25 +57,29 @@ contract GTGSCollectible is ERC721 {
       returns (uint256)
   {
     require(artwork<=HARD_LIMIT,"INVALID ARTWORK");
+    require(artwork>=1,"INVALID ARTWORK");
 
     _tokenIds.increment();
+
     uint256 id = _tokenIds.current();
 
-  //  console.log("starting price",price[artwork]);
+    //console.log("PRICE",price[artwork]);
+
+    require( msg.value == price[artwork], "Someone beat you to the current price, try again.");
 
     price[artwork] = nextPrice(artwork);
 
-//    console.log("NOW IT IS",price[artwork]);
-
-    require( msg.value >= price[artwork], "Someone beat you to that price, try again.");
+    //console.log("PRICE IS NOW",price[artwork]);
 
     _mint(msg.sender, id);
-    balance[msg.sender][artwork]++;
-    inTheWild[artwork-1]++;
-    //bytes32TokenURI[id] = keccak256(abi.encodePacked(blockhash(block.number-1),msg.sender,id));
-    _setTokenURI(id,string(abi.encodePacked(artwork)));
 
-    emit Mint(artwork,id,msg.sender);
+    balance[msg.sender][artwork]++;
+
+    inTheWild[artwork-1]++;
+
+    //_setTokenURI(id,bytes32ToString(bytes32(artwork)));
+
+    emit Stream(artwork,id,msg.sender,msg.value,0);
     return id;
   }
 
@@ -84,45 +88,48 @@ contract GTGSCollectible is ERC721 {
       returns (uint256)
   {
     require(artwork<=HARD_LIMIT,"INVALID ARTWORK");
+    require(artwork>=1,"INVALID ARTWORK");
 
-  //  console.log("price[artwork]",price[artwork]);
+    //console.log("starts at price[artwork]",price[artwork]);
+
+    price[artwork] = prevPrice(artwork);
+
+    //console.log("moves to price[artwork]",price[artwork]);
 
     uint256 royalties = uint256( price[artwork] * artistNumerator ) / denominator;
-//    console.log("royalties",royalties);
+    //console.log("royalties",royalties);
 
     artist.transfer( royalties );
     royaltiesSent+=royalties;
 
-  //  console.log("price[artwork] - royalties ",price[artwork] - royalties );
-
-    msg.sender.transfer( price[artwork] - royalties );
-
-    price[artwork] = prevPrice(artwork);
-
-  //  console.log("NOW IT IS",price[artwork]);
-
     _burn(id);
 
     balance[msg.sender][artwork]--;
+
     inTheWild[artwork-1]--;
 
-    emit Burn(artwork,id,msg.sender);
+    emit Stream(artwork,id,msg.sender, price[artwork]-royalties, royalties);
+    //console.log("price[artwork] - royalties ",price[artwork] - royalties );
+
+    msg.sender.transfer( price[artwork] - royalties );
+
+    //console.log("NOW IT IS",price[artwork]);
 
     return id;
   }
 
   function prices() public view returns (uint256[HARD_LIMIT] memory){
     return [
-      nextPrice(1),
-      nextPrice(2),
-      nextPrice(3),
-      nextPrice(4),
-      nextPrice(5),
-      nextPrice(6),
-      nextPrice(7),
-      nextPrice(8),
-      nextPrice(9),
-      nextPrice(10)
+      price[1],
+      price[2],
+      price[3],
+      price[4],
+      price[5],
+      price[6],
+      price[7],
+      price[8],
+      price[9],
+      price[10]
     ];
   }
 
@@ -173,17 +180,15 @@ contract GTGSCollectible is ERC721 {
 
 
   function nextPrice(uint256 id) public view returns (uint256){
-    if(price[id]<=startingAt)
-      return ( uint256(startingAt * numerators[id-1]) / denominator);
-    else
-      return ( uint256(price[id] * numerators[id-1]) / denominator);
+    uint256 next = ( uint256(price[id] * numerators[id-1]) / denominator);
+    if(next<STARTING_PRICE){
+      return STARTING_PRICE;
+    }
+    return next;
   }
 
   function prevPrice(uint256 id) public view returns (uint256){
-    if(price[id]<=startingAt) return startingAt;
     return ( uint256(price[id] * denominator) / numerators[id-1]);
   }
-
-
 
 }

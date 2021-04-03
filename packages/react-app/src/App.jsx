@@ -4,7 +4,7 @@ import "antd/dist/antd.css";
 import {  JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import { CloseCircleOutlined, WalletOutlined, SendOutlined, CaretUpOutlined, HistoryOutlined, ScanOutlined } from "@ant-design/icons";
 import "./App.css";
-import { List, Card, Drawer, Tooltip, Select, Row, Col, Button, Menu, Alert, Spin, Switch as SwitchD } from "antd";
+import { Image, List, Card, Drawer, Tooltip, Select, Row, Col, Button, Menu, Alert, Spin, Switch as SwitchD } from "antd";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { useUserAddress } from "eth-hooks";
@@ -49,11 +49,12 @@ const { ethers } = require("ethers");
 //const cachedNetwork = window.localStorage.getItem("network")
 //let targetNetwork =  NETWORKS[cachedNetwork?cachedNetwork:'ethereum']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 //if(!targetNetwork){
-let targetNetwork =  NETWORKS['xdai'];
+let targetNetwork =  NETWORKS['localhost'];
 //}
 // 😬 Sorry for all the console logging
 const DEBUG = false
 
+const LOOK_BACK_TO_BLOCK_FOR_EVENTS = 1
 
 const DISPLAY_WEB3_CONNECT = false
 
@@ -209,12 +210,11 @@ function App(props) {
   //console.log("🤗 purpose:",purpose)
 
   //📟 Listen for broadcast events
-  const mintEvents = useEventListener(readContracts, "GTGSCollectible", "Mint", localProvider, 1);
-  console.log("📟 mintEvents:",mintEvents)
+  const streamEvents = useEventListener(readContracts, "GTGSCollectible", "Stream", localProvider, LOOK_BACK_TO_BLOCK_FOR_EVENTS);
+  console.log("📟 streamEvents:",streamEvents)
 
-  const burnEvents = useEventListener(readContracts, "GTGSCollectible", "Burn", localProvider, 1);
-  console.log("📟 burnEvents:",mintEvents)
 
+  const USE_DELAY = false
   const [ thinking, setThinking ] = useState()
 
   const yourCollectibles = [{
@@ -475,18 +475,24 @@ function App(props) {
     }
     */
 
-    console.log("RENDER WITH ID",thisCollectible.id,"balances[thisCollectible.id]",balances && balances[thisCollectible.id])
+    //console.log("RENDER WITH ID",thisCollectible.id,"balances[thisCollectible.id]",balances && balances[thisCollectible.id])
 
     const thisBalance = balances && balances[thisCollectible.id-1] ? balances[thisCollectible.id-1].toNumber() : ""
 
-    let mints = []
-    /*
-    for(let e in mintEvents){
-      if(mintEvents[e].artwork.toNumber()==thisCollectible.id){
+    let streams = {}
 
+    for(let e in streamEvents){
+      const artwork = streamEvents[e].artwork.toNumber()
+      if(!streams[artwork]){
+        streams[artwork] = []
       }
+      streams[artwork].push(streamEvents[e])
     }
 
+    //console.log("streams",streams)
+
+
+/*
     let renderMints = []
     for(let m in mints){
       renderMints.push(
@@ -495,10 +501,14 @@ function App(props) {
         </span>
       )
     }
+*/
+    ////// green and red prices from ui <span style={{color:"#ae5d5d",marginRight:8}}>{prices&&prices[thisCollectible.id-1]?formatEther(prices[thisCollectible.id-1]).substr(0,7):""}</span>
+    /////// <span style={{color:"#6dae5d",marginLeft:8}}>{burns&&burns[thisCollectible.id-1]?formatEther(burns[thisCollectible.id-1]).substr(0,7):""}</span>
+/////{burns&&burns[thisCollectible.id-1]?formatEther(burns[thisCollectible.id-1]).substr(0,7):""}
 
-    burnEvents*/
+    //burnEvents
 
-    console.log("counts[thisCollectible.id-1]",counts && counts[thisCollectible.id-1])
+    //console.log("counts[thisCollectible.id-1]",counts && counts[thisCollectible.id-1])
 
 
     let currentCount
@@ -508,13 +518,36 @@ function App(props) {
       console.log(e)
     }
 
+    let stream = streams[thisCollectible.id]
+
+    stream = stream && stream.slice(0, 4)
+
+    //const reversed = stream && stream.reverse();
+
+    //console.log("stream",stream)
+
+    let streamDisplay = []
+    for(let i in stream){
+      const thisEvent = stream[i]
+
+      const isMint = thisEvent.royalties&&thisEvent.royalties.eq(0)
+
+      let color =
+
+      streamDisplay.push(
+        <div key={"stream_"+thisCollectible.id+"_"+i} style={{marginTop:16,marginLeft:"22%",textAlign:"left"}}>
+          <Address value={thisEvent.owner} fontSize={12} /> {isMint?"minted for":"burned for"} {thisEvent.amount && formatEther(thisEvent.amount).substr(0,7)} {isMint?"":thisEvent&&thisEvent.royalties&&"("+formatEther(thisEvent.royalties).substr(0,8)+")"}
+        </div>
+      )
+    }
+
     galleryList.push(
       <Card style={{width:"100%"}} key={"gallery"+thisCollectible.id}
         actions={cardActions}
       >
         <Row>
           <Col span={12}>
-            <img src={"http://localhost:3000/previews/"+thisCollectible.id+".jpg"} style={{maxWidth:550}} />
+            <Image src={"./previews/"+thisCollectible.id+".jpg"} style={{maxWidth:550}} />
           </Col>
           <Col span={12}>
             <h2>
@@ -523,12 +556,16 @@ function App(props) {
             <div style={{fontSize:64}}>
               { thisBalance } <span style={{opacity:0.05}}>/</span> <span style={{opacity:0.15}}>{ currentCount }</span>
             </div>
+
+
             <Button disabled={thinking}  onClick={async()=>{
-              setThinking(true)
-              setTimeout(()=>{
-                setThinking(false)
-              },5000)
-              let price = await readContracts.GTGSCollectible.nextPrice(thisCollectible.id)
+              if(USE_DELAY) {
+                setThinking(true)
+                setTimeout(()=>{
+                  setThinking(false)
+                },5000)
+              }
+              let price = await readContracts.GTGSCollectible.price(thisCollectible.id)
               console.log("price",price)
 
               tx( writeContracts.GTGSCollectible.mint(thisCollectible.id,{value: price,gasPrice:gasPrice}) )
@@ -536,11 +573,17 @@ function App(props) {
               <span style={{color:"#ae5d5d",marginRight:8}}>{prices&&prices[thisCollectible.id-1]?formatEther(prices[thisCollectible.id-1]).substr(0,7):""}</span> Mint
             </Button>
 
+            <span style={{padding:8}}>
+
+            </span>
+
             <Button disabled={!thisBalance || thinking} onClick={async()=>{
-              setThinking(true)
-              setTimeout(()=>{
-                setThinking(false)
-              },5000)
+              if(USE_DELAY) {
+                setThinking(true)
+                setTimeout(()=>{
+                  setThinking(false)
+                },5000)
+              }
               try{
                 let burnTokenId = await readContracts.GTGSCollectible.tokenOfOwnerByIndex(address,thisBalance-1)
                 console.log("burnTokenId",burnTokenId)
@@ -550,13 +593,16 @@ function App(props) {
               }
 
             }}>
-              Burn  <span style={{color:"#6dae5d",marginLeft:8}}>{burns&&burns[thisCollectible.id-1]?formatEther(burns[thisCollectible.id-1]).substr(0,7):""}</span>
+              Burn <span style={{color:"#6dae5d",marginLeft:8}}>{burns&&burns[thisCollectible.id-1]?formatEther(burns[thisCollectible.id-1]).substr(0,7):""}</span>
             </Button>
-
+            <div style={{padding:32}}>
+              {streamDisplay}
+            </div>
+{/*
             <div>
               {mints}
             </div>
-            {/*<div style={{padding:32}}>
+            <div style={{padding:32}}>
               Owners eligible to win the gold NFT on Ethereum:
               <div>
                 <img src={"http://localhost:3000/previews/"+thisCollectible.id+"gold.jpg"} style={{maxWidth:180}} />
@@ -636,7 +682,7 @@ function App(props) {
         </div>*/}
 
 
-      <div style={{ width:1020, margin: "auto", marginTop:32, paddingBottom:256 }}>
+      <div style={{ width:920, margin: "auto", marginTop:32, paddingBottom:256 }}>
         {galleryList}
       </div>
       {/*
@@ -766,7 +812,13 @@ function App(props) {
       {/*
 
 
-
+        <Contract
+          name="GTGSCollectible"
+          signer={userProvider.getSigner()}
+          provider={localProvider}
+          address={address}
+          blockExplorer={blockExplorer}
+        />
 
         ✏️ Edit the header and change the title to your project name *//*{networkSelect}*/}
 
