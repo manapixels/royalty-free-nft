@@ -43,13 +43,14 @@ contract GTGSCollectible is ERC721 {
   uint16 public constant denominator = 1000;
 
   mapping ( uint256 => uint256 ) public price;
-  //mapping (uint256 => bytes32) public bytes32TokenURI;
+  mapping ( uint256 => bytes32 ) public tokenEntropy;
+  mapping ( uint256 => uint256 ) public artworkOfToken;
 
   uint256[HARD_LIMIT] public inTheWild = [0,0,0,0,0,0,0,0,0,0];
 
   mapping ( address => mapping ( uint256 => uint256 ) ) public balance;
 
-  event Stream(uint256 artwork,uint256 token, address indexed owner,uint256 amount,uint256 royalties);
+  event Stream(uint256 artwork,uint256 token, address indexed owner,uint256 amount,uint256 royalties, bytes32 entropy);
 
   function mint(uint256 artwork)
       public
@@ -65,7 +66,7 @@ contract GTGSCollectible is ERC721 {
 
     //console.log("PRICE",price[artwork]);
 
-    require( msg.value == price[artwork], "Someone beat you to the current price, try again.");
+    require( msg.value == price[artwork], "Price has changed, please try again.");
 
     price[artwork] = nextPrice(artwork);
 
@@ -77,9 +78,12 @@ contract GTGSCollectible is ERC721 {
 
     inTheWild[artwork-1]++;
 
-    //_setTokenURI(id,bytes32ToString(bytes32(artwork)));
+    artworkOfToken[id] = artwork;
 
-    emit Stream(artwork,id,msg.sender,msg.value,0);
+    tokenEntropy[id] = keccak256(abi.encodePacked(blockhash(block.number-1),address(this),msg.sender,id,artwork));
+    //_setTokenURI(id,string(abi.encodePacked(tokenEntropy[artwork])));
+
+    emit Stream(artwork,id,msg.sender,msg.value,0,tokenEntropy[artwork]);
     return id;
   }
 
@@ -106,13 +110,14 @@ contract GTGSCollectible is ERC721 {
 
     balance[msg.sender][artwork]--;
 
+    delete tokenEntropy[id];
+
     inTheWild[artwork-1]--;
 
-    emit Stream(artwork,id,msg.sender, price[artwork], royalties);
+    emit Stream(artwork,id,msg.sender, price[artwork], royalties, 0x0000000000000000000000000000000000000000000000000000000000000000);
     //console.log("price[artwork] - royalties ",price[artwork] - royalties );
 
     msg.sender.transfer( price[artwork] - royalties );
-
     //console.log("NOW IT IS",price[artwork]);
 
     return id;
@@ -190,5 +195,7 @@ contract GTGSCollectible is ERC721 {
   function prevPrice(uint256 id) public view returns (uint256){
     return ( uint256(price[id] * denominator) / numerators[id-1]);
   }
+
+
 
 }

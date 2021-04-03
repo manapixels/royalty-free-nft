@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
 import "antd/dist/antd.css";
 import {  JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
-import { ExportOutlined, CloseCircleOutlined, WalletOutlined, SendOutlined, CaretUpOutlined, HistoryOutlined, ScanOutlined } from "@ant-design/icons";
+import { PictureOutlined, ExportOutlined, CloseCircleOutlined, WalletOutlined, SendOutlined, CaretUpOutlined, HistoryOutlined, ScanOutlined } from "@ant-design/icons";
 import "./App.css";
 import { Image, List, Card, Drawer, Tooltip, Select, Row, Col, Button, Menu, Alert, Spin, Switch as SwitchD } from "antd";
 import Web3Modal from "web3modal";
@@ -22,7 +22,7 @@ import Blockies from "react-blockies";
 //import Avatars from '@dicebear/avatars';
 //import sprites from '@dicebear/avatars-bottts-sprites';
 
-let options = { dataUri: true};
+//let options = { dataUri: true };
 //let avatars = new Avatars(sprites, options);
 const { ethers } = require("ethers");
 /*
@@ -44,12 +44,45 @@ const { ethers } = require("ethers");
     (and then use the `useExternalContractLoader()` hook!)
 */
 
+const voiceGems = [{
+    id: "1",
+    name: "Amazonian"
+  },{
+    id: "2",
+    name: "Opal Earth"
+  },{
+    id: "3",
+    name: "Digital One"
+  },{
+    id: "4",
+    name: "Anti-Ivory"
+  },{
+    id: "5",
+    name: "Earth Core"
+  },{
+    id: "6",
+    name: "Sky Stone"
+  },{
+    id: "7",
+    name: "Green Earth Stone"
+  },{
+    id: "8",
+    name: "Life Stone"
+  },{
+    id: "9",
+    name: "Digital Forest"
+  },{
+    id: "10",
+    name: "Jungle Stone"
+  }
+]
+
 
 /// 📡 What chain are your contracts deployed to?
 //const cachedNetwork = window.localStorage.getItem("network")
 //let targetNetwork =  NETWORKS[cachedNetwork?cachedNetwork:'ethereum']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 //if(!targetNetwork){
-let targetNetwork =  NETWORKS['xdai'];
+let targetNetwork =  NETWORKS['localhost'];
 //}
 // 😬 Sorry for all the console logging
 const DEBUG = false
@@ -58,7 +91,9 @@ const LOOK_BACK_TO_BLOCK_FOR_EVENTS = 1
 
 const DISPLAY_WEB3_CONNECT = false
 
-const USE_DELAY = true
+const USE_DELAY = false
+
+const IMAGE_SIZE = "larger" // "previews"
 
 
 // 🛰 providers
@@ -196,6 +231,58 @@ function App(props) {
   if(DEBUG) console.log("🧑‍🎤 artist",artist)
 
 
+  let totalBalance = 0
+  for(let b in balances){
+    totalBalance += balances[b] && balances[b].toNumber()
+  }
+  //console.log("totalBalance",totalBalance)
+
+ const [ yourCollectibles, setYourCollectibles ] = useState()
+
+
+ useEffect(()=>{
+   const updateYourCollectibles = async () => {
+     let collectibleUpdate = []
+     for(let tokenIndex=0;tokenIndex<totalBalance;tokenIndex++){
+       try{
+         //console.log("GEtting token index",tokenIndex)
+         const tokenId = await readContracts.GTGSCollectible.tokenOfOwnerByIndex(address, tokenIndex)
+         //console.log("tokenId",tokenId)
+         const entropy = await readContracts.GTGSCollectible.tokenEntropy(tokenId)
+         const artwork = await readContracts.GTGSCollectible.artworkOfToken(tokenId)
+         collectibleUpdate.push({ id:tokenId && tokenId.toNumber() , entropy:entropy, artwork: artwork && artwork.toNumber() })
+       }catch(e){console.log(e)}
+     }
+
+     const reversed = collectibleUpdate.reverse();
+     setYourCollectibles(reversed)
+   }
+   updateYourCollectibles()
+ },[ readContracts, address, totalBalance ])
+
+ //console.log("yourCollectibles",yourCollectibles)
+
+ let yourCollectiblesRender = []
+
+ for( let c in yourCollectibles ){
+
+   let topImageSize = 170
+   let bottomImageSize = 1600
+   let part1 = yourCollectibles[c].entropy.substr(2,32)
+   let part2 = yourCollectibles[c].entropy.substr(34)
+   let edgeBuffer = bottomImageSize*0.2
+   let offset1 = (parseInt(part1,16)%(bottomImageSize-topImageSize-edgeBuffer/2))+edgeBuffer/2
+   let offset2 = (parseInt(part2,16)%(bottomImageSize-topImageSize-edgeBuffer/2))+edgeBuffer/2
+
+   yourCollectiblesRender.push(
+     <Card style={{width:topImageSize+40}} key={"your"+yourCollectibles[c].entropy+yourCollectibles[c].id} title={"#"+yourCollectibles[c].id+" "+voiceGems[yourCollectibles[c].artwork-1].name}>
+       <div style={{position:"relative",width:topImageSize,height:topImageSize, overflow:"hidden"}}>
+         <img style={{position:"absolute",width:bottomImageSize,height:bottomImageSize,top:-offset1,left:-offset2}} src={"/"+IMAGE_SIZE+"/"+yourCollectibles[c].artwork+".jpg"}/>
+       </div>
+     </Card>
+   )
+ }
+
   // EXTERNAL CONTRACT EXAMPLE:
   //
   // If you want to bring in the mainnet DAI contract it would look like:
@@ -213,44 +300,12 @@ function App(props) {
 
   //📟 Listen for broadcast events
   const streamEvents = useEventListener(readContracts, "GTGSCollectible", "Stream", localProvider, LOOK_BACK_TO_BLOCK_FOR_EVENTS);
-  console.log("📟 streamEvents:",streamEvents)
+  //console.log("📟 streamEvents:",streamEvents)
 
 
 
   const [ thinking, setThinking ] = useState()
 
-  const yourCollectibles = [{
-      id: "1",
-      name: "Amazonian"
-    },{
-      id: "2",
-      name: "Opal Earth"
-    },{
-      id: "3",
-      name: "Digital One"
-    },{
-      id: "4",
-      name: "Anti-Ivory"
-    },{
-      id: "5",
-      name: "Earth Core"
-    },{
-      id: "6",
-      name: "Sky Stone"
-    },{
-      id: "7",
-      name: "Green Earth Stone"
-    },{
-      id: "8",
-      name: "Life Stone"
-    },{
-      id: "9",
-      name: "Digital Forest"
-    },{
-      id: "10",
-      name: "Jungle Stone"
-    }
-  ]
 
 /*
   useEffect(()=>{
@@ -445,10 +500,10 @@ function App(props) {
 </Button>*/
 
   let galleryList = []
-  for(let a in yourCollectibles){
+  for(let a in voiceGems){
     //console.log("yourCollectibles",yourCollectibles[a])
 
-    let thisCollectible = yourCollectibles[a]
+    let thisCollectible = voiceGems[a]
 
     let cardActions = []
     /*
@@ -549,7 +604,7 @@ function App(props) {
       >
         <Row>
           <Col span={12}>
-            <Image src={"./previews/"+thisCollectible.id+".jpg"} style={{maxWidth:550}} />
+            <Image src={"./"+IMAGE_SIZE+"/"+thisCollectible.id+".jpg"} style={{maxWidth:550}} />
           </Col>
           <Col span={12}>
             <h2>
@@ -797,6 +852,19 @@ function App(props) {
                    </Button>
                 </div>
               </div>
+
+              <hr style={{opacity:.1}}/>
+
+              <div style={{ maxWidth:820, margin: "auto", marginTop:64, paddingBottom:256 }}>
+                 <StackGrid
+                   columnWidth={200}
+                   gutterWidth={16}
+                   gutterHeight={16}
+                 >
+                   {yourCollectiblesRender}
+                 </StackGrid>
+               </div>
+
             </div>
       </Drawer>
 
@@ -806,19 +874,19 @@ function App(props) {
         :""
       }
 {/*
-      <Contract
-        name="GTGSCollectible"
-        signer={userProvider.getSigner()}
-        provider={localProvider}
-        address={address}
-        blockExplorer={blockExplorer}
-      />
 
       */}
 
+
       {/*
 
-
+        <Contract
+          name="GTGSCollectible"
+          signer={userProvider.getSigner()}
+          provider={localProvider}
+          address={address}
+          blockExplorer={blockExplorer}
+        />
         <Contract
           name="GTGSCollectible"
           signer={userProvider.getSigner()}
@@ -918,6 +986,7 @@ function App(props) {
 
   <div style={{ zIndex:2,transform:"scale(2)",transformOrigin:"70% 80%", position: "fixed", textAlign: "right", right: 0, bottom: 16, padding: 10 }}>
 
+
      <Button type={"primary"} shape="oval" size={"large"} onClick={()=>{
        //scanner(true)
        setWalletUp(true)
@@ -925,6 +994,15 @@ function App(props) {
        <Balance value={yourLocalBalance} size={14} /*price={price}*/ /><span style={{verticalAlign:"middle"}}></span>
        <WalletOutlined style={{color:"#FFFFFF"}}/>
      </Button>
+
+     <div style={{position:"absolute",right:58,top:10,color:"#FFFFFF",fontSize:14,textAlign:"right"}}>
+       {totalBalance}
+     </div>
+     <div style={{position:"absolute",left:94,top:9,fontSize:14}}>
+       <PictureOutlined style={{color:"#FFFFFF"}}/>
+     </div>
+
+
   </div>
 
 
