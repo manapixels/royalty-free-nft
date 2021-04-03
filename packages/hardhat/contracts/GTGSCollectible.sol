@@ -83,7 +83,7 @@ contract GTGSCollectible is ERC721 {
     tokenEntropy[id] = keccak256(abi.encodePacked(blockhash(block.number-1),address(this),msg.sender,id,artwork));
     //_setTokenURI(id,string(abi.encodePacked(tokenEntropy[artwork])));
 
-    emit Stream(artwork,id,msg.sender,msg.value,0,tokenEntropy[artwork]);
+    emit Stream(artwork,id,msg.sender,msg.value,0,tokenEntropy[id]);
     return id;
   }
 
@@ -110,11 +110,11 @@ contract GTGSCollectible is ERC721 {
 
     balance[msg.sender][artwork]--;
 
-    delete tokenEntropy[id];
-
     inTheWild[artwork-1]--;
 
-    emit Stream(artwork,id,msg.sender, price[artwork], royalties, 0x0000000000000000000000000000000000000000000000000000000000000000);
+    emit Stream(artwork,id,msg.sender, price[artwork], royalties, tokenEntropy[id]);
+
+    delete tokenEntropy[id];
     //console.log("price[artwork] - royalties ",price[artwork] - royalties );
 
     msg.sender.transfer( price[artwork] - royalties );

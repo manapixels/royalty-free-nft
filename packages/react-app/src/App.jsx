@@ -82,7 +82,7 @@ const voiceGems = [{
 //const cachedNetwork = window.localStorage.getItem("network")
 //let targetNetwork =  NETWORKS[cachedNetwork?cachedNetwork:'ethereum']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 //if(!targetNetwork){
-let targetNetwork =  NETWORKS['localhost'];
+let targetNetwork =  NETWORKS['xdai'];
 //}
 // 😬 Sorry for all the console logging
 const DEBUG = false
@@ -91,7 +91,7 @@ const LOOK_BACK_TO_BLOCK_FOR_EVENTS = 1
 
 const DISPLAY_WEB3_CONNECT = false
 
-const USE_DELAY = false
+const USE_DELAY = true
 
 const IMAGE_SIZE = "larger" // "previews"
 
@@ -589,11 +589,36 @@ function App(props) {
 
       const isMint = thisEvent.royalties&&thisEvent.royalties.eq(0)
 
-      let color =
+      //console.log("thisEvent",thisEvent)
+
+      let topImageSize = 170
+      let bottomImageSize = 1600
+      let part1 = thisEvent.entropy.substr(2,32)
+      //console.log("part1",part1)
+      let part2 = thisEvent.entropy.substr(34)
+      //console.log("part2",part1)
+      let edgeBuffer = bottomImageSize*0.2
+      let offset1 = (parseInt(part1,16)%(bottomImageSize-topImageSize-edgeBuffer/2))+edgeBuffer/2
+      let offset2 = (parseInt(part2,16)%(bottomImageSize-topImageSize-edgeBuffer/2))+edgeBuffer/2
+
+
 
       streamDisplay.push(
-        <div key={"stream_"+thisCollectible.id+"_"+i} style={{marginTop:16,marginLeft:"22%",textAlign:"left"}}>
-          <Address value={thisEvent.owner} fontSize={12} /> {isMint?"minted for":"burned for"} {thisEvent.amount && formatEther(thisEvent.amount).substr(0,7)} {isMint?"":thisEvent&&thisEvent.royalties&&"(-"+formatEther(thisEvent.royalties).substr(0,8)+")"}
+        <div key={"stream_"+thisCollectible.id+"_"+i} style={{marginTop:16,marginLeft:"22%",textAlign:"left",fontSize:11}}>
+          <Row>
+            <Col span={7} style={{width:40,height:40}}>
+
+            <div style={{transform:"scale(0.25)",transformOrigin:"0 0",position:"relative",width:topImageSize,height:topImageSize, overflow:"hidden"}}>
+              <img style={{position:"absolute",width:bottomImageSize,height:bottomImageSize,top:-offset1,left:-offset2}} src={"/"+IMAGE_SIZE+"/"+thisEvent.artwork+".jpg"}/>
+            </div>
+
+          </Col>
+          <Col span={17}>
+            <div><Address value={thisEvent.owner} fontSize={12} /></div> {isMint?"minted for":"burned for"} {thisEvent.amount && formatEther(thisEvent.amount).substr(0,7)} {isMint?"":thisEvent&&thisEvent.royalties&&"(-"+formatEther(thisEvent.royalties).substr(0,8)+")"}
+          </Col>
+          </Row>
+
+
         </div>
       )
     }
@@ -603,13 +628,19 @@ function App(props) {
         actions={cardActions}
       >
         <Row>
-          <Col span={12}>
+          <Col span={12}  style={{backgroundColor:"#222222"}}>
             <Image src={"./"+IMAGE_SIZE+"/"+thisCollectible.id+".jpg"} style={{maxWidth:550}} />
+            <div style={{position:"absolute",bottom:0,left:40,color:"#bbbbbb",verticalAlign:"bottom"}}>
+              <Image src={"./previews/"+thisCollectible.id+"gold.jpg"} style={{maxWidth:50,fontSize:10}}/> Golden NFT on Ethereum
+            </div>
           </Col>
           <Col span={12}>
             <h2>
               {thisCollectible.name}
             </h2>
+            <div style={{marginTop:-12,fontSize:12,opacity:0.7,letterSpacing:1}}>
+              Voice generated precious digital gemstone.
+            </div>
             <div style={{fontSize:64}}>
               { thisBalance } <span style={{opacity:0.05}}>/</span> <span style={{opacity:0.15}}>{ currentCount }</span>
             </div>
@@ -620,7 +651,7 @@ function App(props) {
                 setThinking(true)
                 setTimeout(()=>{
                   setThinking(false)
-                },5000)
+                },6000)
               }
               let price = await readContracts.GTGSCollectible.price(thisCollectible.id)
               console.log("price",price)
@@ -634,17 +665,30 @@ function App(props) {
 
             </span>
 
-            <Button disabled={!thisBalance || thinking} onClick={async()=>{
+            <Button disabled={!thisBalance || thinking || !yourCollectibles || yourCollectibles.length<=0} onClick={async()=>{
               if(USE_DELAY) {
                 setThinking(true)
                 setTimeout(()=>{
                   setThinking(false)
-                },5000)
+                },6000)
               }
               try{
-                let burnTokenId = await readContracts.GTGSCollectible.tokenOfOwnerByIndex(address,thisBalance-1)
-                console.log("burnTokenId",burnTokenId)
-                tx( writeContracts.GTGSCollectible.burn(thisCollectible.id,burnTokenId,{gasPrice:gasPrice}) )
+
+                let foundId
+                for(let c in yourCollectibles){
+                  if(yourCollectibles[c].artwork == thisCollectible.id){
+                    foundId=yourCollectibles[c].id
+                    break;
+                  }
+                }
+
+                if(foundId){
+                  console.log("foundId",foundId)
+                  tx( writeContracts.GTGSCollectible.burn(thisCollectible.id,foundId,{gasPrice:gasPrice}) )
+                }else{
+                  console.log("CANT FIND ONE TO BURN?!")
+                }
+
               }catch(e){
                   console.log(e)
               }
@@ -673,8 +717,9 @@ function App(props) {
     )
   }
 
+
   return (
-    <div className="App" style={{fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: 24}}>
+    <div className="App" style={{fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: 24, /*backgroundSize:"cover", background:'url("/bg.jpg") no-repeat'*/}}>
       <div style={{background:"url('./GTGS21_Hero_image_March21.jpg')",backgroundSize: "cover"}}>
 
         {networkDisplay}
@@ -744,7 +789,7 @@ function App(props) {
         </div>*/}
 
 
-      <div style={{ width:920, margin: "auto", marginTop:32, paddingBottom:256 }}>
+      <div style={{ width:750, margin: "auto", marginTop:32, paddingBottom:256 }}>
         {galleryList}
       </div>
       {/*
@@ -998,7 +1043,7 @@ function App(props) {
      <div style={{position:"absolute",right:58,top:10,color:"#FFFFFF",fontSize:14,textAlign:"right"}}>
        {totalBalance}
      </div>
-     <div style={{position:"absolute",left:94,top:9,fontSize:14}}>
+     <div style={{position:"absolute",right:27,top:9,fontSize:14}}>
        <PictureOutlined style={{color:"#FFFFFF"}}/>
      </div>
 
