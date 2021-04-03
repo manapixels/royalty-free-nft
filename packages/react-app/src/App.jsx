@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
 import "antd/dist/antd.css";
 import {  JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
-import { CloseCircleOutlined, WalletOutlined, SendOutlined, CaretUpOutlined, HistoryOutlined, ScanOutlined } from "@ant-design/icons";
+import { ExportOutlined, CloseCircleOutlined, WalletOutlined, SendOutlined, CaretUpOutlined, HistoryOutlined, ScanOutlined } from "@ant-design/icons";
 import "./App.css";
 import { Image, List, Card, Drawer, Tooltip, Select, Row, Col, Button, Menu, Alert, Spin, Switch as SwitchD } from "antd";
 import Web3Modal from "web3modal";
@@ -49,7 +49,7 @@ const { ethers } = require("ethers");
 //const cachedNetwork = window.localStorage.getItem("network")
 //let targetNetwork =  NETWORKS[cachedNetwork?cachedNetwork:'ethereum']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 //if(!targetNetwork){
-let targetNetwork =  NETWORKS['localhost'];
+let targetNetwork =  NETWORKS['xdai'];
 //}
 // 😬 Sorry for all the console logging
 const DEBUG = false
@@ -57,6 +57,8 @@ const DEBUG = false
 const LOOK_BACK_TO_BLOCK_FOR_EVENTS = 1
 
 const DISPLAY_WEB3_CONNECT = false
+
+const USE_DELAY = true
 
 
 // 🛰 providers
@@ -214,7 +216,7 @@ function App(props) {
   console.log("📟 streamEvents:",streamEvents)
 
 
-  const USE_DELAY = false
+
   const [ thinking, setThinking ] = useState()
 
   const yourCollectibles = [{
@@ -536,7 +538,7 @@ function App(props) {
 
       streamDisplay.push(
         <div key={"stream_"+thisCollectible.id+"_"+i} style={{marginTop:16,marginLeft:"22%",textAlign:"left"}}>
-          <Address value={thisEvent.owner} fontSize={12} /> {isMint?"minted for":"burned for"} {thisEvent.amount && formatEther(thisEvent.amount).substr(0,7)} {isMint?"":thisEvent&&thisEvent.royalties&&"("+formatEther(thisEvent.royalties).substr(0,8)+")"}
+          <Address value={thisEvent.owner} fontSize={12} /> {isMint?"minted for":"burned for"} {thisEvent.amount && formatEther(thisEvent.amount).substr(0,7)} {isMint?"":thisEvent&&thisEvent.royalties&&"(-"+formatEther(thisEvent.royalties).substr(0,8)+")"}
         </div>
       )
     }
@@ -649,7 +651,12 @@ function App(props) {
                 loadWeb3Modal={loadWeb3Modal}
                 logoutOfWeb3Modal={logoutOfWeb3Modal}
                 blockExplorer={blockExplorer}
-              />:""
+              />:"",
+              <span style={{ padding:8 }}>
+               <ExportOutlined style={{ color:"#ffffff" }} onClick={()=>{
+                 window.open("https://blockscout.com/xdai/mainnet/address/"+address)
+               }}/>
+              </span>
             ]
           }/>
         </div>
@@ -795,7 +802,7 @@ function App(props) {
 
       {
         address&&royaltiesSent?
-        <div style={{marginBottom:32,fontSize:14,opacity:0.85}}>{royaltiesSent && formatEther(royaltiesSent).substr(0,7)} royalties collected by <Address fontSize={12} value={artist}/></div>
+        <div style={{padding:64,fontSize:14,opacity:0.85}}>{royaltiesSent && formatEther(royaltiesSent).substr(0,7)} royalties collected by <Address fontSize={12} value={artist}/></div>
         :""
       }
 {/*

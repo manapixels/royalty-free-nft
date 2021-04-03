@@ -81,7 +81,7 @@ module.exports = {
       },
     },
     xdai: {
-      url: 'https://rpc.xdaichain.com/',
+      url: "https://xdai-archive.blockscout.com",//'https://rpc.xdaichain.com/',
       gasPrice: 1000000000,
       accounts: {
         mnemonic: mnemonic(),

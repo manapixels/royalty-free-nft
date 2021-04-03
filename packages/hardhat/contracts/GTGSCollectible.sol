@@ -108,7 +108,7 @@ contract GTGSCollectible is ERC721 {
 
     inTheWild[artwork-1]--;
 
-    emit Stream(artwork,id,msg.sender, price[artwork]-royalties, royalties);
+    emit Stream(artwork,id,msg.sender, price[artwork], royalties);
     //console.log("price[artwork] - royalties ",price[artwork] - royalties );
 
     msg.sender.transfer( price[artwork] - royalties );
