@@ -24,7 +24,7 @@ contract GTGSCollectible is ERC721 {
 
   uint256 public constant HARD_LIMIT = 10;
 
-  uint256 public constant startingAt = 0.01 ether;
+  uint256 public constant startingAt = 0.005 ether;
   uint16[HARD_LIMIT] public numerators = [
      1002,
      1004,
