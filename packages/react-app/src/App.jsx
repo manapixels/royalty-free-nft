@@ -17,6 +17,8 @@ import { Hints, ExampleUI, Subgraph } from "./views"
 import { useThemeSwitcher } from "react-css-theme-switcher";
 import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS } from "./constants";
 import StackGrid from "react-stack-grid"
+import Blockies from "react-blockies";
+
 //import Avatars from '@dicebear/avatars';
 //import sprites from '@dicebear/avatars-bottts-sprites';
 
@@ -52,6 +54,8 @@ let targetNetwork =  NETWORKS['xdai'];
 // 😬 Sorry for all the console logging
 const DEBUG = false
 
+
+const DISPLAY_WEB3_CONNECT = false
 
 
 // 🛰 providers
@@ -168,6 +172,27 @@ function App(props) {
   const writeContracts = useContractLoader(userProvider)
   if(DEBUG) console.log("🔐 writeContracts",writeContracts)
 
+
+
+  const prices = useContractReader(readContracts,"GTGSCollectible", "prices")
+  if(DEBUG) console.log("🤏 prices",prices)
+
+  const counts = useContractReader(readContracts,"GTGSCollectible", "counts")
+  if(DEBUG) console.log("🏛 counts",counts)
+
+  const balances = useContractReader(readContracts,"GTGSCollectible", "balances",[ address ])
+  if(DEBUG) console.log("🏦 balances",balances)
+
+  const burns = useContractReader(readContracts,"GTGSCollectible", "burns")
+  if(DEBUG) console.log("🔥 burns",burns)
+
+  const royaltiesSent = useContractReader(readContracts,"GTGSCollectible", "royaltiesSent")
+  if(DEBUG) console.log("🧑‍🎤 royaltiesSent",royaltiesSent)
+
+  const artist = useContractReader(readContracts,"GTGSCollectible", "artist")
+  if(DEBUG) console.log("🧑‍🎤 artist",artist)
+
+
   // EXTERNAL CONTRACT EXAMPLE:
   //
   // If you want to bring in the mainnet DAI contract it would look like:
@@ -184,11 +209,48 @@ function App(props) {
   //console.log("🤗 purpose:",purpose)
 
   //📟 Listen for broadcast events
-  const mintEvents = useEventListener(readContracts, "GTGSCollectible", "Transfer", localProvider, 1);
+  const mintEvents = useEventListener(readContracts, "GTGSCollectible", "Mint", localProvider, 1);
   console.log("📟 mintEvents:",mintEvents)
 
-  const [ yourCollectibles, setYourCollectibles ] = useState()
+  const burnEvents = useEventListener(readContracts, "GTGSCollectible", "Burn", localProvider, 1);
+  console.log("📟 burnEvents:",mintEvents)
 
+  const [ thinking, setThinking ] = useState()
+
+  const yourCollectibles = [{
+      id: "1",
+      name: "Amazonian"
+    },{
+      id: "2",
+      name: "Opal Earth"
+    },{
+      id: "3",
+      name: "Digital One"
+    },{
+      id: "4",
+      name: "Anti-Ivory"
+    },{
+      id: "5",
+      name: "Earth Core"
+    },{
+      id: "6",
+      name: "Sky Stone"
+    },{
+      id: "7",
+      name: "Green Earth Stone"
+    },{
+      id: "8",
+      name: "Life Stone"
+    },{
+      id: "9",
+      name: "Digital Forest"
+    },{
+      id: "10",
+      name: "Jungle Stone"
+    }
+  ]
+
+/*
   useEffect(()=>{
     const updateYourCollectibles = async () => {
       let collectibleUpdate = []
@@ -201,22 +263,11 @@ function App(props) {
             console.log("GEtting token owner of ",tokenIndex)
             const owner = await readContracts.GTGSCollectible.ownerOf(tokenIndex)
             console.log("ONWER  IS  token index",tokenIndex,owner)
-            //const tokenURI = await readContracts.GTGSCollectible.bytes32TokenURI(tokenIndex)
-            //console.log("got tokenURI",tokenURI)
+            const tokenURI = await readContracts.GTGSCollectible.tokenURI(tokenIndex)
+            console.log("got tokenURI",tokenURI)
 
-            collectibleUpdate.push({ id:tokenIndex,  owner: owner })
-  /*
-            const ipfsHash =  tokenURI.replace("https://ipfs.io/ipfs/","")
-            console.log("ipfsHash",ipfsHash)
+            collectibleUpdate.push({ id:tokenIndex, tokenURI:tokenURI, owner: owner })
 
-            const jsonManifestBuffer = await getFromIPFS(ipfsHash)
-
-            try{
-              const jsonManifest = JSON.parse(jsonManifestBuffer.toString())
-              console.log("jsonManifest",jsonManifest)
-
-            }catch(e){console.log(e)}
-            */
           }
         }catch(e){console.log(e)}
       }
@@ -224,6 +275,7 @@ function App(props) {
     }
     updateYourCollectibles()
   },[ address, mintEvents ])
+  */
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
   console.log("🏷 Resolved austingriffith.eth as:",addressFromENS)
@@ -392,7 +444,7 @@ function App(props) {
 
   let galleryList = []
   for(let a in yourCollectibles){
-    console.log("loadedAssets",a,yourCollectibles[a])
+    //console.log("yourCollectibles",yourCollectibles[a])
 
     let thisCollectible = yourCollectibles[a]
 
@@ -423,24 +475,97 @@ function App(props) {
     }
     */
 
-    //console.log("RENDER WITH ID")
+    console.log("RENDER WITH ID",thisCollectible.id,"balances[thisCollectible.id]",balances && balances[thisCollectible.id])
 
+    const thisBalance = balances && balances[thisCollectible.id-1] ? balances[thisCollectible.id-1].toNumber() : ""
+
+    let mints = []
+    /*
+    for(let e in mintEvents){
+      if(mintEvents[e].artwork.toNumber()==thisCollectible.id){
+
+      }
+    }
+
+    let renderMints = []
+    for(let m in mints){
+      renderMints.push(
+        <span style={{padding:8}} key={"mint_"+mintEvents[e].owner+"-"+thisCollectible.id+"-"+mintEvents[e].blockNumber}>
+          <Blockies seed={mintEvents[e].owner.toLowerCase()} size={8} scale={3} />
+        </span>
+      )
+    }
+
+    burnEvents*/
+
+    console.log("counts[thisCollectible.id-1]",counts && counts[thisCollectible.id-1])
+
+
+    let currentCount
+    try{
+     currentCount = counts && counts[thisCollectible.id-1] ? counts[thisCollectible.id-1].toNumber() : ""
+    }catch(e){
+      console.log(e)
+    }
 
     galleryList.push(
-      <Card style={{width:220}} key={thisCollectible.id}
+      <Card style={{width:"100%"}} key={"gallery"+thisCollectible.id}
         actions={cardActions}
       >
-        <div style={{width:170,height:300, overflow:"hidden"}}>
-        <img src={"randombots/"+thisCollectible.id+".jpg"} style={{marginLeft:-64,maxWidth:300}} />
-        </div>
-        <div style={{padding:4}}>
-        <Address
-          fontSize={14}
-          address={thisCollectible.owner}
-          ensProvider={mainnetProvider}
-          blockExplorer={blockExplorer}
-        />
-        </div>
+        <Row>
+          <Col span={12}>
+            <img src={"http://localhost:3000/previews/"+thisCollectible.id+".jpg"} style={{maxWidth:550}} />
+          </Col>
+          <Col span={12}>
+            <h2>
+              {thisCollectible.name}
+            </h2>
+            <div style={{fontSize:64}}>
+              { thisBalance } <span style={{opacity:0.05}}>/</span> <span style={{opacity:0.15}}>{ currentCount }</span>
+            </div>
+            <Button disabled={thinking}  onClick={async()=>{
+              setThinking(true)
+              setTimeout(()=>{
+                setThinking(false)
+              },5000)
+              let price = await readContracts.GTGSCollectible.nextPrice(thisCollectible.id)
+              console.log("price",price)
+
+              tx( writeContracts.GTGSCollectible.mint(thisCollectible.id,{value: price,gasPrice:gasPrice}) )
+            }}>
+              <span style={{color:"#ae5d5d",marginRight:8}}>{prices&&prices[thisCollectible.id-1]?formatEther(prices[thisCollectible.id-1]).substr(0,7):""}</span> Mint
+            </Button>
+
+            <Button disabled={!thisBalance || thinking} onClick={async()=>{
+              setThinking(true)
+              setTimeout(()=>{
+                setThinking(false)
+              },5000)
+              try{
+                let burnTokenId = await readContracts.GTGSCollectible.tokenOfOwnerByIndex(address,thisBalance-1)
+                console.log("burnTokenId",burnTokenId)
+                tx( writeContracts.GTGSCollectible.burn(thisCollectible.id,burnTokenId,{gasPrice:gasPrice}) )
+              }catch(e){
+                  console.log(e)
+              }
+
+            }}>
+              Burn  <span style={{color:"#6dae5d",marginLeft:8}}>{burns&&burns[thisCollectible.id-1]?formatEther(burns[thisCollectible.id-1]).substr(0,7):""}</span>
+            </Button>
+
+            <div>
+              {mints}
+            </div>
+            {/*<div style={{padding:32}}>
+              Owners eligible to win the gold NFT on Ethereum:
+              <div>
+                <img src={"http://localhost:3000/previews/"+thisCollectible.id+"gold.jpg"} style={{maxWidth:180}} />
+              </div>
+            </div>*/}
+
+          </Col>
+        </Row>
+
       </Card>
     )
   }
@@ -468,7 +593,7 @@ function App(props) {
                 </Tooltip>
               </span>,*/
               walletDisplay,
-              <Account
+              DISPLAY_WEB3_CONNECT?<Account
                 address={address}
                 localProvider={localProvider}
                 userProvider={userProvider}
@@ -478,31 +603,43 @@ function App(props) {
                 loadWeb3Modal={loadWeb3Modal}
                 logoutOfWeb3Modal={logoutOfWeb3Modal}
                 blockExplorer={blockExplorer}
-              />
+              />:""
             ]
           }/>
         </div>
       </div>
 
-      <div style={{ width:"77vw", margin: "auto", marginTop:32, paddingBottom:32 }}>
-
-        <Balance value={yourLocalBalance} size={52} price={price} /><span style={{verticalAlign:"middle"}}></span>
-
-
+      <div style={{marginTop:32}}>
+        <h2>Voice Gems</h2>
+        <p style={{fontSize:14, width:400, border:"1px solid #e8e8e8",margin:"auto",padding:32}}>
+          Explanation copy here... we can talk about how each piece is sold on a bonding curve that holds liqudity. We can also mention that some of that liquidity leaks in the form of artist royalties on burn. Finally, a random owner of each of the NFTs will be minted a gold edition Voice Gems on mainnet Ethereum.
+        </p>
       </div>
 
-      <div style={{ width:"77vw", margin: "auto", marginTop:32, paddingBottom:32 }}>
 
-        <Button type={"primary"} onClick={()=>{
-          console.log("writeContracts",writeContracts)
-          tx( writeContracts.GTGSCollectible.mint() )
-        }}>
-          🎟  Mint
-        </Button>
 
+      {/*
+        <div style={{ width:"77vw", margin: "auto", marginTop:32, paddingBottom:32 }}>
+
+
+
+        </div>
+        <div style={{ width:"77vw", margin: "auto", marginTop:32, paddingBottom:32 }}>
+
+          <Button type={"primary"} onClick={()=>{
+            console.log("writeContracts",writeContracts)
+            tx( writeContracts.GTGSCollectible.mint() )
+          }}>
+            🎟  Mint
+          </Button>
+
+        </div>*/}
+
+
+      <div style={{ width:1020, margin: "auto", marginTop:32, paddingBottom:256 }}>
+        {galleryList}
       </div>
-
-      <div style={{ maxWidth:1024, margin: "auto", marginTop:32, paddingBottom:256 }}>
+      {/*
         <StackGrid
           columnWidth={200}
           gutterWidth={16}
@@ -510,8 +647,7 @@ function App(props) {
         >
           {galleryList}
         </StackGrid>
-      </div>
-
+        */}
 
 
       <Drawer
@@ -611,19 +747,26 @@ function App(props) {
             </div>
       </Drawer>
 
+      {
+        address&&royaltiesSent?
+        <div style={{marginBottom:32,fontSize:14,opacity:0.85}}>{royaltiesSent && formatEther(royaltiesSent).substr(0,7)} royalties collected by <Address fontSize={12} value={artist}/></div>
+        :""
+      }
+{/*
+      <Contract
+        name="GTGSCollectible"
+        signer={userProvider.getSigner()}
+        provider={localProvider}
+        address={address}
+        blockExplorer={blockExplorer}
+      />
 
-
+      */}
 
       {/*
 
 
-        <Contract
-          name="GTGSCollectible"
-          signer={userProvider.getSigner()}
-          provider={localProvider}
-          address={address}
-          blockExplorer={blockExplorer}
-        />
+
 
         ✏️ Edit the header and change the title to your project name *//*{networkSelect}*/}
 
@@ -714,12 +857,13 @@ function App(props) {
 
   {closeWalletButton}
 
-  <div style={{ zIndex:2,transform:"scale(2.7)",transformOrigin:"70% 80%", position: "fixed", textAlign: "right", right: 0, bottom: 16, padding: 10 }}>
+  <div style={{ zIndex:2,transform:"scale(2)",transformOrigin:"70% 80%", position: "fixed", textAlign: "right", right: 0, bottom: 16, padding: 10 }}>
 
-     <Button type={"primary"} shape="circle" size={"large"} onClick={()=>{
+     <Button type={"primary"} shape="oval" size={"large"} onClick={()=>{
        //scanner(true)
        setWalletUp(true)
      }}>
+       <Balance value={yourLocalBalance} size={14} /*price={price}*/ /><span style={{verticalAlign:"middle"}}></span>
        <WalletOutlined style={{color:"#FFFFFF"}}/>
      </Button>
   </div>

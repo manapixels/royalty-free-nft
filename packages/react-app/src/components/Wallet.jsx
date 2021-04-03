@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { WalletOutlined, QrcodeOutlined, SendOutlined, KeyOutlined } from "@ant-design/icons";
+import { KeyOutlined, WalletOutlined, QrcodeOutlined, SendOutlined } from "@ant-design/icons";
 import { Tooltip, Spin, Modal, Button, Typography, message } from "antd";
 import QR from "qrcode.react";
 import { parseEther } from "@ethersproject/units";
@@ -58,7 +58,7 @@ export default function Wallet(props) {
 
   const providerSend = props.provider ? (
     <Tooltip title="Private Keys">
-      <WalletOutlined style={{fontSize:32,color:props.invert?"#FFFFFF":""}} onClick={() => {
+      <KeyOutlined style={{fontSize:32,color:props.invert?"#FFFFFF":""}} onClick={() => {
           setOpen(!open);
       }}/>
     </Tooltip>

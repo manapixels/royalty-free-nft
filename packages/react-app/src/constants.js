@@ -38,6 +38,8 @@ export const NETWORKS = {
         chainId: 31337,
         blockExplorer: '',
         rpcUrl: "http://localhost:8545",
+        price: 1,
+        gasPrice:1000000000,
     },
     xdai: {
         name: "xdai",

@@ -10,6 +10,39 @@ const main = async () => {
   console.log("\n\n 📡 Deploying...\n");
 
   const gtgsCollectible = await deploy("GTGSCollectible") // <-- add in constructor args like line 19 vvvv
+
+/*
+  const deployerWallet = ethers.provider.getSigner()
+  await deployerWallet.sendTransaction({
+    to: "0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1",
+    value: ethers.utils.parseEther("1")
+  })*/
+/*
+  await gtgsCollectible.mint("11gold.jpg")
+  await gtgsCollectible.mint("10gold.jpg")
+  await gtgsCollectible.mint("9gold.jpg")
+  await gtgsCollectible.mint("8gold.jpg")
+  await gtgsCollectible.mint("7gold.jpg")
+  await gtgsCollectible.mint("6gold.jpg")
+  await gtgsCollectible.mint("5gold.jpg")
+  await gtgsCollectible.mint("4gold.jpg")
+  await gtgsCollectible.mint("3gold.jpg")
+  await gtgsCollectible.mint("2gold.jpg")
+  await gtgsCollectible.mint("1gold.jpg")
+
+  await gtgsCollectible.mint("10.jpg")
+  await gtgsCollectible.mint("9.jpg")
+  await gtgsCollectible.mint("8.jpg")
+  await gtgsCollectible.mint("7.jpg")
+  await gtgsCollectible.mint("6.jpg")
+  await gtgsCollectible.mint("5.jpg")
+  await gtgsCollectible.mint("4.jpg")
+  await gtgsCollectible.mint("3.jpg")
+  await gtgsCollectible.mint("2.jpg")
+  await gtgsCollectible.mint("1.jpg")
+*/
+
+
   /*
   console.log("\n\n 🎫 minting...\n");
   await gtgsCollectible.mint()

@@ -24,6 +24,8 @@ export default function Transactor(provider, gasPrice, etherscan) {
         transactionHandler: txInformation => {
           console.log("HANDLE TX", txInformation);
         },
+        mobilePosition:"top",
+        desktopPosition:"bottomLeft"
       };
       const notify = Notify(options);
 
@@ -67,7 +69,7 @@ export default function Transactor(provider, gasPrice, etherscan) {
           notification.info({
             message: "Local Transaction Sent",
             description: result.hash,
-            placement: "bottomRight",
+            placement: "bottomLeft"
           });
         }
 
@@ -78,6 +80,7 @@ export default function Transactor(provider, gasPrice, etherscan) {
         notification.error({
           message: "Transaction Error",
           description: e.message,
+          placement: "bottomLeft"
         });
       }
     };
