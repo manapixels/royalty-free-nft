@@ -721,7 +721,7 @@ function App(props) {
   return (
     <div className="App" style={{fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: 24, /* GTGS21_Hero_image_March21.jpg backgroundSize:"cover", background:'url("/bg.jpg") no-repeat'*/}}>
         {closeWalletButton}
-      <div style={{background:"url('./thinback.jpg')",backgroundSize: "cover"}}>
+      <div style={{background:"url('./GTGS21_Hero_image_March21.jpg')",backgroundSize: "cover"}}>
 
         {networkDisplay}
         <div className="site-page-header-ghost-wrapper">
@@ -766,14 +766,23 @@ function App(props) {
         </div>
       </div>
 
+      <Row>
+      <Col span={12} style={{color:"#ffffff",padding:"10%",background:'url("topgrad.jpg")',backgroundRepeat:"repeat-x",backgroundSize:"100% 100%"}}>
+
+        <div style={{fontSize:16}}>R100 VOICE GEMS x VOICE GENERATED DIGITAL GEMSTONES</div>
+        <div style={{fontSize:22}}>DIGITAL AUGMENTED LUXURY </div>
+        <div style={{paddingTop:"20%",letterSpacing:2,fontSize:11}}>Award Winning Voice-Tech artist and director Harry Yeff ( Reeps100 ) has created a collaborative series of voice generated digital gemstones. The project titled 'Voice Gems' celebrates new opportunities in technology and value. Proposing that the digital may eventually replace the diamond and other potentially wasteful luxury or physical industries. </div>
+
+      </Col>
+      <Col span={12} style={{color:"#ffffff",backgroundColor:"#222222"}}>
+        <Image src={"./loverstone.png"} width={"100%"} height={"100%"}/>
+      </Col>
+      </Row>
+        <div style={{color:"#ffffff",backgroundColor:"#222222"}}>
+
+        </div>
+
       <div style={{marginTop:32,backgroundColor:"#0000000"}} >
-
-      <div style={{fontSize:20, width:720, margin:"auto"}}>
-      <div>Voice generated digital <b>Gems</b></div>
-      <div style={{letterSpacing:1,fontSize:11}}><b>Harry Yeff</b> exhibits digital NFTs that may replace precious stones.</div>
-      </div>
-
-
 
         <div style={{fontSize:14, width:720, border:"1px solid #e8e8e8",margin:"auto",padding:32,marginTop:32}}>
 
@@ -914,26 +923,35 @@ function App(props) {
             </div>
       </Drawer>
 
-      <div style={{color:"#ffffff",background:"url('./bottom.jpg')",backgroundSize: "cover", backgroundPosition: "top"}}>
+      <div style={{position:"relative",color:"#ffffff",background:"url('./bottom.jpg')",backgroundSize: "cover", backgroundPosition: "bottom"}}>
 
 
             {
               address&&royaltiesSent?
-              <div style={{color:"#ffffff",padding:32,fontSize:14,opacity:0.85}}>🤖 {royaltiesSent && formatEther(royaltiesSent).substr(0,7)} automatic royalties collected by <span style={{ padding:12, backgroundColor:"#777777", borderRadius:8 }}><Address customColor={"#fffff"} fontSize={18} value={artist}/></span></div>
+              <div style={{color:"#ffffff",padding:32,fontSize:14,opacity:0.85}}>🤖 {royaltiesSent && formatEther(royaltiesSent).substr(0,7)} automatic royalties collected by <span style={{ padding:12, backgroundColor:"#777777", borderRadius:8 }}><Address customColor={"#fffff"} fontSize={18} value={artist}/></span>  view the <a style={{color:"#999999",cursor:"pointer"}} href="https://github.com/austintgriffith/scaffold-eth/blob/gtgs-voice-gems/packages/hardhat/contracts/GTGSCollectible.sol">smart contract</a>. </div>
               :""
             }
 
-            <div style={{color:"#ffffff",padding:32,fontSize:14,opacity:0.85}}>Read the Ethereum <a style={{color:"#999999",cursor:"pointer"}} href="https://github.com/austintgriffith/scaffold-eth/blob/gtgs-voice-gems/packages/hardhat/contracts/GTGSCollectible.sol">smart contract</a>.</div>
-
             <div style={{color:"#ffffff",padding:32,fontSize:18,opacity:0.85}}>On April 7th, <a style={{color:"#1890ff",fontSize:24,opacity:0.85}} href="https://twitter.com/Reeps1" target="_blank">@Reeps1</a> and <a style={{color:"#1890ff",fontSize:24,opacity:0.85}} href="https://twitter.com/austingriffith" target="_blank">@austingriffith</a> will begin dropping <span style={{color:"#e5bd1f",cursor:"pointer"}}>Golden NFTs</span> on Ethereum.</div>
 
-
-            <div style={{color:"#ffffff",fontSize:12, opacity:0.9,padding:128, paddingTop:512}}>
-              <div>Disclaimer
-              This experience is for educational purposes only.
-              The art pieces may not be replicated on any other platform and all participants agree to participate in accordance with the World Economic Forum Terms of Us
-              </div>
+            <div style={{position:"absolute",left:0,bottom:0,color:"#ffffff",fontSize:12, opacity:0.9,padding:64, paddingTop:512, width:"50%",margin:"50%"}}>
+              <div><a style={{color:"#1890ff",fontSize:24,opacity:0.85}} href={"https://reeps100.com/project/voicegems"} target="_blank">voicegems</a> Credits:</div>
+              <div>Harry Yeff ( Reeps100 ) - Creative Director of 'Voice Gems'</div>
+              <div>Trung Bao - Art direction, Creative Director at Fustic Studio</div>
             </div>
+
+
+
+
+
+          <div style={{color:"#ffffff",fontSize:12, opacity:0.9,padding:145, width:"50%",margin:"50%"}}>
+            <div>
+            DISCLAIMER
+            This experience is for educational purposes only.
+            The art pieces may not be replicated on any other platform and all participants agree to participate in accordance with the World Economic Forum Terms of Us
+            </div>
+          </div>
+
       </div>
 
 
