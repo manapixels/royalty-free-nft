@@ -636,7 +636,7 @@ function App(props) {
           </Col>
           <Col span={12}>
             <h2>
-              {thisCollectible.name}
+              {thisCollectible.name} <span style={{opacity:0.1}}>/ shards</span>
             </h2>
             <div style={{marginTop:-12,fontSize:12,opacity:0.7,letterSpacing:1}}>
               Voice generated precious digital gemstone.
@@ -924,6 +924,9 @@ function App(props) {
             }
 
             <div style={{color:"#ffffff",padding:32,fontSize:14,opacity:0.85}}>Read the Ethereum <a style={{color:"#999999",cursor:"pointer"}} href="https://github.com/austintgriffith/scaffold-eth/blob/gtgs-voice-gems/packages/hardhat/contracts/GTGSCollectible.sol">smart contract</a>.</div>
+
+            <div style={{color:"#ffffff",padding:32,fontSize:18,opacity:0.85}}>On April 7th, <a style={{color:"#1890ff",fontSize:24,opacity:0.85}} href="https://twitter.com/Reeps1" target="_blank">@Reeps1</a> and <a style={{color:"#1890ff",fontSize:24,opacity:0.85}} href="https://twitter.com/austingriffith" target="_blank">@austingriffith</a> will begin dropping <span style={{color:"#e5bd1f",cursor:"pointer"}}>Golden NFTs</span> on Ethereum.</div>
+
 
             <div style={{color:"#ffffff",fontSize:12, opacity:0.9,padding:128, paddingTop:512}}>
               <div>Disclaimer
