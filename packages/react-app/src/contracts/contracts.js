@@ -1,1 +1,1 @@
-module.exports = ["GTGSCollectible"];
+module.exports = ["GTGSCoin","GTGSCollectible"];

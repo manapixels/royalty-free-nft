@@ -39,7 +39,7 @@ export default function Address(props) {
 
   const address = props.value || props.address;
 
-  const ens = useLookupAddress(props.ensProvider, address);
+  const ens = false//useLookupAddress(props.ensProvider, address);
 
   if (!address) {
     return (

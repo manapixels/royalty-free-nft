@@ -4,10 +4,11 @@ pragma solidity >=0.6.0 <0.8.0;
 //import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-//import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "./GTGSCoin.sol";
 //learn more: https://docs.openzeppelin.com/contracts/3.x/erc721
 
-contract GTGSCollectible is ERC721 {
+contract GTGSCollectible is ERC721, Ownable {
 
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
@@ -19,6 +20,11 @@ contract GTGSCollectible is ERC721 {
     for(uint8 i=1;i<=10;i++){
       price[i]=STARTING_PRICE;
     }
+  }
+
+  GTGSCoin gtgsCoin;
+  function setGTGSCoinAddress(address gtgsCoinAddress) public onlyOwner {
+      gtgsCoin = GTGSCoin(gtgsCoinAddress);
   }
 
   address payable public constant artist = 0x34aA3F359A9D614239015126635CE7732c18fDF3; //austingriffith.eth for testing
@@ -52,9 +58,8 @@ contract GTGSCollectible is ERC721 {
 
   event Stream(uint256 artwork,uint256 token, address indexed owner,uint256 amount,uint256 royalties, bytes32 entropy);
 
-  function mint(uint256 artwork)
+  function mint(uint256 artwork, uint256 priceTarget)
       public
-      payable
       returns (uint256)
   {
     require(artwork<=HARD_LIMIT,"INVALID ARTWORK");
@@ -64,9 +69,9 @@ contract GTGSCollectible is ERC721 {
 
     uint256 id = _tokenIds.current();
 
-    //console.log("PRICE",price[artwork]);
-
-    require( msg.value == price[artwork], "Price has changed, please try again.");
+    require( priceTarget == price[artwork], "Price has changed, please try again.");
+    require( gtgsCoin.balanceOf(msg.sender) >= priceTarget, "Not enough tokens.");
+    require( gtgsCoin.move(msg.sender,address(this),priceTarget), "Token transfer to contract failed." );
 
     price[artwork] = nextPrice(artwork);
 
@@ -83,9 +88,27 @@ contract GTGSCollectible is ERC721 {
     tokenEntropy[id] = keccak256(abi.encodePacked(blockhash(block.number-1),address(this),msg.sender,id,artwork));
     //_setTokenURI(id,string(abi.encodePacked(tokenEntropy[artwork])));
 
-    emit Stream(artwork,id,msg.sender,msg.value,0,tokenEntropy[id]);
+    emit Stream(artwork,id,msg.sender,priceTarget,0,tokenEntropy[id]);
     return id;
   }
+
+
+  function nextPrice(uint256 id) public view returns (uint256){
+    uint256 next = ( uint256(price[id] * numerators[id-1]) / denominator);
+    if(next<STARTING_PRICE){
+      return STARTING_PRICE;
+    }
+    return next;
+  }
+
+  function prevPrice(uint256 id) public view returns (uint256){
+    uint256 prev = ( uint256(price[id] * denominator) / numerators[id-1]);
+    if(prev<STARTING_PRICE){
+      return STARTING_PRICE;
+    }
+    return prev;
+  }
+
 
   function burn(uint256 artwork, uint256 id)
       public
@@ -99,12 +122,13 @@ contract GTGSCollectible is ERC721 {
     price[artwork] = prevPrice(artwork);
 
     //console.log("moves to price[artwork]",price[artwork]);
-
-    uint256 royalties = uint256( price[artwork] * artistNumerator ) / denominator;
+    uint256 arbitraryRoyaltiesJustBecauseWeCan = uint256( price[artwork] * artistNumerator ) / denominator;
     //console.log("royalties",royalties);
 
-    artist.transfer( royalties );
-    royaltiesSent+=royalties;
+    //artist.transfer( arbitraryRoyaltiesJustBecauseWeCan );
+    require( gtgsCoin.move(address(this), artist, arbitraryRoyaltiesJustBecauseWeCan), "Failed to transfer tokens to artist." );
+
+    royaltiesSent+=arbitraryRoyaltiesJustBecauseWeCan;
 
     _burn(id);
 
@@ -112,12 +136,12 @@ contract GTGSCollectible is ERC721 {
 
     inTheWild[artwork-1]--;
 
-    emit Stream(artwork,id,msg.sender, price[artwork], royalties, tokenEntropy[id]);
+    emit Stream(artwork,id,msg.sender, price[artwork], arbitraryRoyaltiesJustBecauseWeCan, tokenEntropy[id]);
 
     delete tokenEntropy[id];
     //console.log("price[artwork] - royalties ",price[artwork] - royalties );
 
-    msg.sender.transfer( price[artwork] - royalties );
+    require( gtgsCoin.move(address(this), msg.sender, price[artwork] - arbitraryRoyaltiesJustBecauseWeCan), "Failed to transfer tokens to you." );
     //console.log("NOW IT IS",price[artwork]);
 
     return id;
@@ -181,19 +205,6 @@ contract GTGSCollectible is ERC721 {
       balance[yourAddress][9],
       balance[yourAddress][10]
     ];
-  }
-
-
-  function nextPrice(uint256 id) public view returns (uint256){
-    uint256 next = ( uint256(price[id] * numerators[id-1]) / denominator);
-    if(next<STARTING_PRICE){
-      return STARTING_PRICE;
-    }
-    return next;
-  }
-
-  function prevPrice(uint256 id) public view returns (uint256){
-    return ( uint256(price[id] * denominator) / numerators[id-1]);
   }
 
 

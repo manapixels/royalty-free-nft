@@ -11,14 +11,28 @@ const main = async () => {
 
   const gtgsCollectible = await deploy("GTGSCollectible") // <-- add in constructor args like line 19 vvvv
 
+  console.log("sleeping...")
+  await sleep(7000)
+
+  const gtgsCoin = await deploy("GTGSCoin", [ gtgsCollectible.address ])
+
+  console.log("sleeping...")
+  await sleep(7000)
+
+  await gtgsCollectible.setGTGSCoinAddress(gtgsCoin.address)
+
+  console.log("sleeping...")
+  await sleep(7000)
+
+  await gtgsCoin.transfer("0x34aA3F359A9D614239015126635CE7732c18fDF3",utils.parseEther("100000"))
+
 /*
   const deployerWallet = ethers.provider.getSigner()
   await deployerWallet.sendTransaction({
-    to: "0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1",
+    to: "0x542b3B7326BC6dCf297d6906221290e7A54AF3CD",
     value: ethers.utils.parseEther("1")
   })
-  */
-
+*/
 
 
 /*

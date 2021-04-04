@@ -91,7 +91,7 @@ const LOOK_BACK_TO_BLOCK_FOR_EVENTS = 1
 
 const DISPLAY_WEB3_CONNECT = false
 
-const USE_DELAY = true
+const USE_DELAY = false
 
 const IMAGE_SIZE = "larger" // "previews"
 
@@ -171,7 +171,7 @@ function App(props) {
   const yourLocalBalance = useBalance(localProvider, address);
   if(DEBUG) console.log("💵 yourLocalBalance",yourLocalBalance?formatEther(yourLocalBalance):"...")
 
-  const balance = yourLocalBalance && formatEther(yourLocalBalance)
+  //const balance = yourLocalBalance && formatEther(yourLocalBalance)
 
 
   //if you don't have any money, scan the other networks for money
@@ -205,6 +205,12 @@ function App(props) {
   // Load in your local 📝 contract and read a value from it:
   const readContracts = useContractLoader(localProvider)
   if(DEBUG) console.log("📝 readContracts",readContracts)
+
+
+  const gtgsCoinBalance = useContractReader(readContracts,"GTGSCoin", "balanceOf", [ address ] )
+  if(DEBUG) console.log("gtgs token Balance",gtgsCoinBalance)
+
+
 
   // If you want to make 🔐 write transactions to your contracts, use the userProvider:
   const writeContracts = useContractLoader(userProvider)
@@ -283,20 +289,6 @@ function App(props) {
    )
  }
 
-  // EXTERNAL CONTRACT EXAMPLE:
-  //
-  // If you want to bring in the mainnet DAI contract it would look like:
-  //const mainnetDAIContract = useExternalContractLoader(mainnetProvider, DAI_ADDRESS, DAI_ABI)
-  //console.log("🌍 DAI contract on mainnet:",mainnetDAIContract)
-  //
-  // Then read your DAI balance like:
-  //const myMainnetDAIBalance = useContractReader({DAI: mainnetDAIContract},"DAI", "balanceOf",["0x34aA3F359A9D614239015126635CE7732c18fDF3"])
-  //console.log("🥇 myMainnetDAIBalance:",myMainnetDAIBalance)
-
-
-  // keep track of a variable from the contract in the local React state:
-  //const purpose = useContractReader(readContracts,"YourContract", "purpose")
-  //console.log("🤗 purpose:",purpose)
 
   //📟 Listen for broadcast events
   const streamEvents = useEventListener(readContracts, "GTGSCollectible", "Stream", localProvider, LOOK_BACK_TO_BLOCK_FOR_EVENTS);
@@ -305,40 +297,6 @@ function App(props) {
 
 
   const [ thinking, setThinking ] = useState()
-
-
-/*
-  useEffect(()=>{
-    const updateYourCollectibles = async () => {
-      let collectibleUpdate = []
-      for(let e in mintEvents){
-        console.log("PARSE",mintEvents[e])
-        try{
-          if(mintEvents[e].tokenId){
-            const tokenIndex = mintEvents[e].tokenId.toNumber()
-
-            console.log("GEtting token owner of ",tokenIndex)
-            const owner = await readContracts.GTGSCollectible.ownerOf(tokenIndex)
-            console.log("ONWER  IS  token index",tokenIndex,owner)
-            const tokenURI = await readContracts.GTGSCollectible.tokenURI(tokenIndex)
-            console.log("got tokenURI",tokenURI)
-
-            collectibleUpdate.push({ id:tokenIndex, tokenURI:tokenURI, owner: owner })
-
-          }
-        }catch(e){console.log(e)}
-      }
-      setYourCollectibles(collectibleUpdate)
-    }
-    updateYourCollectibles()
-  },[ address, mintEvents ])
-  */
-  /*
-  const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
-  console.log("🏷 Resolved austingriffith.eth as:",addressFromENS)
-  */
-
- ///console.log("yourCollectibles",yourCollectibles)
 
 
   let networkDisplay = ""
@@ -373,29 +331,7 @@ function App(props) {
       </div>
     )
   }
-/*
-  let options = []
-  for(let id in NETWORKS){
-    options.push(
-      <Select.Option key={id} value={NETWORKS[id].name}><span style={{color:NETWORKS[id].color}}>
-        {NETWORKS[id].name}
-      </span></Select.Option>
-    )
-  }
 
-  const networkSelect = (
-    <Select defaultValue={targetNetwork.name} style={{ textAlign:"left", width: 120 }} onChange={(value)=>{
-      if(targetNetwork.chainId != NETWORKS[value].chainId){
-        window.localStorage.setItem("network",value);
-        setTimeout(() => {
-          window.location.reload();
-        }, 1);
-      }
-    }}>
-      {options}
-    </Select>
-  )
-*/
 
   const loadWeb3Modal = useCallback(async () => {
     const provider = await web3Modal.connect();
@@ -441,18 +377,6 @@ function App(props) {
       window.history.pushState({},"", "/");
     }
 
-    /*let rawPK
-    if(incomingPK.length===64||incomingPK.length===66){
-      console.log("🔑 Incoming Private Key...");
-      rawPK=incomingPK
-      burnerConfig.privateKey = rawPK
-      window.history.pushState({},"", "/");
-      let currentPrivateKey = window.localStorage.getItem("metaPrivateKey");
-      if(currentPrivateKey && currentPrivateKey!==rawPK){
-        window.localStorage.setItem("metaPrivateKey_backup"+Date.now(),currentPrivateKey);
-      }
-      window.localStorage.setItem("metaPrivateKey",rawPK);
-    }*/
   }
   //console.log("startingAddress",startingAddress)
   const [amount, setAmount] = useState();
@@ -482,22 +406,6 @@ function App(props) {
     )
   }
 
-/*<AddressInput
-  ensProvider={mainnetProvider}
-  placeholder="transfer to address"
-  value={transferToAddresses[id]}
-  onChange={(newValue)=>{
-    let update = {}
-    update[id] = newValue
-    setTransferToAddresses({ ...transferToAddresses, ...update})
-  }}
-/>
-<Button onClick={()=>{
-  console.log("writeContracts",writeContracts)
-  tx( writeContracts.YourCollectible.transferFrom(address, transferToAddresses[id], id) )
-}}>
-  Transfer
-</Button>*/
 
   let galleryList = []
   for(let a in voiceGems){
@@ -546,27 +454,6 @@ function App(props) {
       streams[artwork].push(streamEvents[e])
     }
 
-    //console.log("streams",streams)
-
-
-/*
-    let renderMints = []
-    for(let m in mints){
-      renderMints.push(
-        <span style={{padding:8}} key={"mint_"+mintEvents[e].owner+"-"+thisCollectible.id+"-"+mintEvents[e].blockNumber}>
-          <Blockies seed={mintEvents[e].owner.toLowerCase()} size={8} scale={3} />
-        </span>
-      )
-    }
-*/
-    ////// green and red prices from ui <span style={{color:"#ae5d5d",marginRight:8}}>{prices&&prices[thisCollectible.id-1]?formatEther(prices[thisCollectible.id-1]).substr(0,7):""}</span>
-    /////// <span style={{color:"#6dae5d",marginLeft:8}}>{burns&&burns[thisCollectible.id-1]?formatEther(burns[thisCollectible.id-1]).substr(0,7):""}</span>
-/////{burns&&burns[thisCollectible.id-1]?formatEther(burns[thisCollectible.id-1]).substr(0,7):""}
-
-    //burnEvents
-
-    //console.log("counts[thisCollectible.id-1]",counts && counts[thisCollectible.id-1])
-
 
     let currentCount
     try{
@@ -578,10 +465,6 @@ function App(props) {
     let stream = streams[thisCollectible.id]
 
     stream = stream && stream.slice(0, 4)
-
-    //const reversed = stream && stream.reverse();
-
-    //console.log("stream",stream)
 
     let streamDisplay = []
     for(let i in stream){
@@ -623,15 +506,21 @@ function App(props) {
       )
     }
 
+    const SHOWGOLD = false;
+
     galleryList.push(
-      <Card style={{width:"100%"}} key={"gallery"+thisCollectible.id}
+      <Card style={{width:"100%",marginTop:64,marginBottom:64}} key={"gallery"+thisCollectible.id}
         actions={cardActions}
       >
         <Row>
           <Col span={12}  style={{backgroundColor:"#222222"}}>
             <Image src={"./"+IMAGE_SIZE+"/"+thisCollectible.id+".jpg"} style={{maxWidth:550}} />
             <div style={{position:"absolute",bottom:0,left:40,color:"#bbbbbb",verticalAlign:"bottom"}}>
-              <Image src={"./previews/"+thisCollectible.id+"gold.jpg"} style={{maxWidth:50,fontSize:10}}/> Golden NFT on Ethereum
+              { SHOWGOLD? (
+                <div>
+                  <Image src={"./previews/"+thisCollectible.id+"gold.jpg"} style={{maxWidth:50,fontSize:10}}/> Golden NFT on Ethereum
+                </div>
+              ):"" }
             </div>
           </Col>
           <Col span={12}>
@@ -656,7 +545,7 @@ function App(props) {
               let price = await readContracts.GTGSCollectible.price(thisCollectible.id)
               console.log("price",price)
 
-              tx( writeContracts.GTGSCollectible.mint(thisCollectible.id,{value: price,gasPrice:gasPrice}) )
+              tx( writeContracts.GTGSCollectible.mint(thisCollectible.id,price,{gasPrice:gasPrice}) )
             }}>
               <span style={{color:"#ae5d5d",marginRight:8}}>{prices&&prices[thisCollectible.id-1]?formatEther(prices[thisCollectible.id-1]).substr(0,7):""}</span> Mint
             </Button>
@@ -699,16 +588,6 @@ function App(props) {
             <div style={{padding:32}}>
               {streamDisplay}
             </div>
-{/*
-            <div>
-              {mints}
-            </div>
-            <div style={{padding:32}}>
-              Owners eligible to win the gold NFT on Ethereum:
-              <div>
-                <img src={"http://localhost:3000/previews/"+thisCollectible.id+"gold.jpg"} style={{maxWidth:180}} />
-              </div>
-            </div>*/}
 
           </Col>
         </Row>
@@ -718,10 +597,254 @@ function App(props) {
   }
 
 
+
+  let tokenHolderView = ""
+
+  if(gtgsCoinBalance && gtgsCoinBalance.gt(0)){
+    tokenHolderView = (
+        <div>
+
+              <div style={{ width:720, margin: "auto", marginTop:32, paddingBottom:32 }}>
+                {galleryList}
+              </div>
+
+
+                  <Drawer
+                      title={(
+                        <div style={{ opacity:yourLocalBalance?1:0.2, padding:16, width:"100%"}}>
+                          <Row style={{width:"100%"}}>
+                            <Col style={{width:"50%",textAlign:"right"}}>
+                              <Balance value={gtgsCoinBalance} size={52} /><span style={{verticalAlign:"middle"}}></span>
+                            </Col>
+                            <Col style={{opacity:0.5,width:"50%",textAlign:"left"}}>
+                              (⛽️<Balance value={yourLocalBalance} size={24} />)
+                            </Col>
+                          </Row>
+                        </div>
+                      )}
+                      placement={"bottom"}
+                      closable={true}
+                      onClose={()=>{
+                        setWalletUp(false)
+                      }}
+                      visible={walletUp}
+                      key={"walletDrawer"}
+                      height={"90%"}
+                    >
+                      <div style={{position: "relative"}}>
+                          <div style={{padding:16,cursor:"pointer",backgroundColor:"#FFFFFF",width:420,margin:"auto"}}>
+                            <QRPunkBlockie withQr={true} address={address} />
+                          </div>
+
+                          <div style={{position:"relative", width:320, margin:"auto",textAlign:"center",marginTop:32}}>
+                            <div style={{padding: 10}}>
+                              <AddressInput
+                                ensProvider={mainnetProvider}
+                                placeholder="to address"
+                                address={toAddress}
+                                onChange={setToAddress}
+                                hoistScanner={(toggle)=>{
+                                  scanner=toggle
+                                }}
+                              />
+                            </div>
+                            <div style={{padding: 10}}>
+                              <EtherInput
+                                /*price={price?price:targetNetwork.price}*/
+                                value={amount}
+                                onChange={value => {
+                                  setAmount(value);
+                                }}
+                              />
+                            </div>
+                            <div style={{padding: 10}}>
+                              <Button
+                                key="sendFunds"
+                                type="primary"
+                                disabled={loading || !amount || !toAddress }
+                                loading={loading}
+                                onClick={async () => {
+                                  setLoading(true)
+
+                                  let value;
+                                  try {
+                                    value = parseEther("" + amount);
+                                  } catch (e) {
+                                    let floatVal = parseFloat(amount).toFixed(8)
+                                    // failed to parseEther, try something else
+                                    value = parseEther("" + floatVal);
+                                  }
+                                  /*
+                                  let result = tx({
+                                    to: toAddress,
+                                    value,
+                                    gasPrice: gasPrice,
+                                    gasLimit: 21000
+                                  });
+                                  */
+
+                                  //setToAddress("")
+
+                                  let result = await tx( writeContracts.GTGSCoin.transfer(toAddress,value,{gasPrice: gasPrice}) )
+                                  setAmount("")
+                                  console.log(result)
+                                  setLoading(false)
+                                }}
+                              >
+                                {loading || !amount || !toAddress ? <CaretUpOutlined /> : <SendOutlined style={{color:"#FFFFFF"}} /> } Send
+                              </Button>
+                            </div>
+
+
+
+                            <div style={{ zIndex: walletUp?1:-1,opacity: walletUp?1:0, transform:"scale(2.7)",transformOrigin:"70% 80%", position: "fixed", textAlign: "right", right: 0, bottom: 160, padding: 10 }}>
+
+                               <Button key={"theScanner"} disabled={!walletUp} type={"primary"} shape="circle" size={"large"} onClick={()=>{
+                                 scanner(true)
+                               }}>
+                                 <ScanOutlined style={{color:"#FFFFFF"}}/>
+                               </Button>
+                            </div>
+                          </div>
+
+                          <hr style={{marginTop:32,opacity:.1}}/>
+
+                          <div style={{ maxWidth:820, margin: "auto", marginTop:64, paddingBottom:256 }}>
+                             <StackGrid
+                               columnWidth={200}
+                               gutterWidth={16}
+                               gutterHeight={16}
+                             >
+                               {yourCollectiblesRender}
+                             </StackGrid>
+                           </div>
+
+                        </div>
+                  </Drawer>
+
+                  <div style={{position:"relative",color:"#ffffff",background:"url('./bottom.jpg')",backgroundSize: "cover", backgroundPosition: "bottom"}}>
+
+
+
+                  {/*    {
+                      address&&royaltiesSent?
+                      <div style={{color:"#ffffff",padding:32,fontSize:14,opacity:0.85}}>🤖 {royaltiesSent && formatEther(royaltiesSent).substr(0,7)} automatic royalties collected by <span style={{ padding:12, backgroundColor:"#777777", borderRadius:8 }}><Address customColor={"#fffff"} fontSize={18} value={artist}/></span>  view the <a style={{color:"#999999",cursor:"pointer"}} href="https://github.com/austintgriffith/scaffold-eth/blob/gtgs-voice-gems/packages/hardhat/contracts/GTGSCollectible.sol">smart contract</a>. </div>
+                      :""
+                    }<div style={{color:"#ffffff",padding:32,fontSize:18,opacity:0.85}}>On April 7th, <a style={{color:"#1890ff",fontSize:24,opacity:0.85}} href="https://twitter.com/Reeps1" target="_blank">@Reeps1</a> and <a style={{color:"#1890ff",fontSize:24,opacity:0.85}} href="https://twitter.com/austingriffith" target="_blank">@austingriffith</a> will begin dropping <span style={{color:"#e5bd1f",cursor:"pointer"}}>Golden NFTs</span> on Ethereum.</div>
+                  */}
+
+                  <Row>
+                   <Col span={12} style={{color:"#ffffff",padding:"10%",background:'url("topgrad.jpg")',backgroundRepeat:"repeat-x",backgroundSize:"100% 100%"}}>
+
+                     <div style={{fontSize:16}}>R100 VOICE GEMS x VOICE GENERATED DIGITAL GEMSTONES</div>
+                     <div style={{fontSize:22}}>DIGITAL AUGMENTED LUXURY </div>
+                     <div style={{paddingTop:"20%",letterSpacing:2,fontSize:11}}>Award Winning Voice-Tech artist and director Harry Yeff ( Reeps100 ) has created a collaborative series of voice generated digital gemstones. The project titled 'Voice Gems' celebrates new opportunities in technology and value. Proposing that the digital may eventually replace the diamond and other potentially wasteful luxury or physical industries. </div>
+
+                     <div style={{color:"#ffffff",fontSize:12, opacity:0.9,padding:64, width:"500", margin: "auto"}}>
+                       <div><a style={{color:"#1890ff",fontSize:24,opacity:0.85}} href={"https://reeps100.com/project/voicegems"} target="_blank">voicegems</a> Credits:</div>
+                       <div>Harry Yeff ( Reeps100 ) - Creative Director of 'Voice Gems'</div>
+                       <div>Trung Bao - Art direction, Creative Director at Fustic Studio</div>
+                       <div>---</div>
+                       <div>
+                         "shard" <a style={{color:"#1890ff",fontSize:16,opacity:0.85}} href="https://github.com/austintgriffith/scaffold-eth/blob/gtgs-voice-gems/packages/hardhat/contracts/GTGSCollectible.sol">smart contracts</a> by <a style={{color:"#1890ff",fontSize:14,opacity:0.85}} href="https://twitter.com/austingriffith">@austingriffith</a>
+                       </div>
+                     </div>
+
+
+                   </Col>
+                   <Col span={12} style={{color:"#ffffff",backgroundColor:"#222222"}}>
+                     <Image src={"./loverstone.png"} width={"100%"} height={"100%"}/>
+                   </Col>
+                   </Row>
+
+
+                 <div style={{padding:64,position:"absolute",left:0,bottom:0,width:"100%",height:"50",backgroundColor:"#eeeeee",opacity:.7}}>
+                 .
+                 </div>
+                 <div style={{padding:64,fontSize:14, position:"absolute",left:0,bottom:50,width:"100%",height:"50",opacity:1, color:"#000000"}}>
+                   <div>
+                   <b style={{marginRight:8}}>Disclaimer</b>
+                   This experience is for educational purposes only. The art pieces may not be replicated on any other platform and all participants agree to participate in accordance with the World Economic Forum Terms of Use.
+                   </div>
+                 </div>
+
+
+
+                  </div>
+
+                  {/*
+
+                    <Contract
+                      name="GTGSCollectible"
+                      signer={userProvider.getSigner()}
+                      provider={localProvider}
+                      address={address}
+                      blockExplorer={blockExplorer}
+                    />
+                    <Contract
+                      name="GTGSCoin"
+                      signer={userProvider.getSigner()}
+                      provider={localProvider}
+                      address={address}
+                      blockExplorer={blockExplorer}
+                    />
+
+                    */}
+
+
+
+
+                  <div style={{ zIndex:2,transform:"scale(2)",transformOrigin:"70% 80%", position: "fixed", textAlign: "right", right: 0, bottom: 16, padding: 10 }}>
+
+
+                 <Button type={"primary"} shape="oval" size={"large"} onClick={()=>{
+                   //scanner(true)
+                   setWalletUp(true)
+                 }}>
+                   <Balance value={gtgsCoinBalance} size={14} /*price={price}*/ /><span style={{verticalAlign:"middle"}}></span>
+                   <WalletOutlined style={{color:"#FFFFFF"}}/>
+                 </Button>
+
+                 <div style={{position:"absolute",right:58,top:10,color:"#FFFFFF",fontSize:14,textAlign:"right"}}>
+                   {totalBalance}
+                 </div>
+                 <div style={{position:"absolute",right:27,top:9,fontSize:14}}>
+                   <PictureOutlined style={{color:"#FFFFFF"}}/>
+                 </div>
+
+
+              </div>
+
+        </div>
+
+
+    )
+  }else{
+    tokenHolderView = (
+      <div style={{marginTop:64,fontSize: 18}}>
+
+        waiting for tokens... <span style={{color:"#5d5dFF",pointer:"cursor"}} onClick={()=>{window.location.reload(true)}}>check again</span>.
+
+        <div style={{padding:16,cursor:"pointer",backgroundColor:"#FFFFFF",width:420,margin:"auto"}}>
+          <QRPunkBlockie withQr={true} address={address} />
+        </div>
+
+          ⛽️<Balance value={yourLocalBalance} size={24} />
+      </div>
+    )
+  }
+
+  let web3AvailableFor = [
+    "0x903f7777e4D761021AddF975690C503395e0F8Ba",
+    "0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1",
+  ]
+
+
+
   return (
-    <div className="App" style={{fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: 24, /* GTGS21_Hero_image_March21.jpg backgroundSize:"cover", background:'url("/bg.jpg") no-repeat'*/}}>
-        {closeWalletButton}
-      <div style={{background:"url('./GTGS21_Hero_image_March21.jpg')",backgroundSize: "cover"}}>
+      <div className="App" style={{fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: 24, /* GTGS21_Hero_image_March21.jpg backgroundSize:"cover", background:'url("/bg.jpg") no-repeat'*/}}>
+          {closeWalletButton}
+        <div style={{background:"url('./GTGS21_Hero_image_March21.jpg')",backgroundSize: "cover"}}>
 
         {networkDisplay}
         <div className="site-page-header-ghost-wrapper">
@@ -734,16 +857,9 @@ function App(props) {
                 blockExplorer={blockExplorer}
                 invert={true}
               />,
-              /*<span style={{ verticalAlign: "middle", paddingLeft: 16, fontSize: 32 }}>
-                <Tooltip title="History">
-                  <HistoryOutlined onClick={async () => {
-                    window.open("https://zapper.fi/transactions?address="+address)
-                  }}/>
-                </Tooltip>
-              </span>,*/
               <Tooltip title="Private Key">{walletDisplay}</Tooltip>,
 
-              DISPLAY_WEB3_CONNECT?<Account
+              DISPLAY_WEB3_CONNECT||web3AvailableFor.indexOf(address)>=0?<Account
                 address={address}
                 localProvider={localProvider}
                 userProvider={userProvider}
@@ -766,365 +882,35 @@ function App(props) {
         </div>
       </div>
 
-      <Row>
-      <Col span={12} style={{color:"#ffffff",padding:"10%",background:'url("topgrad.jpg")',backgroundRepeat:"repeat-x",backgroundSize:"100% 100%"}}>
 
-        <div style={{fontSize:16}}>R100 VOICE GEMS x VOICE GENERATED DIGITAL GEMSTONES</div>
-        <div style={{fontSize:22}}>DIGITAL AUGMENTED LUXURY </div>
-        <div style={{paddingTop:"20%",letterSpacing:2,fontSize:11}}>Award Winning Voice-Tech artist and director Harry Yeff ( Reeps100 ) has created a collaborative series of voice generated digital gemstones. The project titled 'Voice Gems' celebrates new opportunities in technology and value. Proposing that the digital may eventually replace the diamond and other potentially wasteful luxury or physical industries. </div>
 
-      </Col>
-      <Col span={12} style={{color:"#ffffff",backgroundColor:"#222222"}}>
-        <Image src={"./loverstone.png"} width={"100%"} height={"100%"}/>
-      </Col>
-      </Row>
-        <div style={{color:"#ffffff",backgroundColor:"#222222"}}>
+      <div style={{marginTop:64,backgroundColor:"#0000000"}} >
 
-        </div>
+        <div style={{fontSize:13, width:720, border:"1px solid #e8e8e8",margin:"auto",padding:32,marginTop:32, textAlign:'left'}}>
+        <div style={{fontWeight:"bolder"}}>Welcome to the GTGS NFT Experience</div>
+        <div><i>Harry Yeff</i> exhibits voice generated digital <b>gems</b> that may replace precious stones.</div>
+        <div></div>
+        <div>In this experience, you’ll be interacting with non-fungible tokens (NFTs), representing shards of <b>Voice Gems</b>.</div>
+        <div>To collect an art piece, you <b>mint</b> an NFT <i>shard</i> for the list price.</div>
+        <div>To sell the piece back to the market, you will “burn” it.</div>
 
-      <div style={{marginTop:32,backgroundColor:"#0000000"}} >
-
-        <div style={{fontSize:14, width:720, border:"1px solid #e8e8e8",margin:"auto",padding:32,marginTop:32}}>
-
-          <div>In this experience, you will be interacting with non-fungible tokens (NFTs).</div>
-          <div>Using xDAI, a sidechain of Ethereum, you can purchase NFTs that represent shards of Gems.</div>
-          <div>Each Voice Gem has a unique price curve where the cost to <b>Mint</b> gets increasingly more expensive.</div>
-          <div>At any time, you can <b>Burn</b> a Gem to receive the price in xDAI minus a small fee for <b>artist royalties</b>.</div>
-          <hr style={{opacity:0.1}}/>
-          <div>NFT owners are eligible to discover a “Golden NFT” on Ethereum representing each Voice Gem.</div>
+        <div>The transactions take place on xDAI, a side chain of Ethereum, and prices automatically adjust based on the supply and demand at a given time. </div>
         </div>
       </div>
 
-      <div style={{ width:720, margin: "auto", marginTop:32, paddingBottom:32 }}>
-        {galleryList}
-      </div>
-
-
-
-
-      {/*
-        <StackGrid
-          columnWidth={200}
-          gutterWidth={16}
-          gutterHeight={16}
-        >
-          {galleryList}
-        </StackGrid>
-        */}
-
-
-      <Drawer
-          title={(
-            <div style={{ opacity:yourLocalBalance?1:0.2, padding:16, width:"100%"}}>
-              <Row style={{width:"100%"}}>
-                <Col style={{width:"50%",textAlign:"right"}}>
-                  <Balance value={yourLocalBalance} size={52} price={price} /><span style={{verticalAlign:"middle"}}></span>
-                </Col>
-                <Col style={{opacity:0.5,width:"50%",textAlign:"left"}}>
-                  <Balance value={yourLocalBalance} size={24} /><span style={{verticalAlign:"middle"}}> xDAI</span>
-                </Col>
-              </Row>
-            </div>
-          )}
-          placement={"bottom"}
-          closable={true}
-          onClose={()=>{
-            setWalletUp(false)
-          }}
-          visible={walletUp}
-          key={"walletDrawer"}
-          height={"90%"}
-        >
-          <div style={{position: "relative"}}>
-              <div style={{padding:16,cursor:"pointer",backgroundColor:"#FFFFFF",width:420,margin:"auto"}}>
-                <QRPunkBlockie withQr={true} address={address} />
-              </div>
-
-              <div style={{position:"relative", width:320, margin:"auto",textAlign:"center",marginTop:32}}>
-                <div style={{padding: 10}}>
-                  <AddressInput
-                    ensProvider={mainnetProvider}
-                    placeholder="to address"
-                    address={toAddress}
-                    onChange={setToAddress}
-                    hoistScanner={(toggle)=>{
-                      scanner=toggle
-                    }}
-                  />
-                </div>
-                <div style={{padding: 10}}>
-                  <EtherInput
-                    price={price?price:targetNetwork.price}
-                    value={amount}
-                    onChange={value => {
-                      setAmount(value);
-                    }}
-                  />
-                </div>
-                <div style={{padding: 10}}>
-                  <Button
-                    key="sendFunds"
-                    type="primary"
-                    disabled={loading || !amount || !toAddress }
-                    loading={loading}
-                    onClick={async () => {
-                      setLoading(true)
-
-                      let value;
-                      try {
-                        value = parseEther("" + amount);
-                      } catch (e) {
-                        let floatVal = parseFloat(amount).toFixed(8)
-                        // failed to parseEther, try something else
-                        value = parseEther("" + floatVal);
-                      }
-
-                      let result = tx({
-                        to: toAddress,
-                        value,
-                        gasPrice: gasPrice,
-                        gasLimit: 21000
-                      });
-                      //setToAddress("")
-                      setAmount("")
-                      result = await result
-                      console.log(result)
-                      setLoading(false)
-                    }}
-                  >
-                    {loading || !amount || !toAddress ? <CaretUpOutlined /> : <SendOutlined style={{color:"#FFFFFF"}} /> } Send
-                  </Button>
-                </div>
-
-
-
-                <div style={{ zIndex: walletUp?1:-1,opacity: walletUp?1:0, transform:"scale(2.7)",transformOrigin:"70% 80%", position: "fixed", textAlign: "right", right: 0, bottom: 160, padding: 10 }}>
-
-                   <Button key={"theScanner"} disabled={!walletUp} type={"primary"} shape="circle" size={"large"} onClick={()=>{
-                     scanner(true)
-                   }}>
-                     <ScanOutlined style={{color:"#FFFFFF"}}/>
-                   </Button>
-                </div>
-              </div>
-
-              <hr style={{opacity:.1}}/>
-
-              <div style={{ maxWidth:820, margin: "auto", marginTop:64, paddingBottom:256 }}>
-                 <StackGrid
-                   columnWidth={200}
-                   gutterWidth={16}
-                   gutterHeight={16}
-                 >
-                   {yourCollectiblesRender}
-                 </StackGrid>
-               </div>
-
-            </div>
-      </Drawer>
-
-      <div style={{position:"relative",color:"#ffffff",background:"url('./bottom.jpg')",backgroundSize: "cover", backgroundPosition: "bottom"}}>
-
-
-            {
-              address&&royaltiesSent?
-              <div style={{color:"#ffffff",padding:32,fontSize:14,opacity:0.85}}>🤖 {royaltiesSent && formatEther(royaltiesSent).substr(0,7)} automatic royalties collected by <span style={{ padding:12, backgroundColor:"#777777", borderRadius:8 }}><Address customColor={"#fffff"} fontSize={18} value={artist}/></span>  view the <a style={{color:"#999999",cursor:"pointer"}} href="https://github.com/austintgriffith/scaffold-eth/blob/gtgs-voice-gems/packages/hardhat/contracts/GTGSCollectible.sol">smart contract</a>. </div>
-              :""
-            }
-
-            <div style={{color:"#ffffff",padding:32,fontSize:18,opacity:0.85}}>On April 7th, <a style={{color:"#1890ff",fontSize:24,opacity:0.85}} href="https://twitter.com/Reeps1" target="_blank">@Reeps1</a> and <a style={{color:"#1890ff",fontSize:24,opacity:0.85}} href="https://twitter.com/austingriffith" target="_blank">@austingriffith</a> will begin dropping <span style={{color:"#e5bd1f",cursor:"pointer"}}>Golden NFTs</span> on Ethereum.</div>
-
-            <div style={{position:"absolute",left:0,bottom:0,color:"#ffffff",fontSize:12, opacity:0.9,padding:64, paddingTop:512, width:"50%",margin:"50%"}}>
-              <div><a style={{color:"#1890ff",fontSize:24,opacity:0.85}} href={"https://reeps100.com/project/voicegems"} target="_blank">voicegems</a> Credits:</div>
-              <div>Harry Yeff ( Reeps100 ) - Creative Director of 'Voice Gems'</div>
-              <div>Trung Bao - Art direction, Creative Director at Fustic Studio</div>
-            </div>
-
-
-
-
-
-          <div style={{color:"#ffffff",fontSize:12, opacity:0.9,padding:145, width:"50%",margin:"50%"}}>
-            <div>
-            DISCLAIMER
-            This experience is for educational purposes only.
-            The art pieces may not be replicated on any other platform and all participants agree to participate in accordance with the World Economic Forum Terms of Us
-            </div>
-          </div>
-
-      </div>
-
-
-      {/*
-
-        <Contract
-          name="GTGSCollectible"
-          signer={userProvider.getSigner()}
-          provider={localProvider}
-          address={address}
-          blockExplorer={blockExplorer}
-        />
-        <Contract
-          name="GTGSCollectible"
-          signer={userProvider.getSigner()}
-          provider={localProvider}
-          address={address}
-          blockExplorer={blockExplorer}
-        />
-
-        ✏️ Edit the header and change the title to your project name *//*{networkSelect}*/}
-
-
-
-      {/*<BrowserRouter>
-
-        <Menu style={{ textAlign:"center" }} selectedKeys={[route]} mode="horizontal">
-          <Menu.Item key="/">
-            <Link onClick={()=>{setRoute("/")}} to="/">YourContract</Link>
-          </Menu.Item>
-          <Menu.Item key="/hints">
-            <Link onClick={()=>{setRoute("/hints")}} to="/hints">Hints</Link>
-          </Menu.Item>
-          <Menu.Item key="/exampleui">
-            <Link onClick={()=>{setRoute("/exampleui")}} to="/exampleui">ExampleUI</Link>
-          </Menu.Item>
-          <Menu.Item key="/mainnetdai">
-            <Link onClick={()=>{setRoute("/mainnetdai")}} to="/mainnetdai">Mainnet DAI</Link>
-          </Menu.Item>
-          <Menu.Item key="/subgraph">
-            <Link onClick={()=>{setRoute("/subgraph")}} to="/subgraph">Subgraph</Link>
-          </Menu.Item>
-        </Menu>
-        <Switch>
-          <Route exact path="/">
-            }
-            <Contract
-              name="YourContract"
-              signer={userProvider.getSigner()}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-            />
-
-
-
-          </Route>
-          <Route path="/hints">
-            <Hints
-              address={address}
-              yourLocalBalance={yourLocalBalance}
-              mainnetProvider={mainnetProvider}
-              price={price}
-            />
-          </Route>
-          <Route path="/exampleui">
-            <ExampleUI
-              address={address}
-              userProvider={userProvider}
-              mainnetProvider={mainnetProvider}
-              localProvider={localProvider}
-              yourLocalBalance={yourLocalBalance}
-              price={price}
-              tx={tx}
-              writeContracts={writeContracts}
-              readContracts={readContracts}
-              purpose={purpose}
-              setPurposeEvents={setPurposeEvents}
-            />
-          </Route>
-          <Route path="/mainnetdai">
-            <Contract
-              name="DAI"
-              customContract={mainnetDAIContract}
-              signer={userProvider.getSigner()}
-              provider={mainnetProvider}
-              address={address}
-              blockExplorer={"https://etherscan.io/"}
-            />
-          </Route>
-          <Route path="/subgraph">
-            <Subgraph
-            subgraphUri={props.subgraphUri}
-            tx={tx}
-            writeContracts={writeContracts}
-            mainnetProvider={mainnetProvider}
-            />
-          </Route>
-        </Switch>
-      </BrowserRouter>
-*/}
-
-
-
-
-
-
-  <div style={{ zIndex:2,transform:"scale(2)",transformOrigin:"70% 80%", position: "fixed", textAlign: "right", right: 0, bottom: 16, padding: 10 }}>
-
-
-     <Button type={"primary"} shape="oval" size={"large"} onClick={()=>{
-       //scanner(true)
-       setWalletUp(true)
-     }}>
-       <Balance value={yourLocalBalance} size={14} /*price={price}*/ /><span style={{verticalAlign:"middle"}}></span>
-       <WalletOutlined style={{color:"#FFFFFF"}}/>
-     </Button>
-
-     <div style={{position:"absolute",right:58,top:10,color:"#FFFFFF",fontSize:14,textAlign:"right"}}>
-       {totalBalance}
-     </div>
-     <div style={{position:"absolute",right:27,top:9,fontSize:14}}>
-       <PictureOutlined style={{color:"#FFFFFF"}}/>
-     </div>
-
-
-  </div>
-
-
-
-  {/*
-
-
-
-
-
-
-🗺 Extra UI like gas price, eth price, faucet, and support:
-<div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
-  <Row align="middle" gutter={[16, 16]}>
-    <Col span={12}>
-      <Ramp price={price} address={address} networks={NETWORKS}/>
-    </Col>
-
-    <Col span={12} style={{ textAlign: "center", opacity: 0.8 }}>
-      <GasGauge gasPrice={gasPrice} />
-    </Col>
-  </Row>
-
-  <Row align="middle" gutter={[4, 4]}>
-    <Col span={24}>
-      {
-        faucetAvailable ? (
-          <Faucet localProvider={localProvider} price={price} ensProvider={mainnetProvider}/>
-        ) : (
-          ""
-        )
-      }
-    </Col>
-  </Row>
-</div>
-*/}
-
-
-
-
-
-
+      {tokenHolderView}
 
     </div>
   );
 }
-
+{/*<div>For more detailed information, read the User Guide & FAQs.</div>
+          <div>In this experience, you will be interacting with non-fungible tokens (NFTs).</div>
+          <div>Using xDAI, a sidechain of Ethereum, you can <b>Mint</b> NFTs that represent shards of Gems.</div>
+          <div>Each Voice Gem has a unique price curve where the cost to <b>Mint</b> gets increasingly more expensive.</div>
+          <div>At any time, you can <b>Burn</b> a Gem to receive the price in tokens minus an arbitrary fee.</div>
+          <hr style={{opacity:0.1}}/>
+          <div>NFT owners are eligible to discover a “Golden NFT” on Ethereum representing each Voice Gem.</div>
+        */}
 
 /*
   Web3 modal helps us "connect" external wallets:

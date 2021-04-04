@@ -66,8 +66,8 @@ export default function EtherInput(props) {
     prefix = "$";
     addonAfter = option("USD 🔀");
   } else {
-    prefix = "Ξ";
-    addonAfter = option("ETH 🔀");
+    prefix = "";
+    addonAfter = option("TOKENS");
   }
 
   useEffect(
@@ -80,7 +80,7 @@ export default function EtherInput(props) {
 
   return (
     <Input
-      placeholder={props.placeholder ? props.placeholder : "amount in " + mode}
+      placeholder={"amount of tokens to send"}
       autoFocus={props.autoFocus}
       prefix={prefix}
       value={display}
