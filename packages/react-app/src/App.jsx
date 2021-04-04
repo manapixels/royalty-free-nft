@@ -103,7 +103,7 @@ if(DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
 //
 // attempt to connect to our own scaffold eth rpc and if that fails fall back to infura...
 const scaffoldEthProvider = new JsonRpcProvider("https://rpc.scaffoldeth.io:48544")
-const mainnetInfura = new JsonRpcProvider("https://mainnet.infura.io/v3/" + INFURA_ID)
+//const mainnetInfura = new JsonRpcProvider("https://mainnet.infura.io/v3/" + INFURA_ID)
 // ( ⚠️ Getting "failed to meet quorum" errors? Check your INFURA_I
 
 // 🏠 Your local provider is usually pointed at your local blockchain
@@ -137,7 +137,7 @@ let scanner;
 
 function App(props) {
 
-  const mainnetProvider = (scaffoldEthProvider && scaffoldEthProvider._network) ? scaffoldEthProvider : mainnetInfura
+  const mainnetProvider = scaffoldEthProvider
   if(DEBUG) console.log("🌎 mainnetProvider",mainnetProvider)
 
   const [injectedProvider, setInjectedProvider] = useState();
@@ -719,8 +719,9 @@ function App(props) {
 
 
   return (
-    <div className="App" style={{fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: 24, /*backgroundSize:"cover", background:'url("/bg.jpg") no-repeat'*/}}>
-      <div style={{background:"url('./GTGS21_Hero_image_March21.jpg')",backgroundSize: "cover"}}>
+    <div className="App" style={{fontFamily:'"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: 24, /* GTGS21_Hero_image_March21.jpg backgroundSize:"cover", background:'url("/bg.jpg") no-repeat'*/}}>
+        {closeWalletButton}
+      <div style={{background:"url('./thinback.jpg')",backgroundSize: "cover"}}>
 
         {networkDisplay}
         <div className="site-page-header-ghost-wrapper">
@@ -740,7 +741,8 @@ function App(props) {
                   }}/>
                 </Tooltip>
               </span>,*/
-              walletDisplay,
+              <Tooltip title="Private Key">{walletDisplay}</Tooltip>,
+
               DISPLAY_WEB3_CONNECT?<Account
                 address={address}
                 localProvider={localProvider}
@@ -753,45 +755,44 @@ function App(props) {
                 blockExplorer={blockExplorer}
               />:"",
               <span style={{ padding:8 }}>
-               <ExportOutlined style={{ color:"#ffffff" }} onClick={()=>{
-                 window.open("https://blockscout.com/xdai/mainnet/address/"+address)
-               }}/>
+                <Tooltip title="View On BlockScout">
+                  <ExportOutlined style={{ color:"#ffffff" }} onClick={()=>{
+                    window.open("https://blockscout.com/xdai/mainnet/address/"+address)
+                  }}/>
+                </Tooltip>
               </span>
             ]
           }/>
         </div>
       </div>
 
-      <div style={{marginTop:32}}>
-        <h2>Voice Gems</h2>
-        <p style={{fontSize:14, width:400, border:"1px solid #e8e8e8",margin:"auto",padding:32}}>
-          Explanation copy here... we can talk about how each piece is sold on a bonding curve that holds liqudity. We can also mention that some of that liquidity leaks in the form of artist royalties on burn. Finally, a random owner of each of the NFTs will be minted a gold edition Voice Gems on mainnet Ethereum.
-        </p>
+      <div style={{marginTop:32,backgroundColor:"#0000000"}} >
+
+      <div style={{fontSize:20, width:720, margin:"auto"}}>
+      <div>Voice generated digital <b>Gems</b></div>
+      <div style={{letterSpacing:1,fontSize:11}}><b>Harry Yeff</b> exhibits digital NFTs that may replace precious stones.</div>
       </div>
 
 
 
-      {/*
-        <div style={{ width:"77vw", margin: "auto", marginTop:32, paddingBottom:32 }}>
+        <div style={{fontSize:14, width:720, border:"1px solid #e8e8e8",margin:"auto",padding:32,marginTop:32}}>
 
-
-
+          <div>In this experience, you will be interacting with non-fungible tokens (NFTs).</div>
+          <div>Using xDAI, a sidechain of Ethereum, you can purchase NFTs that represent shards of Gems.</div>
+          <div>Each Voice Gem has a unique price curve where the cost to <b>Mint</b> gets increasingly more expensive.</div>
+          <div>At any time, you can <b>Burn</b> a Gem to receive the price in xDAI minus a small fee for <b>artist royalties</b>.</div>
+          <hr style={{opacity:0.1}}/>
+          <div>NFT owners are eligible to discover a “Golden NFT” on Ethereum representing each Voice Gem.</div>
         </div>
-        <div style={{ width:"77vw", margin: "auto", marginTop:32, paddingBottom:32 }}>
+      </div>
 
-          <Button type={"primary"} onClick={()=>{
-            console.log("writeContracts",writeContracts)
-            tx( writeContracts.GTGSCollectible.mint() )
-          }}>
-            🎟  Mint
-          </Button>
-
-        </div>*/}
-
-
-      <div style={{ width:750, margin: "auto", marginTop:32, paddingBottom:256 }}>
+      <div style={{ width:720, margin: "auto", marginTop:32, paddingBottom:32 }}>
         {galleryList}
       </div>
+
+
+
+
       {/*
         <StackGrid
           columnWidth={200}
@@ -913,14 +914,24 @@ function App(props) {
             </div>
       </Drawer>
 
-      {
-        address&&royaltiesSent?
-        <div style={{padding:64,fontSize:14,opacity:0.85}}>{royaltiesSent && formatEther(royaltiesSent).substr(0,7)} royalties collected by <Address fontSize={12} value={artist}/></div>
-        :""
-      }
-{/*
+      <div style={{color:"#ffffff",background:"url('./bottom.jpg')",backgroundSize: "cover", backgroundPosition: "top"}}>
 
-      */}
+
+            {
+              address&&royaltiesSent?
+              <div style={{color:"#ffffff",padding:32,fontSize:14,opacity:0.85}}>🤖 {royaltiesSent && formatEther(royaltiesSent).substr(0,7)} automatic royalties collected by <span style={{ padding:12, backgroundColor:"#777777", borderRadius:8 }}><Address customColor={"#fffff"} fontSize={18} value={artist}/></span></div>
+              :""
+            }
+
+            <div style={{color:"#ffffff",padding:32,fontSize:14,opacity:0.85}}>Read the Ethereum <a style={{color:"#999999",cursor:"pointer"}} href="https://github.com/austintgriffith/scaffold-eth/blob/gtgs-voice-gems/packages/hardhat/contracts/GTGSCollectible.sol">smart contract</a>.</div>
+
+            <div style={{color:"#ffffff",fontSize:12, opacity:0.9,padding:128, paddingTop:512}}>
+              <div>Disclaimer
+              This experience is for educational purposes only.
+              The art pieces may not be replicated on any other platform and all participants agree to participate in accordance with the World Economic Forum Terms of Us
+              </div>
+            </div>
+      </div>
 
 
       {/*
@@ -1024,10 +1035,8 @@ function App(props) {
 
 
 
-<div style={{padding:32}}>
-</div>
 
-  {closeWalletButton}
+
 
   <div style={{ zIndex:2,transform:"scale(2)",transformOrigin:"70% 80%", position: "fixed", textAlign: "right", right: 0, bottom: 16, padding: 10 }}>
 
@@ -1049,6 +1058,7 @@ function App(props) {
 
 
   </div>
+
 
 
   {/*
@@ -1083,6 +1093,10 @@ function App(props) {
   </Row>
 </div>
 */}
+
+
+
+
 
 
 

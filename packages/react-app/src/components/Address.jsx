@@ -3,7 +3,7 @@ import Blockies from "react-blockies";
 
 import { CopyOutlined } from "@ant-design/icons";
 
-import { Typography, Skeleton, message } from "antd";
+import { Tooltip, Typography, Skeleton, message } from "antd";
 import { useLookupAddress } from "../hooks";
 
 // changed value={address} to address={address}
@@ -108,12 +108,12 @@ export default function Address(props) {
 
 
   return (
-    <span>
+    <Tooltip title="Public Address">
       <span style={{ verticalAlign: "middle" }}>
         <Blockies seed={address.toLowerCase()} size={8} scale={3} />
       </span>
       <span style={{ verticalAlign: "middle", paddingLeft: 8, fontSize: props.fontSize?props.fontSize:28 }}>{text}</span>
 
-    </span>
+    </Tooltip>
   );
 }
