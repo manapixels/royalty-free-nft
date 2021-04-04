@@ -6,45 +6,45 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./GTGSCoin.sol";
-//learn more: https://docs.openzeppelin.com/contracts/3.x/erc721
 
 contract GTGSCollectible is ERC721, Ownable {
 
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
 
-  uint256 STARTING_PRICE = 0.01 ether;
+  uint256 STARTING_PRICE = 0.01 ether; // All price curves start at 0.01 "Tokens"
 
   constructor() public ERC721("GTGSCollectible", "GTGS") {
-    //_setBaseURI("http://localhost:3000/previews/");
     for(uint8 i=1;i<=10;i++){
       price[i]=STARTING_PRICE;
     }
   }
 
+  // You have to use the gtgs "Token" to participate in Minting and Burning:
   GTGSCoin gtgsCoin;
   function setGTGSCoinAddress(address gtgsCoinAddress) public onlyOwner {
       gtgsCoin = GTGSCoin(gtgsCoinAddress);
   }
-
-  address payable public constant artist = 0x34aA3F359A9D614239015126635CE7732c18fDF3; //austingriffith.eth for testing
+          // you can just arbitrarily set up an address as the "artist" to get some arbitrary royalties on burns:
+  address payable public constant artist = 0x34aA3F359A9D614239015126635CE7732c18fDF3; //austingriffith.eth for testing?
   uint16 artistNumerator = 16;
   uint256 public royaltiesSent;
 
+  //we will only ever deal with 10 different curves for each of the 10 Voice Gems
   uint256 public constant HARD_LIMIT = 10;
 
   uint256 public constant startingAt = 0.01 ether;
   uint16[HARD_LIMIT] public numerators = [
-     1002,
-     1004,
-     1006,
-     1008,
-     1010,
-     1012,
-     1014,
-     1018,
-     1020,
-     1024
+     1002, // EACH
+     1004,  // VOICE GEM
+     1008,   // MINTS/BURNS "shards"
+     1016,    /// ON A DIFFERENT PRICE CURVE ///
+     1032,
+     1064,    //// 🏄‍♂️
+     1128, /////////////// ////////////
+     1256, //////////////
+     1512, ////////
+     1337 ////
   ];
   uint16 public constant denominator = 1000;
 
@@ -52,7 +52,7 @@ contract GTGSCollectible is ERC721, Ownable {
   mapping ( uint256 => bytes32 ) public tokenEntropy;
   mapping ( uint256 => uint256 ) public artworkOfToken;
 
-  uint256[HARD_LIMIT] public inTheWild = [0,0,0,0,0,0,0,0,0,0];
+  uint256[HARD_LIMIT] public inTheWild = [0,0,0,0,0,0,0,0,0,0];//track them in the wild for an easy frontend count
 
   mapping ( address => mapping ( uint256 => uint256 ) ) public balance;
 
@@ -122,13 +122,13 @@ contract GTGSCollectible is ERC721, Ownable {
     price[artwork] = prevPrice(artwork);
 
     //console.log("moves to price[artwork]",price[artwork]);
-    uint256 arbitraryRoyaltiesJustBecauseWeCan = uint256( price[artwork] * artistNumerator ) / denominator;
+    uint256 arbitraryRoyaltiesJustToShowOff = uint256( price[artwork] * artistNumerator ) / denominator;
     //console.log("royalties",royalties);
 
-    //artist.transfer( arbitraryRoyaltiesJustBecauseWeCan );
-    require( gtgsCoin.move(address(this), artist, arbitraryRoyaltiesJustBecauseWeCan), "Failed to transfer tokens to artist." );
+    //artist.transfer( arbitraryRoyaltiesJustToShowOff );
+    require( gtgsCoin.move(address(this), artist, arbitraryRoyaltiesJustToShowOff), "Failed to transfer tokens to artist." );
 
-    royaltiesSent+=arbitraryRoyaltiesJustBecauseWeCan;
+    royaltiesSent+=arbitraryRoyaltiesJustToShowOff;
 
     _burn(id);
 
@@ -136,16 +136,20 @@ contract GTGSCollectible is ERC721, Ownable {
 
     inTheWild[artwork-1]--;
 
-    emit Stream(artwork,id,msg.sender, price[artwork], arbitraryRoyaltiesJustBecauseWeCan, tokenEntropy[id]);
+    emit Stream(artwork,id,msg.sender, price[artwork], arbitraryRoyaltiesJustToShowOff, tokenEntropy[id]);
 
     delete tokenEntropy[id];
     //console.log("price[artwork] - royalties ",price[artwork] - royalties );
 
-    require( gtgsCoin.move(address(this), msg.sender, price[artwork] - arbitraryRoyaltiesJustBecauseWeCan), "Failed to transfer tokens to you." );
+    require( gtgsCoin.move(address(this), msg.sender, price[artwork] - arbitraryRoyaltiesJustToShowOff), "Failed to transfer tokens to you." );
     //console.log("NOW IT IS",price[artwork]);
 
     return id;
   }
+
+
+  // really got flagrant on the sidechain for this one...
+  // a lot of view functions to help reduce calls but dang
 
   function prices() public view returns (uint256[HARD_LIMIT] memory){
     return [

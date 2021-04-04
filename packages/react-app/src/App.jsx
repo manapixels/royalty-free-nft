@@ -280,10 +280,26 @@ function App(props) {
    let offset1 = (parseInt(part1,16)%(bottomImageSize-topImageSize-edgeBuffer/2))+edgeBuffer/2
    let offset2 = (parseInt(part2,16)%(bottomImageSize-topImageSize-edgeBuffer/2))+edgeBuffer/2
 
+   let cardActions = []
+   cardActions.push(
+     <div>
+       <Button onClick={()=>{
+         console.log("yourCollectibles[c]",yourCollectibles[c])
+         tx( writeContracts.GTGSCollectible.burn(yourCollectibles[c].artwork,yourCollectibles[c].id,{gasPrice:gasPrice}) )
+       }}>
+         🔥 burn
+       </Button>
+     </div>
+   )
+
    yourCollectiblesRender.push(
-     <Card style={{width:topImageSize+40}} key={"your"+yourCollectibles[c].entropy+yourCollectibles[c].id} title={"#"+yourCollectibles[c].id+" "+voiceGems[yourCollectibles[c].artwork-1].name}>
+     <Card actions={cardActions} style={{width:topImageSize+40,backgroundColor:"#eeeeee",border:"1px solid #444444"}} key={"your"+yourCollectibles[c].entropy+yourCollectibles[c].id} title={(
+       <span style={{color:"#666666"}}>
+          {"#"+yourCollectibles[c].id+" "+voiceGems[yourCollectibles[c].artwork-1].name}
+       </span>
+     )}>
        <div style={{position:"relative",width:topImageSize,height:topImageSize, overflow:"hidden"}}>
-         <img style={{position:"absolute",width:bottomImageSize,height:bottomImageSize,top:-offset1,left:-offset2}} src={"/"+IMAGE_SIZE+"/"+yourCollectibles[c].artwork+".jpg"}/>
+         <img style={{filter:"brightness(177%)",position:"absolute",width:bottomImageSize,height:bottomImageSize,top:-offset1,left:-offset2}} src={"/"+IMAGE_SIZE+"/"+yourCollectibles[c].artwork+".jpg"}/>
        </div>
      </Card>
    )
@@ -384,7 +400,7 @@ function App(props) {
 
   const [loading, setLoading] = useState(false);
 
-  const [walletUp, setWalletUp] = useState(false);
+  const [walletUp, setWalletUp] = useState(true);
 
   const [ transferToAddresses, setTransferToAddresses ] = useState({})
 
@@ -484,24 +500,18 @@ function App(props) {
       let offset1 = (parseInt(part1,16)%(bottomImageSize-topImageSize-edgeBuffer/2))+edgeBuffer/2
       let offset2 = (parseInt(part2,16)%(bottomImageSize-topImageSize-edgeBuffer/2))+edgeBuffer/2
 
-
-
       streamDisplay.push(
         <div key={"stream_"+thisCollectible.id+"_"+i} style={{marginTop:16,marginLeft:"22%",textAlign:"left",fontSize:11}}>
           <Row>
             <Col span={7} style={{width:40,height:40}}>
-
             <div style={{transform:"scale(0.25)",transformOrigin:"0 0",position:"relative",width:topImageSize,height:topImageSize, overflow:"hidden"}}>
               <img style={{position:"absolute",width:bottomImageSize,height:bottomImageSize,top:-offset1,left:-offset2}} src={"/"+IMAGE_SIZE+"/"+thisEvent.artwork+".jpg"}/>
             </div>
-
           </Col>
           <Col span={17}>
             <div><Address value={thisEvent.owner} fontSize={12} /></div> {isMint?"minted for":"burned for"} {thisEvent.amount && formatEther(thisEvent.amount).substr(0,7)} {isMint?"":thisEvent&&thisEvent.royalties&&"(-"+formatEther(thisEvent.royalties).substr(0,8)+")"}
           </Col>
           </Row>
-
-
         </div>
       )
     }
@@ -631,7 +641,7 @@ function App(props) {
                       key={"walletDrawer"}
                       height={"90%"}
                     >
-                      <div style={{position: "relative"}}>
+                      <div style={{position: "relative",paddingTop:32}}>
                           <div style={{padding:16,cursor:"pointer",backgroundColor:"#FFFFFF",width:420,margin:"auto"}}>
                             <QRPunkBlockie withQr={true} address={address} />
                           </div>
@@ -657,7 +667,7 @@ function App(props) {
                                 }}
                               />
                             </div>
-                            <div style={{padding: 10}}>
+                            <div style={{padding: 10,paddingBottom:32}}>
                               <Button
                                 key="sendFunds"
                                 type="primary"
@@ -697,6 +707,7 @@ function App(props) {
 
 
 
+
                             <div style={{ zIndex: walletUp?1:-1,opacity: walletUp?1:0, transform:"scale(2.7)",transformOrigin:"70% 80%", position: "fixed", textAlign: "right", right: 0, bottom: 160, padding: 10 }}>
 
                                <Button key={"theScanner"} disabled={!walletUp} type={"primary"} shape="circle" size={"large"} onClick={()=>{
@@ -707,17 +718,23 @@ function App(props) {
                             </div>
                           </div>
 
-                          <hr style={{marginTop:32,opacity:.1}}/>
+                          <div style={{float:"right"}}>
 
-                          <div style={{ maxWidth:820, margin: "auto", marginTop:64, paddingBottom:256 }}>
-                             <StackGrid
-                               columnWidth={200}
-                               gutterWidth={16}
-                               gutterHeight={16}
-                             >
-                               {yourCollectiblesRender}
-                             </StackGrid>
-                           </div>
+                          </div>
+
+                          <div style={{padding:32}} >
+
+                            <div style={{ maxWidth:820, margin: "auto", marginTop:64, paddingBottom:256 }}>
+                               <StackGrid
+                                 columnWidth={220}
+                                 gutterWidth={16}
+                                 gutterHeight={16}
+                               >
+                                 {yourCollectiblesRender}
+                               </StackGrid>
+                             </div>
+                          </div>
+
 
                         </div>
                   </Drawer>
@@ -758,10 +775,10 @@ function App(props) {
                    </Row>
 
 
-                 <div style={{padding:64,position:"absolute",left:0,bottom:0,width:"100%",height:"50",backgroundColor:"#eeeeee",opacity:.7}}>
+                 <div style={{padding:32,position:"absolute",left:0,bottom:0,width:"100%",backgroundColor:"#eeeeee",opacity:.7}}>
                  .
                  </div>
-                 <div style={{padding:64,fontSize:14, position:"absolute",left:0,bottom:50,width:"100%",height:"50",opacity:1, color:"#000000"}}>
+                 <div style={{fontSize:14, position:"absolute",left:0,bottom:20,paddingRight:"30%",paddingLeft:"20%",width:"100%",opacity:1, color:"#000000"}}>
                    <div>
                    <b style={{marginRight:8}}>Disclaimer</b>
                    This experience is for educational purposes only. The art pieces may not be replicated on any other platform and all participants agree to participate in accordance with the World Economic Forum Terms of Use.
