@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { KeyOutlined, WalletOutlined, QrcodeOutlined, SendOutlined } from "@ant-design/icons";
-import { Tooltip, Spin, Modal, Button, Typography, message } from "antd";
+import { Row, Col, Tooltip, Spin, Modal, Button, Typography, message } from "antd";
 import QR from "qrcode.react";
 import { parseEther } from "@ethersproject/units";
 import { useUserAddress } from "eth-hooks";
@@ -269,7 +269,14 @@ export default function Wallet(props) {
           <div>
             {selectedAddress ? <Address address={selectedAddress} ensProvider={props.ensProvider} /> : <Spin />}
             <div style={{ float: "right", paddingRight: 25 }}>
-              <Balance address={selectedAddress} provider={props.provider} dollarMultiplier={props.price} />
+              <Row >
+                <Col style={{textAlign:"right"}}>
+                  <Balance value={props.gtgsCoinBalance} size={18} /><span style={{verticalAlign:"middle"}}></span>
+                </Col>
+                <Col style={{opacity:0.5,textAlign:"left"}}>
+                  (⛽️<Balance value={props.yourLocalBalance} size={14} />)
+                </Col>
+              </Row>
             </div>
           </div>
         }

@@ -4,7 +4,7 @@ import "antd/dist/antd.css";
 import {  JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import { PictureOutlined, ExportOutlined, CloseCircleOutlined, WalletOutlined, SendOutlined, CaretUpOutlined, HistoryOutlined, ScanOutlined } from "@ant-design/icons";
 import "./App.css";
-import { Image, List, Card, Drawer, Tooltip, Select, Row, Col, Button, Menu, Alert, Spin, Switch as SwitchD } from "antd";
+import { notification, Image, List, Card, Drawer, Tooltip, Select, Row, Col, Button, Menu, Alert, Spin, Switch as SwitchD } from "antd";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { useUserAddress } from "eth-hooks";
@@ -45,20 +45,20 @@ const { ethers } = require("ethers");
 */
 
 const voiceGems = [{
-    id: "1",
-    name: "Amazonian"
-  },{
     id: "2",
     name: "Opal Earth"
-  },{
-    id: "3",
-    name: "Digital One"
   },{
     id: "4",
     name: "Anti-Ivory"
   },{
     id: "5",
     name: "Earth Core"
+  },{
+    id: "1",
+    name: "Amazonian"
+  },{
+    id: "3",
+    name: "Digital One"
   },{
     id: "6",
     name: "Sky Stone"
@@ -308,6 +308,21 @@ function App(props) {
      </div>
    )
 
+/*
+   setSendToAddress
+   cardActions.push(
+     <div>
+     <AddressInput
+       placeholder="send to address"
+       address={sendToAddress[yourCollectibles[c].id]}
+       onChange={setSendToAddress}
+       hoistScanner={(toggle)=>{
+         scanner=toggle
+       }}
+     />
+     </div>
+   )*/
+
    yourCollectiblesRender.push(
      <Card actions={cardActions} style={{width:topImageSize+40,backgroundColor:"#eeeeee",border:"1px solid #444444"}} key={"your"+yourCollectibles[c].entropy+yourCollectibles[c].id} title={(
        <span style={{color:"#666666"}}>
@@ -315,7 +330,7 @@ function App(props) {
        </span>
      )}>
        <div style={{position:"relative",width:topImageSize,height:topImageSize, overflow:"hidden"}}>
-         <img style={{filter:"brightness(177%)",position:"absolute",width:bottomImageSize,height:bottomImageSize,top:-offset1,left:-offset2}} src={"/"+IMAGE_SIZE+"/"+yourCollectibles[c].artwork+".jpg"}/>
+         <img style={{filter:"brightness(107%)",position:"absolute",width:bottomImageSize,height:bottomImageSize,top:-offset1,left:-offset2}} src={"/"+IMAGE_SIZE+"/"+yourCollectibles[c].artwork+".jpg"}/>
        </div>
      </Card>
    )
@@ -420,7 +435,7 @@ function App(props) {
 
   const [ transferToAddresses, setTransferToAddresses ] = useState({})
 
-  const walletDisplay = web3Modal && web3Modal.cachedProvider ? "":<Wallet invert={true} address={address} provider={userProvider} ensProvider={mainnetProvider} price={price} />
+  const walletDisplay = web3Modal && web3Modal.cachedProvider ? "":<Wallet invert={true} gtgsCoinBalance={gtgsCoinBalance} yourLocalBalance={yourLocalBalance} address={address} provider={userProvider} ensProvider={mainnetProvider} price={price} />
 
   let closeWalletButton = ""
   let scanButton = ""
@@ -520,7 +535,7 @@ function App(props) {
         <div key={"stream_"+thisCollectible.id+"_"+i} style={{marginTop:16,marginLeft:"22%",textAlign:"left",fontSize:11}}>
           <Row>
             <Col span={7} style={{width:40,height:40}}>
-            <div style={{transform:"scale(0.25)",transformOrigin:"0 0",position:"relative",width:topImageSize,height:topImageSize, overflow:"hidden"}}>
+            <div style={{filter:"brightness(117%)",transform:"scale(0.25)",transformOrigin:"0 0",position:"relative",width:topImageSize,height:topImageSize, overflow:"hidden"}}>
               <img style={{position:"absolute",width:bottomImageSize,height:bottomImageSize,top:-offset1,left:-offset2}} src={"/"+IMAGE_SIZE+"/"+thisEvent.artwork+".jpg"}/>
             </div>
           </Col>
@@ -562,6 +577,9 @@ function App(props) {
 
 
             <Button disabled={thinking}  onClick={async()=>{
+
+
+
               if(USE_DELAY) {
                 setThinking(true)
                 setTimeout(()=>{
@@ -571,7 +589,17 @@ function App(props) {
               let price = await readContracts.GTGSCollectible.price(thisCollectible.id)
               console.log("price",price)
 
-              tx( writeContracts.GTGSCollectible.mint(thisCollectible.id,price,{gasPrice:gasPrice}) )
+              if( price.gt(gtgsCoinBalance) ){
+                notification.open({
+                  message: '⚠️ Not Enough Tokens',
+                  description: 'You do not have enough tokens in your wallet to mint. Try burning some shards to get some tokens back?',
+                  placement: "bottomLeft"
+                });
+              }else{
+                tx( writeContracts.GTGSCollectible.mint(thisCollectible.id,price,{gasPrice:gasPrice}) )
+              }
+
+
             }}>
               <span style={{color:"#ae5d5d",marginRight:8}}>{prices&&prices[thisCollectible.id-1]?formatEther(prices[thisCollectible.id-1]).substr(0,7):""}</span> Mint
             </Button>
@@ -633,6 +661,9 @@ function App(props) {
                 {galleryList}
               </div>
 
+              <div style={{ width:720, margin: "auto", marginBottom:32, paddingBottom:32 , fontSize: 18}}>
+                📧 <a href="mailto:toplinksupport@weforum.org" stlye={{marginLeft:8}}>contact support</a>
+              </div>
 
                   <Drawer
                       title={(
@@ -733,8 +764,8 @@ function App(props) {
                             </div>
                           </div>
 
-                          <div style={{float:"right"}}>
-
+                          <div style={{fontSize:64,letterSpacing:-3,fontWeight:'bolder',color:"#222222",width:650,margin:"auto"}}>
+                            {totalBalance} <span style={{opacity:0.24}}> <i>shards collected</i>:</span>
                           </div>
 
                           <div style={{padding:32}} >
@@ -805,9 +836,6 @@ function App(props) {
                   </div>
 
                   {/*
-
-
-                    */}
                     <Contract
                       name="GTGSCollectible"
                       signer={userProvider.getSigner()}
@@ -822,6 +850,9 @@ function App(props) {
                       address={address}
                       blockExplorer={blockExplorer}
                     />
+
+
+                    */}
 
 
 
@@ -940,9 +971,9 @@ function App(props) {
 
       <div style={{marginTop:64,backgroundColor:"#0000000"}} >
         <div style={{fontSize:13, width:720, border:"1px solid #e8e8e8",margin:"auto",padding:32,marginTop:32, textAlign:'left'}}>
-        <div>In this experience, you’ll be interacting with non-fungible tokens (NFTs), representing <i>shards</i> of <b>Voice Gems</b>.</div>
+        <div>In this experience, you will be interacting with non-fungible tokens (NFTs), representing <i>shards</i> of <b>Voice Gems</b>.</div>
         <div>To collect an art piece, you <b>mint</b> an NFT <i>shard</i> for the list price.</div>
-        <div>To sell the piece back to the market, you will “burn” it.</div>
+        <div>To sell the piece back to the market, you will <b>burn</b> it.</div>
         <div>The transactions take place on xDAI, a sidechain of Ethereum, and prices automatically adjust based on the supply and demand at a given time. </div>
         </div>
       </div>
