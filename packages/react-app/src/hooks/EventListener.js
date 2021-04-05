@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 /*
   ~ What it does? ~
 
-  Enables you to keep track of events 
+  Enables you to keep track of events
 
   ~ How can I use? ~
 
@@ -14,7 +14,7 @@ import { useState, useEffect } from "react";
   - Provide readContracts by loading contracts (see more on ContractLoader.js)
   - Specify the name of the contract, in this case it is "YourContract"
   - Specify the name of the event in the contract, in this case we keep track of "SetPurpose" event
-  - Specify the provider 
+  - Specify the provider
 */
 
 export default function useEventListener(contracts, contractName, eventName, provider, startBlock, args) {
@@ -38,7 +38,7 @@ export default function useEventListener(contracts, contractName, eventName, pro
         console.log(e);
       }
     }
-  }, [provider, startBlock, contracts, contractName, eventName]);
+  }, [contracts, contractName, eventName]);
 
   return updates;
 }

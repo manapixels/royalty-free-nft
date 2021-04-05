@@ -7,7 +7,7 @@ import "./App.css";
 import { notification, Image, List, Card, Drawer, Tooltip, Select, Row, Col, Button, Menu, Alert, Spin, Switch as SwitchD } from "antd";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import { useUserAddress } from "eth-hooks";
+import { useUserAddress, useBlockNumber } from "eth-hooks";
 import { usePoller, useExchangePrice, useGasPrice, useUserProvider, useContractLoader, useContractReader, useEventListener, useBalance, useExternalContractLoader } from "./hooks";
 import { Wallet, AddressInput, EtherInput, Header, Account, Faucet, Ramp, Contract, GasGauge, ThemeSwitch, QRPunkBlockie, Address, Balance } from "./components";
 import { Transactor } from "./helpers";
@@ -87,7 +87,7 @@ let targetNetwork =  NETWORKS['xdai'];
 // 😬 Sorry for all the console logging
 const DEBUG = false
 
-const LOOK_BACK_TO_BLOCK_FOR_EVENTS = 1
+const LOOK_BACK_TO_BLOCK_FOR_EVENTS = 3000
 
 const DISPLAY_WEB3_CONNECT = false
 
@@ -181,6 +181,7 @@ function App(props) {
   const yourLocalBalance = useBalance(localProvider, address);
   if(DEBUG) console.log("💵 yourLocalBalance",yourLocalBalance?formatEther(yourLocalBalance):"...")
 
+  let blockNumber = useBlockNumber(localProvider, 35000)
   //const balance = yourLocalBalance && formatEther(yourLocalBalance)
 
 
@@ -338,7 +339,7 @@ function App(props) {
 
 
   //📟 Listen for broadcast events
-  const streamEvents = useEventListener(readContracts, "GTGSCollectible", "Stream", localProvider, LOOK_BACK_TO_BLOCK_FOR_EVENTS);
+  const streamEvents = useEventListener(readContracts, "GTGSCollectible", "Stream", localProvider, blockNumber-LOOK_BACK_TO_BLOCK_FOR_EVENTS);
   //console.log("📟 streamEvents:",streamEvents)
 
 
