@@ -51,8 +51,8 @@ export const NETWORKS = {
           symbol: 'xDAI',
           decimals: 18
         },
-        gasPrice:1000000000,
-        rpcUrl: "https://xdai-archive.blockscout.com",//"https://dai.poa.network",
+        gasPrice:1010111000,
+        rpcUrl: "https://rpc.xdaichain.com/gtgs",//https://xdai-archive.blockscout.com",//"https://dai.poa.network",
         faucet: "https://xdai-faucet.top/",
         blockExplorer: "https://blockscout.com/poa/xdai/",
     },

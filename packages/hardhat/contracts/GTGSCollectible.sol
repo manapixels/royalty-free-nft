@@ -1,6 +1,24 @@
 pragma solidity >=0.6.0 <0.8.0;
 //SPDX-License-Identifier: MIT
 
+//
+// Disclaimer: unaudited contract for educational purposes only!
+//
+// Created by @austingriffith - https://austingriffith.com
+//
+
+//
+// This is a raw and flagrant smart contract only fit for a sidechain.
+// It's inefficient and stores way too much on-chain...
+//
+//  BUT! It shows that you can build a new kind of NFT collecting or pricing mechanism on Ethereum in a weekend!
+//
+
+//
+// Created with 🏗 scaffold-eth - https://github.com/austintgriffith/scaffold-eth
+//
+
+
 //import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
@@ -30,7 +48,7 @@ contract GTGSCollectible is ERC721, Ownable {
   uint16 artistNumerator = 16;
   uint256 public royaltiesSent;
 
-  //we will only ever deal with 10 different curves for each of the 10 Voice Gems
+  // 10 different curves for each of the 10 Voice Gems
   uint256 public constant HARD_LIMIT = 10;
 
   uint256 public constant startingAt = 0.01 ether;
@@ -147,8 +165,7 @@ contract GTGSCollectible is ERC721, Ownable {
     return id;
   }
 
-
-  // really got flagrant on the sidechain for this one...
+  // really got messy with this one...
   // a lot of view functions to help reduce calls but dang
 
   function prices() public view returns (uint256[HARD_LIMIT] memory){

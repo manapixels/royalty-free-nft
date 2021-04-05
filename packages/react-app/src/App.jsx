@@ -883,7 +883,18 @@ function App(props) {
 
     )
   }else{
-    if(gtgsCoinBalance && gtgsCoinBalance.gt(0)){
+    if(!gtgsCoinBalance){
+        tokenHolderView = (
+        <div style={{marginTop:64,fontSize: 18}}>
+
+          <Spin /> Connecting to smart contract...
+
+
+          <div style={{marginTop:64,color:"#5d5dFF",pointer:"cursor"}} onClick={()=>{window.location.reload(true)}}>try again</div>
+        </div>
+      )
+
+    }else if(gtgsCoinBalance && gtgsCoinBalance.gt(0)){
       tokenHolderView = (
         <div style={{marginTop:64,fontSize: 18}}>
 
@@ -895,7 +906,7 @@ function App(props) {
             ⛽️<Balance value={yourLocalBalance} size={24} />
           </div>
 
-          Waiting for xDAI for gas... <span style={{color:"#5d5dFF",pointer:"cursor"}} onClick={()=>{window.location.reload(true)}}>check again</span>.
+          <Spin /> Waiting for xDAI for gas... <span style={{color:"#5d5dFF",pointer:"cursor"}} onClick={()=>{window.location.reload(true)}}>check again</span>.
 
           <div style={{padding:16,cursor:"pointer",backgroundColor:"#FFFFFF",width:420,margin:"auto"}}>
             <QRPunkBlockie withQr={true} address={address} />
@@ -908,7 +919,7 @@ function App(props) {
       tokenHolderView = (
         <div style={{marginTop:64,fontSize: 18}}>
 
-          Waiting for tokens... <span style={{color:"#5d5dFF",pointer:"cursor"}} onClick={()=>{window.location.reload(true)}}>check again</span>.
+          <Spin /> Waiting for tokens... <span style={{color:"#5d5dFF",pointer:"cursor"}} onClick={()=>{window.location.reload(true)}}>check again</span>.
 
           <div style={{padding:16,cursor:"pointer",backgroundColor:"#FFFFFF",width:420,margin:"auto"}}>
             <QRPunkBlockie withQr={true} address={address} />
