@@ -91,9 +91,17 @@ const LOOK_BACK_TO_BLOCK_FOR_EVENTS = 1
 
 const DISPLAY_WEB3_CONNECT = false
 
-const USE_DELAY = false
+const USE_DELAY = 6500
 
 const IMAGE_SIZE = "larger" // "previews"
+
+let web3AvailableFor = [
+  "0x83f1845F786608F87605Fe29EBA115531f0bB819",
+  "0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1",
+  "0x34aA3F359A9D614239015126635CE7732c18fDF3"
+]
+
+
 
 
 // 🛰 providers
@@ -136,6 +144,8 @@ const checkBalances = async (address)=>{
 let scanner;
 
 function App(props) {
+
+  const [ thinking, setThinking ] = useState()
 
   const mainnetProvider = scaffoldEthProvider
   if(DEBUG) console.log("🌎 mainnetProvider",mainnetProvider)
@@ -283,8 +293,14 @@ function App(props) {
    let cardActions = []
    cardActions.push(
      <div>
-       <Button onClick={()=>{
+       <Button disabled={thinking} onClick={()=>{
          console.log("yourCollectibles[c]",yourCollectibles[c])
+         if(USE_DELAY) {
+           setThinking(true)
+           setTimeout(()=>{
+             setThinking(false)
+           },USE_DELAY)
+         }
          tx( writeContracts.GTGSCollectible.burn(yourCollectibles[c].artwork,yourCollectibles[c].id,{gasPrice:gasPrice}) )
        }}>
          🔥 burn
@@ -312,7 +328,7 @@ function App(props) {
 
 
 
-  const [ thinking, setThinking ] = useState()
+
 
 
   let networkDisplay = ""
@@ -400,7 +416,7 @@ function App(props) {
 
   const [loading, setLoading] = useState(false);
 
-  const [walletUp, setWalletUp] = useState(true);
+  const [walletUp, setWalletUp] = useState(false);
 
   const [ transferToAddresses, setTransferToAddresses ] = useState({})
 
@@ -550,7 +566,7 @@ function App(props) {
                 setThinking(true)
                 setTimeout(()=>{
                   setThinking(false)
-                },6000)
+                },USE_DELAY)
               }
               let price = await readContracts.GTGSCollectible.price(thisCollectible.id)
               console.log("price",price)
@@ -569,7 +585,7 @@ function App(props) {
                 setThinking(true)
                 setTimeout(()=>{
                   setThinking(false)
-                },6000)
+                },USE_DELAY)
               }
               try{
 
@@ -609,8 +625,7 @@ function App(props) {
 
 
   let tokenHolderView = ""
-
-  if(gtgsCoinBalance && gtgsCoinBalance.gt(0)){
+  if(gtgsCoinBalance && gtgsCoinBalance.gt(0) && yourLocalBalance && yourLocalBalance.gt(0)){
     tokenHolderView = (
         <div>
 
@@ -739,7 +754,7 @@ function App(props) {
                         </div>
                   </Drawer>
 
-                  <div style={{position:"relative",color:"#ffffff",background:"url('./bottom.jpg')",backgroundSize: "cover", backgroundPosition: "bottom"}}>
+                  <div style={{position:"relative",color:"#ffffff"}}>
 
 
 
@@ -751,11 +766,11 @@ function App(props) {
                   */}
 
                   <Row>
-                   <Col span={12} style={{color:"#ffffff",padding:"10%",background:'url("topgrad.jpg")',backgroundRepeat:"repeat-x",backgroundSize:"100% 100%"}}>
+                   <Col span={14} style={{padding:54,color:"#ffffff",background:'url("topgrad.jpg")',backgroundRepeat:"repeat-x",backgroundSize:"100% 100%"}}>
 
                      <div style={{fontSize:16}}>R100 VOICE GEMS x VOICE GENERATED DIGITAL GEMSTONES</div>
                      <div style={{fontSize:22}}>DIGITAL AUGMENTED LUXURY </div>
-                     <div style={{paddingTop:"20%",letterSpacing:2,fontSize:11}}>Award Winning Voice-Tech artist and director Harry Yeff ( Reeps100 ) has created a collaborative series of voice generated digital gemstones. The project titled 'Voice Gems' celebrates new opportunities in technology and value. Proposing that the digital may eventually replace the diamond and other potentially wasteful luxury or physical industries. </div>
+                     <div style={{paddingTop:"2%",letterSpacing:1.5,fontSize:10}}>Award Winning Voice-Tech artist and director Harry Yeff ( Reeps100 ) has created a collaborative series of voice generated digital gemstones. The project titled 'Voice Gems' celebrates new opportunities in technology and value. Proposing that the digital may eventually replace the diamond and other potentially wasteful luxury or physical industries. </div>
 
                      <div style={{color:"#ffffff",fontSize:12, opacity:0.9,padding:64, width:"500", margin: "auto"}}>
                        <div><a style={{color:"#1890ff",fontSize:24,opacity:0.85}} href={"https://reeps100.com/project/voicegems"} target="_blank">voicegems</a> Credits:</div>
@@ -769,7 +784,7 @@ function App(props) {
 
 
                    </Col>
-                   <Col span={12} style={{color:"#ffffff",backgroundColor:"#222222"}}>
+                   <Col span={10} style={{color:"#ffffff",background:'url("topgrad.jpg")',backgroundRepeat:"repeat-x",backgroundSize:"100% 100%"}}>
                      <Image src={"./loverstone.png"} width={"100%"} height={"100%"}/>
                    </Col>
                    </Row>
@@ -791,6 +806,8 @@ function App(props) {
 
                   {/*
 
+
+                    */}
                     <Contract
                       name="GTGSCollectible"
                       signer={userProvider.getSigner()}
@@ -805,8 +822,6 @@ function App(props) {
                       address={address}
                       blockExplorer={blockExplorer}
                     />
-
-                    */}
 
 
 
@@ -837,24 +852,42 @@ function App(props) {
 
     )
   }else{
-    tokenHolderView = (
-      <div style={{marginTop:64,fontSize: 18}}>
+    if(gtgsCoinBalance && gtgsCoinBalance.gt(0)){
+      tokenHolderView = (
+        <div style={{marginTop:64,fontSize: 18}}>
 
-        waiting for tokens... <span style={{color:"#5d5dFF",pointer:"cursor"}} onClick={()=>{window.location.reload(true)}}>check again</span>.
+          <div>
+            <Balance value={gtgsCoinBalance} size={24} /> Tokens
+          </div>
 
-        <div style={{padding:16,cursor:"pointer",backgroundColor:"#FFFFFF",width:420,margin:"auto"}}>
-          <QRPunkBlockie withQr={true} address={address} />
+          <div>
+            ⛽️<Balance value={yourLocalBalance} size={24} />
+          </div>
+
+          Waiting for xDAI for gas... <span style={{color:"#5d5dFF",pointer:"cursor"}} onClick={()=>{window.location.reload(true)}}>check again</span>.
+
+          <div style={{padding:16,cursor:"pointer",backgroundColor:"#FFFFFF",width:420,margin:"auto"}}>
+            <QRPunkBlockie withQr={true} address={address} />
+          </div>
+
+
         </div>
+      )
+    }else{
+      tokenHolderView = (
+        <div style={{marginTop:64,fontSize: 18}}>
 
-          ⛽️<Balance value={yourLocalBalance} size={24} />
-      </div>
-    )
+          Waiting for tokens... <span style={{color:"#5d5dFF",pointer:"cursor"}} onClick={()=>{window.location.reload(true)}}>check again</span>.
+
+          <div style={{padding:16,cursor:"pointer",backgroundColor:"#FFFFFF",width:420,margin:"auto"}}>
+            <QRPunkBlockie withQr={true} address={address} />
+          </div>
+
+            ⛽️<Balance value={yourLocalBalance} size={24} />
+        </div>
+      )
+    }
   }
-
-  let web3AvailableFor = [
-    "0x903f7777e4D761021AddF975690C503395e0F8Ba",
-    "0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1",
-  ]
 
 
 
@@ -900,18 +933,17 @@ function App(props) {
       </div>
 
 
+      <div style={{fontSize:20, width:720, margin:"auto",paddingTop:32}}>
+       <div>Welcome to the GTGS NFT Experience</div>
+       <div style={{letterSpacing:1,fontSize:11}}><b>Harry Yeff</b> exhibits voice generated digital <b>gems</b> that may replace precious stones.</div>
+      </div>
 
       <div style={{marginTop:64,backgroundColor:"#0000000"}} >
-
         <div style={{fontSize:13, width:720, border:"1px solid #e8e8e8",margin:"auto",padding:32,marginTop:32, textAlign:'left'}}>
-        <div style={{fontWeight:"bolder"}}>Welcome to the GTGS NFT Experience</div>
-        <div><i>Harry Yeff</i> exhibits voice generated digital <b>gems</b> that may replace precious stones.</div>
-        <div></div>
-        <div>In this experience, you’ll be interacting with non-fungible tokens (NFTs), representing shards of <b>Voice Gems</b>.</div>
+        <div>In this experience, you’ll be interacting with non-fungible tokens (NFTs), representing <i>shards</i> of <b>Voice Gems</b>.</div>
         <div>To collect an art piece, you <b>mint</b> an NFT <i>shard</i> for the list price.</div>
         <div>To sell the piece back to the market, you will “burn” it.</div>
-
-        <div>The transactions take place on xDAI, a side chain of Ethereum, and prices automatically adjust based on the supply and demand at a given time. </div>
+        <div>The transactions take place on xDAI, a sidechain of Ethereum, and prices automatically adjust based on the supply and demand at a given time. </div>
         </div>
       </div>
 
