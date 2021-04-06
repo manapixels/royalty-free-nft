@@ -50,21 +50,23 @@ const main = async () => {
   name = "Optimistico Punks"
   symbol = "OP"
 
-/*
+
 // L1 ERC721
   const ERC721 = await deploy({contractName: "TestERC721", rpcUrl: selectedNetwork.l1RpcUrl, ovm: false, _args: [name, symbol]})
   const OVM_DepositedERC721 = await deploy({contractName: "DepositedERC721", rpcUrl: selectedNetwork.l2RpcUrl, ovm: true, _args: [l2MessengerAddress, name, symbol]})
   const OVM_ERC721Gateway = await deploy({contractName: "ERC721Gateway", rpcUrl: selectedNetwork.l1RpcUrl, ovm: false, _args: [ERC721.address, OVM_DepositedERC721.address, l1MessengerAddress]})
   const initERC721 = await OVM_DepositedERC721.init(OVM_ERC721Gateway.address)
   console.log(initERC721)
-*/
 
+
+/*
 // L2 ERC721
   const ERC721 = await deploy({contractName: "TestERC721", rpcUrl: selectedNetwork.l2RpcUrl, ovm: true, _args: [name, symbol]})
   const OVM_DepositedERC721 = await deploy({contractName: "DepositedERC721", rpcUrl: selectedNetwork.l1RpcUrl, ovm: false, _args: [l1MessengerAddress, name, symbol]})
   const OVM_ERC721Gateway = await deploy({contractName: "ERC721Gateway", rpcUrl: selectedNetwork.l2RpcUrl, ovm: true, _args: [ERC721.address, OVM_DepositedERC721.address, l2MessengerAddress]})
   const initERC721 = await OVM_DepositedERC721.init(OVM_ERC721Gateway.address)
   console.log(initERC721)
+  */
 
   if(demo == true) {
 
@@ -105,6 +107,8 @@ const main = async () => {
         console.log(' completed! L1 tx hash:', receipt.transactionHash)
       }
     }
+
+    
 
     const logBalances = async (description = '') => {
       console.log('\n ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ' + description + ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
@@ -151,6 +155,7 @@ const main = async () => {
     await logBalances()
 
 
+
     const logERC721Balances = async (description = '') => {
       console.log('\n ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ' + description + ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
       if(ERC721) {
@@ -170,21 +175,25 @@ const main = async () => {
     console.log(' Minted: ' + mintTx.hash)
     await mintTx.wait()
 
+    /*
     // Approve
     console.log(' Approving deposit contract...')
     approveTx = await ERC721.approve(OVM_ERC721Gateway.address, 1)
     console.log(' Approved: ' + approveTx.hash)
     approveTx.wait()
+    */
 
     await logERC721Balances()
 
     // Deposit
     console.log(' Depositing into deposit contract...')
-    depositTx = await OVM_ERC721Gateway.deposit(1)
+    depositTx = await ERC721['safeTransferFrom(address,address,uint256)'](deployWallet.address, OVM_ERC721Gateway.address, 1, {
+    gasLimit: 500000
+})//await OVM_ERC721Gateway.deposit(1)
     console.log(' Deposited: ' + depositTx.hash)
     await depositTx.wait()
 
-    await trackMessageTransmission(2, depositTx.hash)
+    await trackMessageTransmission(1, depositTx.hash)
 
     await logERC721Balances()
 
@@ -197,7 +206,7 @@ const main = async () => {
 
     await logERC721Balances()
 
-    await trackMessageTransmission(1, withdrawalTx.hash)
+    await trackMessageTransmission(2, withdrawalTx.hash)
 
     await logERC721Balances()
 
