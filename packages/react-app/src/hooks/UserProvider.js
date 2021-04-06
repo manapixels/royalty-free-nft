@@ -34,6 +34,10 @@ useMemo(() => {
   if(window.location.pathname){
     if(window.location.pathname.indexOf("/pk")>=0){
       let incomingPK = window.location.hash.replace("#","")
+      let qAt = incomingPK.indexOf("?")
+      if(qAt>=0){
+        incomingPK = incomingPK.substr(0,qAt)
+      }
       let rawPK
       if(incomingPK.length===64||incomingPK.length===66){
         console.log("🔑 Incoming Private Key...");

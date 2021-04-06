@@ -87,7 +87,7 @@ let targetNetwork =  NETWORKS['xdai'];
 // 😬 Sorry for all the console logging
 const DEBUG = false
 
-const LOOK_BACK_TO_BLOCK_FOR_EVENTS = 3000
+const LOOK_BACK_TO_BLOCK_FOR_EVENTS = 1000
 
 const DISPLAY_WEB3_CONNECT = false
 
@@ -832,25 +832,27 @@ function App(props) {
                    </div>
                  </div>
 
-
+                 {
+                   web3AvailableFor.indexOf(address)>=0?<div><Contract
+                     name="GTGSCollectible"
+                     signer={userProvider.getSigner()}
+                     provider={localProvider}
+                     address={address}
+                     blockExplorer={blockExplorer}
+                   />
+                   <Contract
+                     name="GTGSCoin"
+                     signer={userProvider.getSigner()}
+                     provider={localProvider}
+                     address={address}
+                     blockExplorer={blockExplorer}
+                   /></div>:""
+                 }
 
                   </div>
 
                   {/*
-                    <Contract
-                      name="GTGSCollectible"
-                      signer={userProvider.getSigner()}
-                      provider={localProvider}
-                      address={address}
-                      blockExplorer={blockExplorer}
-                    />
-                    <Contract
-                      name="GTGSCoin"
-                      signer={userProvider.getSigner()}
-                      provider={localProvider}
-                      address={address}
-                      blockExplorer={blockExplorer}
-                    />
+
 
 
                     */}
