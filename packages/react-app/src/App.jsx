@@ -261,7 +261,7 @@ function App(props) {
  useEffect(()=>{
    const updateYourCollectibles = async () => {
      let collectibleUpdate = []
-     for(let tokenIndex=0;tokenIndex<totalBalance;tokenIndex++){
+     for(let tokenIndex=totalBalance-1;tokenIndex>=0;tokenIndex--){
        try{
          //console.log("GEtting token index",tokenIndex)
          const tokenId = await readContracts.GTGSCollectible.tokenOfOwnerByIndex(address, tokenIndex)
@@ -270,10 +270,11 @@ function App(props) {
          const artwork = await readContracts.GTGSCollectible.artworkOfToken(tokenId)
          collectibleUpdate.push({ id:tokenId && tokenId.toNumber() , entropy:entropy, artwork: artwork && artwork.toNumber() })
        }catch(e){console.log(e)}
+       setYourCollectibles(collectibleUpdate)
      }
 
-     const reversed = collectibleUpdate.reverse();
-     setYourCollectibles(reversed)
+
+
    }
    updateYourCollectibles()
  },[ readContracts, address, totalBalance ])
