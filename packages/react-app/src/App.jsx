@@ -96,6 +96,7 @@ const USE_DELAY = 6500
 const IMAGE_SIZE = "larger" // "previews"
 
 let web3AvailableFor = [
+  "0xd2a9F3CE1Ace8a88ecDA533d99599b164597761A",
   "0x83f1845F786608F87605Fe29EBA115531f0bB819",
   "0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1",
   "0x34aA3F359A9D614239015126635CE7732c18fDF3"
@@ -324,10 +325,16 @@ function App(props) {
      </div>
    )*/
 
+   let foundName = ""
+   for(let g=0;g<voiceGems.length;g++){
+     if(voiceGems[g]&&voiceGems[g].id==yourCollectibles[c].artwork){
+       foundName=voiceGems[g].name;
+     }
+   }
    yourCollectiblesRender.push(
      <Card actions={cardActions} style={{width:topImageSize+40,backgroundColor:"#eeeeee",border:"1px solid #444444"}} key={"your"+yourCollectibles[c].entropy+yourCollectibles[c].id} title={(
        <span style={{color:"#666666"}}>
-          {"#"+yourCollectibles[c].id+" "+voiceGems[yourCollectibles[c].artwork-1].name}
+          {"#"+yourCollectibles[c].id+" "+foundName}
        </span>
      )}>
        <div style={{position:"relative",width:topImageSize,height:topImageSize, overflow:"hidden"}}>
@@ -350,7 +357,7 @@ function App(props) {
   let networkDisplay = ""
   if(localChainId && selectedChainId && localChainId != selectedChainId ){
     networkDisplay = (
-      <div style={{zIndex:2, position:'absolute', right:0,top:0,padding:8}}>
+      <div style={{zIndex:2, position:'absolute', right:0,top:100,padding:8}}>
         <Alert
           message={"⚠️ Wrong Network"}
           description={(
@@ -945,6 +952,7 @@ function App(props) {
         <div className="site-page-header-ghost-wrapper">
           <Header extra={
             [
+              <span style={{color:"#222222", fontSize:14}}>[ <a target="_blank" style={{color:"#eeeeee"}} href="https://weforum.ent.box.com/s/bkqbph0gzyetk29tf6biigy4v2cdeke2">User Guide & FAQs</a> ] </span>,
               <Address
                 fontSize={32}
                 address={address}
