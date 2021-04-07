@@ -2,16 +2,51 @@
 
 ## Token Allocator Example
 
-> Smart contract application to distribute tokens/ETH at a predefined ratio to a number of addresses.
+> Allocator.sol to distribute tokens/ETH at a predefined ratio to a number of addresses.
 
-> Allows the community to send funds to a credibly neutral token distributor.
+> Allows the community to send funds to a neutral token distributor.
+
+# 🐊 Deploying an Allocator:
+
+```bash
+git clone https://github.com/austintgriffith/scaffold-eth.git new-allocator
+
+cd new-allocator
+
+git checkout new-allocator
+
+yarn install
+
+```
+
+create a deployer mnemonic:
+
+```
+
+yarn generate
+
+```
+
+(Fund this address by running `yarn account` and sending ETH to it.)
+
+then deploy your allocator:
+
+```
+
+yarn deployAllocator
+
+```
+
+
+
+
+
+
 
 
 ---
----
----
 
-# 🏃‍♀️ Quick Start
+# 🏃‍♀️ Longer form 🏗 scaffold-eth instructions for working with the app/gov:
 
 required: [Node](https://nodejs.org/dist/latest-v12.x/) plus [Yarn](https://classic.yarnpkg.com/en/docs/install/) and [Git](https://git-scm.com/downloads)
 
@@ -35,6 +70,8 @@ yarn install
 yarn start
 
 ```
+
+If you want to bring up a local chain and work there, edit `hardhat.config.js` and `app.jsxhttps://github.com/austintgriffith/scaffold-eth/tree/simple-nft-example to use `localhost` instead of `mainnet`.
 
 > in a second terminal window:
 
