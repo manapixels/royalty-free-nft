@@ -19,6 +19,9 @@ yarn install
 
 ```
 
+**edit `packages/hardhat/scripts/deployAllocator.js` to change the Governor address**
+
+
 create a deployer mnemonic:
 
 ```
