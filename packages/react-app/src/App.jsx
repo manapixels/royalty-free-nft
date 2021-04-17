@@ -4,15 +4,16 @@ import "antd/dist/antd.css";
 import {  JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import {  LinkOutlined } from "@ant-design/icons"
 import "./App.css";
-import { Row, Col, Button, Menu, Alert, Input, List, Card, Switch as SwitchD } from "antd";
+import {Row, Col, Button, Menu, Alert, Input, List, Card, Switch as SwitchD, Modal, InputNumber, Tooltip} from "antd";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { useUserAddress } from "eth-hooks";
+import { format } from "date-fns";
 import { useExchangePrice, useGasPrice, useUserProvider, useContractLoader, useContractReader, useEventListener, useBalance, useExternalContractLoader } from "./hooks";
 import { Header, Account, Faucet, Ramp, Contract, GasGauge, Address, AddressInput, ThemeSwitch } from "./components";
 import { Transactor } from "./helpers";
 import { formatEther, parseEther } from "@ethersproject/units";
-import { utils } from "ethers";
+import { utils, constants } from "ethers";
 //import Hints from "./Hints";
 import { Hints, ExampleUI, Subgraph } from "./views"
 import { useThemeSwitcher } from "react-css-theme-switcher";
@@ -52,7 +53,7 @@ console.log("📦 Assets: ",assets)
 const targetNetwork = NETWORKS['localhost']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
-const DEBUG = true
+const DEBUG = false
 
 //EXAMPLE STARTING JSON:
 const STARTING_JSON = {
@@ -160,22 +161,27 @@ function App(props) {
   //
   // If you want to bring in the mainnet DAI contract it would look like:
   const mainnetDAIContract = useExternalContractLoader(mainnetProvider, DAI_ADDRESS, DAI_ABI)
-  console.log("🌍 DAI contract on mainnet:",mainnetDAIContract)
+  if (DEBUG) console.log("🌍 DAI contract on mainnet:",mainnetDAIContract)
   //
   // Then read your DAI balance like:
   const myMainnetDAIBalance = useContractReader({DAI: mainnetDAIContract},"DAI", "balanceOf",["0x34aA3F359A9D614239015126635CE7732c18fDF3"])
-  console.log("🥇 myMainnetDAIBalance:",myMainnetDAIBalance)
+  if (DEBUG)console.log("🥇 myMainnetDAIBalance:",myMainnetDAIBalance)
 
 
   // keep track of a variable from the contract in the local React state:
   const balance = useContractReader(readContracts,"YourCollectible", "balanceOf", [ address ])
-  console.log("🤗 balance:",balance)
+  if (DEBUG) console.log("🤗 balance:",balance)
 
   //📟 Listen for broadcast events
   const transferEvents = useEventListener(readContracts, "YourCollectible", "Transfer", localProvider, 1);
-  console.log("📟 Transfer events:",transferEvents)
+  if (DEBUG) console.log("📟 Transfer events:",transferEvents)
 
 
+  const [modalVisible, setModalVisible] = useState(false);
+  const [viewModalVisible, setViewModalVisible] = useState(false);
+  const [auctionDetails, setAuctionDetails] = useState({price: "", duration: ""});
+  const [auctionToken, setAuctionToken] = useState("");
+  const [viewAuctionToken, setViewAuctionToken] = useState("");
 
   //
   // 🧠 This effect will update yourCollectibles by polling when your balance changes
@@ -183,34 +189,34 @@ function App(props) {
   const yourBalance = balance && balance.toNumber && balance.toNumber()
   const [ yourCollectibles, setYourCollectibles ] = useState()
 
-  useEffect(()=>{
-    const updateYourCollectibles = async () => {
-      let collectibleUpdate = []
-      for(let tokenIndex=0;tokenIndex<balance;tokenIndex++){
-        try{
-          console.log("GEtting token index",tokenIndex)
-          const tokenId = await readContracts.YourCollectible.tokenOfOwnerByIndex(address, tokenIndex)
-          console.log("tokenId",tokenId)
-          const tokenURI = await readContracts.YourCollectible.tokenURI(tokenId)
-          console.log("tokenURI",tokenURI)
-
-          const ipfsHash =  tokenURI.replace("https://ipfs.io/ipfs/","")
-          console.log("ipfsHash",ipfsHash)
-
-          const jsonManifestBuffer = await getFromIPFS(ipfsHash)
-
-          try{
-            const jsonManifest = JSON.parse(jsonManifestBuffer.toString())
-            console.log("jsonManifest",jsonManifest)
-            collectibleUpdate.push({ id:tokenId, uri:tokenURI, owner: address, ...jsonManifest })
-          }catch(e){console.log(e)}
-
-        }catch(e){console.log(e)}
-      }
-      setYourCollectibles(collectibleUpdate)
-    }
-    updateYourCollectibles()
-  },[ address, yourBalance ])
+  // useEffect(()=>{
+  //   const updateYourCollectibles = async () => {
+  //     let collectibleUpdate = []
+  //     for(let tokenIndex=0;tokenIndex<balance;tokenIndex++){
+  //       try{
+  //         console.log("GEtting token index",tokenIndex)
+  //         const tokenId = await readContracts.YourCollectible.tokenOfOwnerByIndex(address, tokenIndex)
+  //         console.log("tokenId",tokenId)
+  //         const tokenURI = await readContracts.YourCollectible.tokenURI(tokenId)
+  //         console.log("tokenURI",tokenURI)
+  //
+  //         const ipfsHash =  tokenURI.replace("https://ipfs.io/ipfs/","")
+  //         console.log("ipfsHash",ipfsHash)
+  //
+  //         const jsonManifestBuffer = await getFromIPFS(ipfsHash)
+  //
+  //         try{
+  //           const jsonManifest = JSON.parse(jsonManifestBuffer.toString())
+  //           // console.log("jsonManifest",jsonManifest)
+  //           collectibleUpdate.push({ id:tokenId, uri:tokenURI, owner: address, ...jsonManifest })
+  //         }catch(e){console.log(e)}
+  //
+  //       }catch(e){console.log(e)}
+  //     }
+  //     setYourCollectibles(collectibleUpdate)
+  //   }
+  //   updateYourCollectibles()
+  // },[ address, yourBalance ])
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -286,60 +292,137 @@ function App(props) {
 
   const [ downloading, setDownloading ] = useState()
   const [ ipfsContent, setIpfsContent ] = useState()
+  const [yourBid, setYourBid] = useState({});
 
   const [ transferToAddresses, setTransferToAddresses ] = useState({})
 
   const [ loadedAssets, setLoadedAssets ] = useState()
-  useEffect(()=>{
-    const updateYourCollectibles = async () => {
-      let assetUpdate = []
-      for(let a in assets){
-        try{
-          const forSale = await readContracts.YourCollectible.forSale(utils.id(a))
-          let owner
-          if(!forSale){
-            const tokenId = await readContracts.YourCollectible.uriToTokenId(utils.id(a))
-            owner = await readContracts.YourCollectible.ownerOf(tokenId)
-          }
-          assetUpdate.push({id:a,...assets[a],forSale:forSale,owner:owner})
-        }catch(e){console.log(e)}
-      }
-      setLoadedAssets(assetUpdate)
+  const updateYourCollectibles = async () => {
+    let assetUpdate = []
+    for(let a in assets){
+      try{
+        const forSale = await readContracts.YourCollectible.forSale(utils.id(a))
+        let owner
+        let auctionInfo
+        if(!forSale){
+          const tokenId = await readContracts.YourCollectible.uriToTokenId(utils.id(a))
+          owner = await readContracts.YourCollectible.ownerOf(tokenId)
+          const nftAddress = readContracts.YourCollectible.address;
+          auctionInfo = await readContracts.Auction.getTokenAuctionDetails(nftAddress, tokenId);
+        }
+
+
+        assetUpdate.push({id:a,...assets[a],forSale:forSale,owner:owner, auctionInfo})
+      }catch(e){console.log(e)}
     }
+    setLoadedAssets(assetUpdate)
+  }
+  useEffect(()=>{
     if(readContracts && readContracts.YourCollectible) updateYourCollectibles()
   }, [ assets, readContracts, transferEvents ]);
 
+  const startAuction = (tokenUri) => {
+    return async () => {
+      setAuctionToken(tokenUri);
+      setModalVisible(true);
+    }
+  }
+
+  const placeBid = async (tokenUri, ethAmount) => {
+    const tokenId = await readContracts.YourCollectible.uriToTokenId(utils.id(tokenUri));
+    const nftAddress = readContracts.YourCollectible.address;
+    await tx( writeContracts.Auction.bid(nftAddress, tokenId, {
+      value: parseEther(ethAmount.toString())
+    }));
+    updateYourCollectibles();
+  }
+
+  const completeAuction = (tokenUri) => {
+    return async () => {
+      const tokenId = await readContracts.YourCollectible.uriToTokenId(utils.id(tokenUri));
+      const nftAddress = readContracts.YourCollectible.address;
+      await tx(writeContracts.Auction.executeSale(nftAddress, tokenId));
+      updateYourCollectibles();
+    }
+  }
+
+  const cancelAuction = (tokenUri) => {
+    return async () => {
+      const tokenId = await readContracts.YourCollectible.uriToTokenId(utils.id(tokenUri));
+      const nftAddress = readContracts.YourCollectible.address;
+      await tx(writeContracts.Auction.cancelAution(nftAddress, tokenId));
+      updateYourCollectibles();
+    }
+  }
+
   let galleryList = []
-  for(let a in loadedAssets){
-    console.log("loadedAssets",a,loadedAssets[a])
+  for(let a in (loadedAssets ? loadedAssets.slice(0, 6) : [])){
+    // console.log("loadedAssets",a,loadedAssets[a])
 
     let cardActions = []
+    let auctionDetails = [];
     if(loadedAssets[a].forSale){
       cardActions.push(
         <div>
           <Button onClick={()=>{
-            console.log("gasPrice,",gasPrice)
+            // console.log("gasPrice,",gasPrice)
             tx( writeContracts.YourCollectible.mintItem(loadedAssets[a].id,{gasPrice:gasPrice}) )
           }}>
             Mint
           </Button>
         </div>
       )
+      auctionDetails.push(null)
     }else{
+      const { auctionInfo } = loadedAssets[a];
+      const deadline = new Date(auctionInfo.duration * 1000);
+      const isEnded = deadline <= new Date();
+
       cardActions.push(
         <div>
+          <div>
           owned by: <Address
             address={loadedAssets[a].owner}
             ensProvider={mainnetProvider}
             blockExplorer={blockExplorer}
             minimized={true}
           />
+          </div>
+          {!loadedAssets[a].auctionInfo.isActive && address === loadedAssets[a].owner && <><Button style={{ marginBottom: "10px" }} onClick={startAuction(loadedAssets[a].id)} disabled={address !== loadedAssets[a].owner}>Start auction</Button><br/></>}
+          {loadedAssets[a].auctionInfo.isActive && address === loadedAssets[a].auctionInfo.seller && <><Button style={{ marginBottom: "10px" }} onClick={completeAuction(loadedAssets[a].id)}>Complete auction</Button><br/></>}
+          {loadedAssets[a].auctionInfo.isActive && address === loadedAssets[a].auctionInfo.seller && <><Button style={{ marginBottom: "10px" }} onClick={cancelAuction(loadedAssets[a].id)}>Cancel auction</Button><br/></>}
         </div>
       )
+
+      auctionDetails.push(auctionInfo.isActive ? (
+          <div style={{ marginTop: "20px" }}>
+            <p style={{ fontWeight: "bold" }}>Auction is in progress</p>
+            <p style={{ margin: 0, marginBottom: "2px"}}>Minimal price is {utils.formatEther(auctionInfo.price)} ETH</p>
+            <p style={{ marginTop: 0 }}>{!isEnded ? `Auction ends at ${format(deadline, "MMMM dd, hh:mm:ss")}` : 'Auction has already ended'}</p>
+            <div>
+              {auctionInfo.maxBidUser === constants.AddressZero ? "Highest bid was not made yet" : <div>Highest bid by: <Address
+                  address={auctionInfo.maxBidUser}
+                  ensProvider={mainnetProvider}
+                  blockExplorer={blockExplorer}
+                  minimized={true}
+              /><p>{utils.formatEther(auctionInfo.maxBid)} ETH</p></div>}
+            </div>
+
+            <div>
+            <div style={{display: "flex", alignItems: "center", marginTop: "20px"}}>
+              <p style={{margin:0, marginRight: "15px"}}>Your bid in ETH: </p>
+              <InputNumber placeholder="0.1" value={yourBid[loadedAssets[a].id]} onChange={newBid => setYourBid({...yourBid, [loadedAssets[a].id]: newBid})} style={{ flexGrow: 1 }}/>
+            </div>
+              <Button style={{marginTop: "7px"}} onClick={() => placeBid(loadedAssets[a].id, yourBid[loadedAssets[a].id])} disabled={!yourBid[loadedAssets[a].id] || isEnded}>Place a bid</Button>
+            </div>
+
+          </div>
+      ) : null);
     }
 
     galleryList.push(
-      <Card style={{width:200}} key={loadedAssets[a].name}
+        <>
+      <Card style={{width:300}} key={loadedAssets[a].name}
         actions={cardActions}
         title={(
           <div>
@@ -351,12 +434,49 @@ function App(props) {
         <div style={{opacity:0.77}}>
           {loadedAssets[a].description}
         </div>
+        {auctionDetails}
       </Card>
+          </>
     )
+  }
+
+
+  const handleOk = async () => {
+    setModalVisible(false);
+    const { price, duration } = auctionDetails;
+    const tokenId = await readContracts.YourCollectible.uriToTokenId(utils.id(auctionToken));
+
+    const auctionAddress = readContracts.Auction.address;
+    const nftAddress = readContracts.YourCollectible.address;
+    await writeContracts.YourCollectible.approve(auctionAddress, tokenId);
+
+    const ethPrice = utils.parseEther(price.toString());
+    const blockDuration = Math.floor(new Date().getTime() / 1000) + duration;
+
+    await tx(writeContracts.Auction.createTokenAuction(nftAddress, tokenId, ethPrice, blockDuration, { gasPrice }));
+
+    const auctionInfo = await readContracts.Auction.getTokenAuctionDetails(nftAddress, tokenId);
+    console.log('auctionInfo', { auctionInfo });
+  }
+
+  const handleCancel = () => {
+    setModalVisible(false);
   }
 
   return (
     <div className="App">
+
+      <Modal title="Start auction" visible={modalVisible} onOk={handleOk} onCancel={handleCancel} okButtonProps={{ disabled: !auctionDetails.price || !auctionDetails.duration }} okText="Start">
+        <div style={{display: "flex", alignItems: "center"}}>
+          <p style={{margin:0, marginRight: "15px"}}>ETH price (minimal bid): </p>
+          <InputNumber placeholder="0.1" value={auctionDetails.price} onChange={newPrice => setAuctionDetails({...auctionDetails, price: newPrice})} style={{ flexGrow: 1 }}/>
+        </div>
+        <br/>
+        <div style={{display: "flex", alignItems: "center"}}>
+          <p style={{margin:0, marginRight: "15px"}}>Duration in seconds: </p>
+          <InputNumber placeholder="3600" value={auctionDetails.duration} onChange={newDuration => setAuctionDetails({...auctionDetails, duration: newDuration})} style={{ flexGrow: 1 }}/>
+        </div>
+      </Modal>
 
       {/* ✏️ Edit the header and change the title to your project name */}
       <Header />
@@ -393,9 +513,9 @@ function App(props) {
                 and give you a form to interact with it locally
             */}
 
-            <div style={{ maxWidth:820, margin: "auto", marginTop:32, paddingBottom:256 }}>
+            <div style={{ maxWidth:1024, margin: "auto", marginTop:32, paddingBottom:56 }}>
               <StackGrid
-                columnWidth={200}
+                columnWidth={300}
                 gutterWidth={16}
                 gutterHeight={16}
               >
