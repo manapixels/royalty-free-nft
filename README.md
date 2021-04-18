@@ -40,8 +40,8 @@ yarn start
 
 
 
+![image](https://user-images.githubusercontent.com/2653167/115158550-f21e5e80-a04b-11eb-8f28-8b91413dc802.png)
 
-===================================================== [⏫ back to the top ⏫](https://github.com/austintgriffith/scaffold-eth#-scaffold-eth)
 
 
 ---
