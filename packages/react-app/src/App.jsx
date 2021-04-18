@@ -3,18 +3,20 @@ import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
 import "antd/dist/antd.css";
 import {  JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import "./App.css";
-import { Row, Col, Button, Menu, Alert, Switch as SwitchD } from "antd";
+import { Spin, Image, Card, Row, Col, Button, Menu, Alert, Switch as SwitchD } from "antd";
+import { LogoutOutlined, SendOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { useUserAddress } from "eth-hooks";
 import { useExchangePrice, useGasPrice, useUserProvider, useContractLoader, useContractReader, useEventListener, useBalance, useExternalContractLoader } from "./hooks";
-import { Header, Account, Faucet, Ramp, Contract, GasGauge, ThemeSwitch } from "./components";
+import { Address, AddressInput, Header, Account, Faucet, Ramp, Contract, GasGauge, ThemeSwitch } from "./components";
 import { Transactor } from "./helpers";
 import { formatEther, parseEther } from "@ethersproject/units";
-//import Hints from "./Hints";
+import axios from "axios";
 import { Hints, ExampleUI, Subgraph } from "./views"
 import { useThemeSwitcher } from "react-css-theme-switcher";
-import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS } from "./constants";
+import { INFURA_ID, NFT_CONTRACT_ADDRESS, NFT_CONTRACT_ABI, NETWORK, NETWORKS } from "./constants";
+import StackGrid from "react-stack-grid"
 /*
     Welcome to 🏗 scaffold-eth !
 
@@ -34,9 +36,18 @@ import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS } from "./constants"
     (and then use the `useExternalContractLoader()` hook!)
 */
 
+const { BufferList } = require('bl')
+//
+//  we will connect to infura, but you can connect to _any_ IPFS node:
+//    (and you should run your own!)
+//
+const ipfsAPI = require('ipfs-http-client');// https://www.npmjs.com/package/ipfs-http-client
+const ipfs = ipfsAPI({host: 'ipfs.infura.io', port: '5001', protocol: 'https' })
+
+
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS['localhost']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS['mainnet']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true
@@ -105,27 +116,194 @@ function App(props) {
   // EXTERNAL CONTRACT EXAMPLE:
   //
   // If you want to bring in the mainnet DAI contract it would look like:
-  const mainnetDAIContract = useExternalContractLoader(mainnetProvider, DAI_ADDRESS, DAI_ABI)
+  const nftContractRead = useExternalContractLoader( localProvider, NFT_CONTRACT_ADDRESS, NFT_CONTRACT_ABI)
 
-  // Then read your DAI balance like:
-  const myMainnetDAIBalance = useContractReader({DAI: mainnetDAIContract},"DAI", "balanceOf",["0x34aA3F359A9D614239015126635CE7732c18fDF3"])
+  // If you want to bring in the mainnet DAI contract it would look like:
+  const nftContractWrite = useExternalContractLoader( userProvider, NFT_CONTRACT_ADDRESS, NFT_CONTRACT_ABI)
+
+
+  const contractName = useContractReader({nftContractRead},"nftContractRead", "name")
 
   // keep track of a variable from the contract in the local React state:
-  const purpose = useContractReader(readContracts,"YourContract", "purpose")
+  const yourNFTBalance = useContractReader({nftContractRead},"nftContractRead", "balanceOf", [ address ])
+  if(DEBUG&&yourNFTBalance) console.log("🧮 yourNFTBalance",yourNFTBalance)
+
+  const [ yourCollectibles, setYourCollectibles ] = useState()
+
+  const yourNFTBalancetoNumber = yourNFTBalance && yourNFTBalance.toNumber && yourNFTBalance.toNumber()
+  useEffect(()=>{
+   const updateYourCollectibles = async () => {
+     let collectibleUpdate = []
+     for(let tokenIndex=yourNFTBalancetoNumber-1;tokenIndex>=0;tokenIndex--){
+       try{
+          //console.log("Getting token index",tokenIndex)
+          const tokenId = await nftContractRead.tokenOfOwnerByIndex(address, tokenIndex)
+          if(DEBUG&&tokenId)console.log("🆔 tokenId",tokenId)
+          const tokenURI = await nftContractRead.tokenURI(tokenId)
+          if(DEBUG&&tokenURI)console.log("🏷 tokenURI",tokenURI)
+
+          //loading your token information from the tokenURI might work in a few different ways....
+
+          //you might just grab the data from the uri directly:
+          const jsonManifest = await axios({url: tokenURI})
+          console.log("jsonManifest",jsonManifest)
+          if(jsonManifest){
+            //console.log("manifest",manifest)
+            collectibleUpdate.push({ id:tokenId._hex, ...jsonManifest.data })
+          }
+
+          //Or, a custom call based on tokenID without even loading the uri:
+          //const jsonManifest = await axios({url: "https://www.folia.app/.netlify/functions/metadata/"+tokenId.toNumber()})
+
+          // best case, the tokenURI is just an IPFS hash and we can get it there:
+          /*const ipfsHash = tokenURI.substr(tokenURI.lastIndexOf("/")+1)
+          //console.log("#️⃣ ipfsHash",ipfsHash)
+          if(ipfsHash){
+            const jsonManifest = await getFromIPFS(ipfsHash)
+            if(jsonManifest){
+              const manifest = JSON.parse(jsonManifest.toString())
+              //console.log("manifest",manifest)
+              collectibleUpdate.push({ id:tokenId.toNumber(), ...manifest })
+            }
+          }
+          */
+       }catch(e){console.log(e)}
+       setYourCollectibles(collectibleUpdate)
+     }
+
+   }
+   updateYourCollectibles()
+  },[ readContracts, address, yourNFTBalancetoNumber ])
+
+  console.log("👛 yourCollectibles",yourCollectibles)
+  let yourCollectiblesRender = []
+
+  const [ showSend, setShowSend ] = useState({})
+  const [ toAddress, setToAddress ] = useState({})
+
+  for( let c in yourCollectibles ){
+     let cardActions = []
+
+     const id = yourCollectibles[c].id
+
+     if(showSend[id]){
+       cardActions.push(
+         <div style={{marginTop:-32}}>
+           <div style={{paddingTop:8,padding:4,marginBottom:8,backgroundColor:"#ffffff"}}>
+             <AddressInput
+               autoFocus
+               ensProvider={mainnetProvider}
+               placeholder="to address"
+               value={toAddress[id]}
+               onChange={(value)=>{
+                 let update = {}
+                 update[id] = value
+                 setToAddress({...toAddress, ...update})
+               }}
+             />
+           </div>
+           <div>
+            <Row>
+              <Col span={12}>
+                <Button onClick={()=>{
+                  let update = {}
+                  update[id] = false
+                  setShowSend({...showSend, ...update})
+                }}>
+                  <CloseCircleOutlined />
+                </Button>
+              </Col>
+              <Col span={12}>
+                <Button onClick={async ()=>{
+                  console.log("💸 Transfer...")
+                  const result = await tx( nftContractWrite.transferFrom(address,toAddress[id], id) )
+                  console.log("📡 result...",result)
+                  let update = {}
+                  update[id] = false
+                  setShowSend({...showSend, ...update})
+                }}>
+                  <SendOutlined />
+                </Button>
+              </Col>
+            </Row>
+
+           </div>
+         </div>
+       )
+     }
+
+     if(!showSend[yourCollectibles[c].id]){
+       cardActions.push(
+         <div>
+           <Button onClick={(id)=>{
+             let update = {}
+             update[yourCollectibles[c].id] = true
+             setShowSend({...showSend, ...update})
+             //tx( writeContracts.GTGSCollectible.burn(yourCollectibles[c].artwork,yourCollectibles[c].id,{gasPrice:gasPrice}) )
+           }}>
+             <SendOutlined />
+           </Button>
+         </div>
+       )
+       cardActions.push(
+          <div>
+            <Button onClick={()=>{
+              window.open(yourCollectibles[c].external_url.replace("{id}",yourCollectibles[c].id))
+            }}>
+              <LogoutOutlined />
+            </Button>
+          </div>
+       )
+     }
+
+
+
+     yourCollectiblesRender.push(
+       <Card actions={cardActions} style={{backgroundColor:"#eeeeee",border:"1px solid #444444"}} key={"your"+yourCollectibles[c].entropy+yourCollectibles[c].id} title={(
+         <span style={{color:"#666666"}}>
+            {yourCollectibles[c].name}
+         </span>
+       )}>
+         <Image style={{maxWidth:220}} src={yourCollectibles[c].image}/>
+       </Card>
+     )
+  }
+
+  const stackedNFTDisplay = yourNFTBalance && yourNFTBalance.toNumber() ? (
+    <div style={{ maxWidth:1020, margin: "auto", marginTop:64, paddingBottom:256 }}>
+
+      <div style={{fontSize:32,marginBottom:32,marginTop:32}}>
+        {yourNFTBalance && yourNFTBalance.toNumber()} {contractName}
+      </div>
+
+       <StackGrid
+         columnWidth={220}
+         gutterWidth={16}
+         gutterHeight={32}
+       >
+         {yourCollectiblesRender}
+       </StackGrid>
+
+       <div style={{fontSize:16,marginTop:64, opacity:0.9}}>
+         {contractName} smart contract: <Address fontSize={16} minimized={false} address={nftContractRead&&nftContractRead.address} ensProvider={props.ensProvider} />
+       </div>
+
+    </div>
+  ):<div style={{marginTop:64}}><Spin/></div>
+
+
+
 
   //📟 Listen for broadcast events
-  const setPurposeEvents = useEventListener(readContracts, "YourContract", "SetPurpose", localProvider, 1);
+  //const setPurposeEvents = useEventListener(readContracts, "YourContract", "SetPurpose", localProvider, 1);
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
   console.log("🏷 Resolved austingriffith.eth as:",addressFromENS)
   */
 
-  //
-  // ☝️ These effects will log your major set up and upcoming transferEvents- and balance changes
-  //
   useEffect(()=>{
-    if(DEBUG && mainnetProvider && address && selectedChainId && yourLocalBalance && yourMainnetBalance && readContracts && writeContracts && mainnetDAIContract){
+    if(DEBUG && mainnetProvider && address && selectedChainId && yourLocalBalance && yourMainnetBalance && readContracts && writeContracts){
       console.log("_____________________________________ 🏗 scaffold-eth _____________________________________")
       console.log("🌎 mainnetProvider",mainnetProvider)
       console.log("🏠 localChainId",localChainId)
@@ -134,46 +312,10 @@ function App(props) {
       console.log("💵 yourLocalBalance",yourLocalBalance?formatEther(yourLocalBalance):"...")
       console.log("💵 yourMainnetBalance",yourMainnetBalance?formatEther(yourMainnetBalance):"...")
       console.log("📝 readContracts",readContracts)
-      console.log("🌍 DAI contract on mainnet:",mainnetDAIContract)
       console.log("🔐 writeContracts",writeContracts)
     }
-  }, [mainnetProvider, address, selectedChainId, yourLocalBalance, yourMainnetBalance, readContracts, writeContracts, mainnetDAIContract])
+  }, [mainnetProvider, address, selectedChainId, yourLocalBalance, yourMainnetBalance, readContracts, writeContracts])
 
-
-  const [oldMainnetBalance, setOldMainnetDAIBalance] = useState(0)
-
-  // For Master Branch Example
-  const [oldPurposeEvents, setOldPurposeEvents] = useState([])
-
-  // For Buyer-Lazy-Mint Branch Example
-  // const [oldTransferEvents, setOldTransferEvents] = useState([])
-  // const [oldBalance, setOldBalance] = useState(0)
-
-  // Use this effect for often changing things like your balance and transfer events or contract-specific effects
-  useEffect(()=>{
-    if(DEBUG){
-      if(myMainnetDAIBalance && !myMainnetDAIBalance.eq(oldMainnetBalance)){
-        console.log("🥇 myMainnetDAIBalance:",myMainnetDAIBalance)
-        setOldMainnetDAIBalance(myMainnetDAIBalance)
-      }
-
-      // For Buyer-Lazy-Mint Branch Example
-      //if(transferEvents && oldTransferEvents !== transferEvents){
-      //  console.log("📟 Transfer events:", transferEvents)
-      //  setOldTransferEvents(transferEvents)
-      //}
-      //if(balance && !balance.eq(oldBalance)){
-      //  console.log("🤗 balance:", balance)
-      //  setOldBalance(balance)
-      //}
-
-      // For Master Branch Example
-      if(setPurposeEvents && setPurposeEvents !== oldPurposeEvents){
-        console.log("📟 SetPurpose events:",setPurposeEvents)
-        setOldPurposeEvents(setPurposeEvents)
-      }
-    }
-  }, [myMainnetDAIBalance]) // For Buyer-Lazy-Mint Branch: balance, transferEvents
 
 
   let networkDisplay = ""
@@ -246,19 +388,10 @@ function App(props) {
 
         <Menu style={{ textAlign:"center" }} selectedKeys={[route]} mode="horizontal">
           <Menu.Item key="/">
-            <Link onClick={()=>{setRoute("/")}} to="/">YourContract</Link>
+            <Link onClick={()=>{setRoute("/")}} to="/">holdings</Link>
           </Menu.Item>
-          <Menu.Item key="/hints">
-            <Link onClick={()=>{setRoute("/hints")}} to="/hints">Hints</Link>
-          </Menu.Item>
-          <Menu.Item key="/exampleui">
-            <Link onClick={()=>{setRoute("/exampleui")}} to="/exampleui">ExampleUI</Link>
-          </Menu.Item>
-          <Menu.Item key="/mainnetdai">
-            <Link onClick={()=>{setRoute("/mainnetdai")}} to="/mainnetdai">Mainnet DAI</Link>
-          </Menu.Item>
-          <Menu.Item key="/subgraph">
-            <Link onClick={()=>{setRoute("/subgraph")}} to="/subgraph">Subgraph</Link>
+          <Menu.Item key="/contract">
+            <Link onClick={()=>{setRoute("/contract")}} to="/contract">contract</Link>
           </Menu.Item>
         </Menu>
 
@@ -270,14 +403,7 @@ function App(props) {
                 and give you a form to interact with it locally
             */}
 
-            <Contract
-              name="YourContract"
-              signer={userProvider.getSigner()}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-            />
-
+            { stackedNFTDisplay }
 
             { /* uncomment for a second contract:
             <Contract
@@ -300,45 +426,14 @@ function App(props) {
             />
             */ }
           </Route>
-          <Route path="/hints">
-            <Hints
-              address={address}
-              yourLocalBalance={yourLocalBalance}
-              mainnetProvider={mainnetProvider}
-              price={price}
-            />
-          </Route>
-          <Route path="/exampleui">
-            <ExampleUI
-              address={address}
-              userProvider={userProvider}
-              mainnetProvider={mainnetProvider}
-              localProvider={localProvider}
-              yourLocalBalance={yourLocalBalance}
-              price={price}
-              tx={tx}
-              writeContracts={writeContracts}
-              readContracts={readContracts}
-              purpose={purpose}
-              setPurposeEvents={setPurposeEvents}
-            />
-          </Route>
-          <Route path="/mainnetdai">
+          <Route path="/contract">
             <Contract
-              name="DAI"
-              customContract={mainnetDAIContract}
+              name="NFT"
+              customContract={nftContractWrite}
               signer={userProvider.getSigner()}
-              provider={mainnetProvider}
+              provider={userProvider}
               address={address}
               blockExplorer={"https://etherscan.io/"}
-            />
-          </Route>
-          <Route path="/subgraph">
-            <Subgraph
-            subgraphUri={props.subgraphUri}
-            tx={tx}
-            writeContracts={writeContracts}
-            mainnetProvider={mainnetProvider}
             />
           </Route>
         </Switch>
@@ -437,5 +532,20 @@ const logoutOfWeb3Modal = async () => {
     window.location.reload();
   }, 1);
 })
+
+//helper function to "Get" from IPFS
+// you usually go content.toString() after this...
+const getFromIPFS = async hashToGet => {
+  for await (const file of ipfs.get(hashToGet)) {
+    //console.log(file.path)
+    if (!file.content) continue;
+    const content = new BufferList()
+    for await (const chunk of file.content) {
+      content.append(chunk)
+    }
+    //console.log(content)
+    return content
+  }
+}
 
 export default App;
