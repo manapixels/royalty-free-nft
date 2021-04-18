@@ -5,8 +5,8 @@ const { config, ethers } = require("hardhat");
 const { utils } = require("ethers");
 const R = require("ramda");
 const ipfsAPI = require('ipfs-http-client');
-const ipfs = ipfsAPI({host: 'ipfs.infura.io', port: '5001', protocol: 'https' })
-
+//const ipfs = ipfsAPI({host: 'ipfs.infura.io', port: '5001', protocol: 'https' })
+const ipfs = ipfsAPI({host: 'localhost', port: '5001', protocol: 'http' })
 const delayMS = 1000 //sometimes xDAI needs a 6000ms break lol 😅
 
 const main = async () => {
@@ -18,33 +18,38 @@ const main = async () => {
 
   const yourCollectible = await ethers.getContractAt('YourCollectible', fs.readFileSync("./artifacts/YourCollectible.address").toString())
 
+  const filenames = fs.readdirSync("ipfs");
 
-  const buffalo = {
-    "description": "It's actually a bison?",
-    "external_url": "https://austingriffith.com/portfolio/paintings/",// <-- this can link to a page for the specific file too
-    "image": "https://austingriffith.com/images/paintings/buffalo.jpg",
-    "name": "Buffalo",
-    "attributes": [
-       {
-         "trait_type": "BackgroundColor",
-         "value": "green"
-       },
-       {
-         "trait_type": "Eyes",
-         "value": "googly"
-       },
-       {
-         "trait_type": "Stamina",
-         "value": 42
-       }
-    ]
+  console.log("filenames",filenames)
+
+  for(let n in filenames){
+    const thisName = filenames[n]
+    if(thisName&&thisName!=".DS_Store"){
+      console.log("Minting "+thisName)
+      const file = fs.readFileSync("./ipfs/"+thisName)
+      console.log("uploading file",file)
+      let result = await ipfs.add(file)
+      console.log("result",result)
+
+      const manifest = {
+        /*"description": "TALKTITLE?",*/
+        "external_url": "https://ognft.club/",// <-- this can link to a page for the specific file too
+        "image": "https://ipfs.io/ipfs/"+result.path,
+        "name": thisName.replace(".png","").replace("_"," "),
+      }
+      console.log("manifest:",manifest)
+
+      console.log("Uploading manifest...")
+      const uploaded = await ipfs.add(JSON.stringify(manifest))
+
+      console.log("Minting "+thisName+" with IPFS hash ("+uploaded.path+")")
+      await yourCollectible.mintItem(toAddress,uploaded.path,{gasLimit:400000})
+      if(n>7) break
+    }
   }
-  console.log("Uploading buffalo...")
-  const uploaded = await ipfs.add(JSON.stringify(buffalo))
 
-  console.log("Minting buffalo with IPFS hash ("+uploaded.path+")")
-  await yourCollectible.mintItem(toAddress,uploaded.path,{gasLimit:400000})
 
+/*
 
   await sleep(delayMS)
 
@@ -199,15 +204,15 @@ const main = async () => {
   await yourCollectible.mintItem(toAddress,uploadedgodzilla.path,{gasLimit:400000})
 
 
+*/
 
+//  await sleep(delayMS)
 
-  await sleep(delayMS)
+//  console.log("Transferring Ownership of YourCollectible to "+toAddress+"...")
 
-  console.log("Transferring Ownership of YourCollectible to "+toAddress+"...")
+//  await yourCollectible.transferOwnership(toAddress)
 
-  await yourCollectible.transferOwnership(toAddress)
-
-  await sleep(delayMS)
+//  await sleep(delayMS)
 
   /*
 

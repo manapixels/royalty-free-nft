@@ -20,6 +20,7 @@ const { BufferList } = require('bl')
 // https://www.npmjs.com/package/ipfs-http-client
 const ipfsAPI = require('ipfs-http-client');
 const ipfs = ipfsAPI({host: 'ipfs.infura.io', port: '5001', protocol: 'https' })
+//const ipfs = ipfsAPI({host: 'localhost', port: '5001', protocol: 'http' })
 /*
     Welcome to 🏗 scaffold-eth !
 
@@ -44,7 +45,7 @@ const ipfs = ipfsAPI({host: 'ipfs.infura.io', port: '5001', protocol: 'https' })
 const targetNetwork = NETWORKS['localhost']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
-const DEBUG = true
+const DEBUG = false
 
 //EXAMPLE STARTING JSON:
 const STARTING_JSON = {
@@ -152,20 +153,20 @@ function App(props) {
   //
   // If you want to bring in the mainnet DAI contract it would look like:
   const mainnetDAIContract = useExternalContractLoader(mainnetProvider, DAI_ADDRESS, DAI_ABI)
-  console.log("🌍 DAI contract on mainnet:",mainnetDAIContract)
+  if(DEBUG) console.log("🌍 DAI contract on mainnet:",mainnetDAIContract)
   //
   // Then read your DAI balance like:
   const myMainnetDAIBalance = useContractReader({DAI: mainnetDAIContract},"DAI", "balanceOf",["0x34aA3F359A9D614239015126635CE7732c18fDF3"])
-  console.log("🥇 myMainnetDAIBalance:",myMainnetDAIBalance)
+  if(DEBUG) console.log("🥇 myMainnetDAIBalance:",myMainnetDAIBalance)
 
 
   // keep track of a variable from the contract in the local React state:
   const balance = useContractReader(readContracts,"YourCollectible", "balanceOf", [ address ])
-  console.log("🤗 balance:",balance)
+  if(DEBUG) console.log("🤗 balance:",balance)
 
   //📟 Listen for broadcast events
   const transferEvents = useEventListener(readContracts, "YourCollectible", "Transfer", localProvider, 1);
-  console.log("📟 Transfer events:",transferEvents)
+  if(DEBUG) console.log("📟 Transfer events:",transferEvents)
 
 
 
@@ -326,7 +327,7 @@ function App(props) {
 
                       <Card title={(
                         <div>
-                          <span style={{fontSize:16, marginRight:8}}>#{id}</span> {item.name}
+                          {item.name}
                         </div>
                       )}>
                       <div><img src={item.image} style={{maxWidth:150}} /></div>
