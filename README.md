@@ -1,58 +1,8 @@
-# 🏗 scaffold-eth
+# 🏗 scaffold-eth:  🎫 Nifty Viewer
 
-> is everything you need to get started building decentralized applications powered by Ethereum
-
----
-
-
-#### [ 🏃‍♀️ Quick Start ](https://github.com/austintgriffith/scaffold-eth#%EF%B8%8F-quick-start)
-
-#### [ 🔭 Learning Solidity ](https://github.com/austintgriffith/scaffold-eth#-learning-solidity)
-
-#### [ 📡 Deploy ](https://github.com/austintgriffith/scaffold-eth#-deploy)
-
-#### [ 📺 Frontend](https://github.com/austintgriffith/scaffold-eth#-frontend)
-- [ 🛰 Providers ](https://github.com/austintgriffith/scaffold-eth#-providers)
-- [ 🖇 Hooks ](https://github.com/austintgriffith/scaffold-eth#-hooks)
-- [ 📦 Components ](https://github.com/austintgriffith/scaffold-eth#-components)
-- [ 🖲 UI Library ](https://github.com/austintgriffith/scaffold-eth#-ui-library)
-- [ ⛑ Helpers ](https://github.com/austintgriffith/scaffold-eth#-helpers)
-- [ 🎚 Extras ](https://github.com/austintgriffith/scaffold-eth#-extras)
--  <B> [ 🛳 Ship it! ](https://github.com/austintgriffith/scaffold-eth#-ship-it) </B>
-
-#### [ 🚩 Challenges ](https://github.com/austintgriffith/scaffold-eth#-challenges)
-- [ 🥩 Staking App](https://github.com/austintgriffith/scaffold-eth/tree/challenge-1-decentralized-staking)
-- [ 🏵 Token Vendor ](https://github.com/austintgriffith/scaffold-eth/tree/challenge-2-token-vendor)
-
-#### [ 👩‍💻 Examples & Tutorials ](https://github.com/austintgriffith/scaffold-eth#-examples-and-tutorials)
-- [ 🎟 Simple NFT ](https://github.com/austintgriffith/scaffold-eth/tree/simple-nft-example)
-
-#### [ Built with 🏗 scaffold-eth ](https://github.com/austintgriffith/scaffold-eth#-built-with--scaffold-eth)
-- [ 🎨 Nifty.ink ](https://nifty.ink) ([code](https://github.com/austintgriffith/scaffold-eth/tree/nifty-ink-dev))
-
-#### [🌉 Infrastructure ](https://github.com/austintgriffith/scaffold-eth#-infrastructure)
-
-- [ 🛰 The Graph ](https://github.com/austintgriffith/scaffold-eth#-using-the-graph)
-- [ 🔬 Tenderly ](https://github.com/austintgriffith/scaffold-eth#-using-tenderly)
-- [ 🌐 Etherscan ](https://github.com/austintgriffith/scaffold-eth#-etherscan)
-- [ 🔶 Infura ](https://github.com/austintgriffith/scaffold-eth#-using-infura)
--  🟪 [ Blocknative ](https://github.com/austintgriffith/scaffold-eth#-blocknative)
-
-|-   <B> [ 📠 Legacy Content ](https://github.com/austintgriffith/scaffold-eth#-legacy-content) </B> - | - <B> [ 💬 Support Chat ](https://github.com/austintgriffith/scaffold-eth#-support-chat) </B> -|
-
-[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/austintgriffith/scaffold-eth)
-
+> forkable nft gallery with transfer functionality
 
 ---
-
-[![ethdenvervideo](https://user-images.githubusercontent.com/2653167/109873369-e2c58c00-7c2a-11eb-8adf-0ec4b8dcae1e.png)](https://youtu.be/33gnKe7ttCc?t=477)
-
-
----
----
----
-
-# 🏃‍♀️ Quick Start
 
 required: [Node](https://nodejs.org/dist/latest-v12.x/) plus [Yarn](https://classic.yarnpkg.com/en/docs/install/) and [Git](https://git-scm.com/downloads)
 
@@ -75,182 +25,33 @@ yarn start
 
 ```
 
-> in a second terminal window:
 
-```bash
-cd scaffold-eth
-yarn chain
-
-```
-
-> in a third terminal window:
-
-```bash
-cd scaffold-eth
-yarn deploy
-
-```
-
-🔏 Edit your smart contract `YourContract.sol` in `packages/hardhat/contracts`
+📝 Edit **NFT_CONTRACT_ADDRESS** and **NFT_CONTRACT_ABI** in `constants.js` in `packages/react-app/src`
 
 📝 Edit your frontend `App.jsx` in `packages/react-app/src`
 
-💼 Edit your deployment script `deploy.js` in `packages/hardhat/scripts`
+📡 Select your `targetNetwork` in `App.jsx`
 
 📱 Open http://localhost:3000 to see the app
 
-🏗 scaffold-eth is a hackthon stack for quick product prototyping on Ethereum.
+🕵️‍♀️ Look at how `yourCollectibles` is populated in `App.jsx`
 
-👩‍🔬 This scaffolding leverages state of the art tooling from the ecosystem.
+> (You might need to use the IPFS block instead of the Axios stuff if you are loading from IPFS)
 
-🧪 It is a free standing dapp so you can learn by making small changes.
 
 
-> *After installing*, your dev environment should look like this:
-
-![image](https://user-images.githubusercontent.com/2653167/109870279-24ecce80-7c27-11eb-91f3-b2c4febac118.png)
-
-
-> React dev server, HardHat blockchain, deploy terminal, code IDE, and frontend browser.
-
-✏️ Make small changes to `YourContract.sol` and watch your app auto update!
-
-
-🔁 You can `yarn deploy` any time and get a fresh new contract in the frontend:
-
-
-![deploy](https://user-images.githubusercontent.com/2653167/93149199-f8fa8280-f6b2-11ea-9da7-3b26413ec8ab.gif)
-
-
-💵 Each browser has an account in the top right and you can use the faucet (bottom left) to get ⛽️  testnet eth for gas:
-
-
-![faucet](https://user-images.githubusercontent.com/2653167/93150077-6c04f880-f6b5-11ea-9ee8-5c646b5b7afc.gif)
-
-
-
-
-🔨Once you have funds, you can call `setPurpose` on your contract and "write" to the `purpose` storage:
-
-
-![setp](https://user-images.githubusercontent.com/2653167/93229761-2d625300-f734-11ea-9036-44a75429ef0c.gif)
-
-
-Look for the [HardHat](https://hardhat.org) console.log() output in the `yarn chain` terminal:
-
-![image](https://user-images.githubusercontent.com/2653167/93687934-2f534b80-fa7f-11ea-84b2-c0ba99533dc2.png)
-
-> ⚗️ Spend some time tinkering with `YourContract.sol`
-
----
-
-===================================================== [⏫ back to the top ⏫](https://github.com/austintgriffith/scaffold-eth#-scaffold-eth)
-
----
----
-
-# 🔭 Learning Solidity
-
-📕 Read the docs: https://docs.soliditylang.org
-
-📚 Go through each topic from [solidity by example](https://solidity-by-example.org) editing `YourContract.sol` in **🏗 scaffold-eth**
-
-- [Primitive Data Types](https://solidity-by-example.org/primitives/)
-- [Mappings](https://solidity-by-example.org/mapping/)
-- [Structs](https://solidity-by-example.org/structs/)
-- [Modifiers](https://solidity-by-example.org/function-modifier/)
-- [Events](https://solidity-by-example.org/events/)
-- [Inheritance](https://solidity-by-example.org/inheritance/)
-- [Payable](https://solidity-by-example.org/payable/)
-- [Fallback](https://solidity-by-example.org/fallback/)
-
-📧 Learn all the [Solidity globals and units](https://solidity.readthedocs.io/en/v0.6.6/units-and-global-variables.html)
-
-👨‍🏫 Start super simple with a counter: `uint8 public count = 1;`
-
-⬇️ Then a `function dec() public {}` that does a `count = count - 1;`
-
-![image](https://user-images.githubusercontent.com/2653167/93150263-dae25180-f6b5-11ea-94e1-b24ab2a63fa5.png)
-
-
-🔬  What happens when you subtract 1 from 0? Try it out in the app to see what happens!
-
-![underflow](https://user-images.githubusercontent.com/2653167/93688066-46466d80-fa80-11ea-85df-81fbafa46575.gif)
-
-🚽 UNDERFLOW!?! (🚑 [Solidity >0.8.0](https://docs.soliditylang.org/en/v0.8.0/) will catch this!)
-
-🧫 You can iterate and learn as you go. Test your assumptions!
-
-🔐 Global variables like `msg.sender` and `msg.value` are cryptographically backed and can be used to make rules
-
-📝 Keep this [cheat sheet](https://solidity.readthedocs.io/en/v0.7.0/cheatsheet.html?highlight=global#global-variables) handy
-
-⏳ Maybe we could use `block.timestamp` or `block.number` to track time in our contract
-
-🔏 Or maybe keep track of an `address public owner;` then make a rule like `require( msg.sender == owner );` for an important function
-
-🧾 Maybe create a smart contract that keeps track of a `mapping ( address => uint256 ) public balance;`
-
-🏦 It could be like a decentralized bank that you `function deposit() public payable {}` and `withdraw()`
-
-📟 Events are really handy for signaling to the frontend. [Read more about events here.](https://solidity-by-example.org/0.6/events/)
-
-📲 Spend some time in `App.jsx` in `packages/react-app/src` and learn about the 🛰 [Providers](https://github.com/austintgriffith/scaffold-eth#-web3-providers)
-
-⚠️ Big numbers are stored as objects: `formatEther` and `parseEther` (ethers.js) will help with WEI->ETH and ETH->WEI.
-
-🧳 The single page (searchable) [ethers.js docs](https://docs.ethers.io/v5/single-page/) are pretty great too.
-
-🐜 The UI framework `Ant Design` has a [bunch of great components](https://ant.design/components/overview/).
-
-📃 Check the console log for your app to see some extra output from hooks like `useContractReader` and `useEventListener`.
-
-🏗 You'll notice the `<Contract />` component that displays the dynamic form as scaffolding for interacting with your contract.
-
-🔲 Try making a `<Button/>` that calls `writeContracts.YourContract.setPurpose("👋 Hello World")` to explore how your UI might work...
-
-💬 Wrap the call to `writeContracts` with a `tx()` helper that uses BlockNative's [Notify.js](https://www.blocknative.com/notify).
-
-🧬 Next learn about [structs](https://solidity-by-example.org/0.6/structs/) in Solidity.
-
-🗳 Maybe an make an array `YourStructName[] public proposals;` that could call be voted on with `function vote() public {}`
-
-🔭 Your dev environment is perfect for *testing assumptions* and learning by prototyping.
-
-📝 Next learn about the [fallback function](https://solidity-by-example.org/0.6/fallback/)
-
-💸 Maybe add a `receive() external payable {}` so your contract will accept ETH?
-
-🚁 OH! Programming decentralized money! 😎 So rad!
-
----
-
-===================================================== [⏫ back to the top ⏫](https://github.com/austintgriffith/scaffold-eth#-scaffold-eth)
-
----
----
-
-
-# 📡 Deploy
-
-
-🛰 Ready to deploy to a testnet? Change the `defaultNetwork` in `packages/hardhat/hardhat.config.js`
-
-🔐 Generate a deploy account with `yarn generate` and view it with `yarn account`
-
-💵 Fund your deployer account (pro tip: use an [instant wallet](https://instantwallet.io) to send funds to the QR code from `yarn account`)
-
-> Deploy your contract:
-
-```bash
-yarn deploy
-```
-
----
 
 ===================================================== [⏫ back to the top ⏫](https://github.com/austintgriffith/scaffold-eth#-scaffold-eth)
 
 
+---
+---
+---
+---
+---
+---
+---
+---
 ---
 ---
 # 📺 Frontend

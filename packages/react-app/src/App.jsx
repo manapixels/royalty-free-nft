@@ -239,7 +239,6 @@ function App(props) {
              let update = {}
              update[yourCollectibles[c].id] = true
              setShowSend({...showSend, ...update})
-             //tx( writeContracts.GTGSCollectible.burn(yourCollectibles[c].artwork,yourCollectibles[c].id,{gasPrice:gasPrice}) )
            }}>
              <SendOutlined />
            </Button>
