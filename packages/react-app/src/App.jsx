@@ -43,7 +43,7 @@ import sound5 from './5.mp3';
 */
 
 
-  const OGs = 29//24
+  const OGs = 33//24
 
 
 
@@ -247,12 +247,12 @@ function App(props) {
     return () => window.removeEventListener("scroll", onScroll);
   }, [scrollTop]);
 
-console.log("scrollTop",scrollTop)
+  //console.log("scrollTop",scrollTop)
 
 
   //const [ started, setStarted ] = useState()
 
-  const bounds = [ 700, 1936, 512, 1150  ]
+  const bounds = [ 710, 1926, 522, 1150  ]
 
   const randomOG = ()=>{ return Math.floor(Math.random()*OGs)+1 }
 
@@ -359,6 +359,10 @@ console.log("scrollTop",scrollTop)
   const textStyle = { fontFamily:"'Press Start 2P'", fontSize:22 }
   const secondTextStyle = { fontFamily:"'Press Start 2P'", fontSize:16}
 
+  const videoWidth = 967
+  const videoHeight = 544
+  const scale = 0.35
+
   return (
     <ReactScrollWheelHandler
         upHandler={(e) => {
@@ -377,13 +381,13 @@ console.log("scrollTop",scrollTop)
     >
     <div className="App" >
 
-      <div style={{position:"relative",opacity:1-1*scrollTop/1700}}>
-        <img src="/ognftdate.png" style={{width:2660*newScale, height:1540*newScale}}/>
+      <div style={{position:"relative",opacity:1-1*scrollTop/1700,width:2660*newScale}}>
+        <img src="/ognftdate.png" style={{width:2660*newScale, height:1540*newScale,outline:"none"}}/>
         {/*<img src="/tv.gif" style={{zIndex:1,position:"absolute",top:1033*newScale,left:517*newScale,maxWidth:240*newScale}} />*/}
 
-        <div style={{position:"fixed",right:32,top:16,zIndex:2}}>
+        <div style={{position:"fixed",right:32,top:16,zIndex:999,opacity:1-1*scrollTop/150}}>
 
-          <img src="./twitter.png" style={{maxWidth:100, cursor:"pointer"}} onClick={()=>{
+          <img src="./twitter.png" style={{zIndex:999,maxWidth:100, cursor:"pointer"}} onClick={()=>{
             window.open("https://twitter.com/OG_NFT")
           }}/>
 
@@ -397,6 +401,14 @@ console.log("scrollTop",scrollTop)
 
         </div>
       </div>
+      { /*
+
+        <div style={{zIndex:1,position:"absolute",left:400,top:400,width:536,height:552,backgroundImage:"url('tv.gif')"}}>
+          <iframe style={{marginTop:299,marginLeft:-169}} width={videoWidth*scale} height={videoHeight*scale} src="https://www.youtube.com/embed/GOUfSMlIu24" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        
+      */ }
+
 
       {renderList}
 
@@ -406,23 +418,23 @@ console.log("scrollTop",scrollTop)
 
       </div>
 
-      <div style={{position:"absolute",opacity:1,top:1900-Math.min(2000,scrollTop*1.6),left:500}}>
+      <div style={{zIndex:3,position:"absolute",opacity:1,top:1900-Math.min(2000,scrollTop*1.6),left:"35vw"}}>
         <img src="./middlebuilding.png" style={{minWidth:wallSize*0.9}} />
       </div>
 
-      <div style={{position:"absolute",top:2000-scrollTop,left:400}}>
+      <div style={{zIndex:4,position:"absolute",top:2000-scrollTop,left:"30vw"}}>
         <div><img src="./bdl.png" style={{minWidth:wallSize}} /></div>
         <div><img src="./bdl2.png" style={{minWidth:wallSize}} /></div>
       </div>
 
       {/* <div style={{position:"absolute",top:400-scrollTop,left:280, fontFamily:"'Press Start 2P'", fontSize:16,color:"#ffffff" }}> MINT NFTs  <CaretRightOutlined /></div> */}
 
-      <div style={{position:"absolute",top:600-scrollTop,left:280, fontFamily:"'Press Start 2P'", fontSize:16,color:"#ffffff" }}> SCHEDULE  <CaretDownOutlined /></div>
+      <div style={{zIndex:2, position:"absolute",top:600-scrollTop,left:280, fontFamily:"'Press Start 2P'", fontSize:16,color:"#ffffff" }}> SCHEDULE  <CaretDownOutlined /></div>
 
       {/* <div style={{position:"absolute",top:800-scrollTop,left:1580, fontFamily:"'Press Start 2P'", fontSize:16,color:"#ffffff" }}> <Button type="primary" onClick={()=>{alert("coming soon ;)")}}>MINT NFT</Button></div>
 */}
 
-      <div style={{position:"absolute",top:2100-scrollTop,left:522,width:1448,transform:"scale("+scheduleZoom+")",transformOrigin:scheduleOrigin}}>
+      <div style={{ zIndex:5, position:"absolute",top:2100-scrollTop,left:"calc(30vw + 110px)",width:1448,transform:"scale("+scheduleZoom+")",transformOrigin:scheduleOrigin}}>
 
         <Row style={rowStyle} >
           <Col span={4} style={colStyle}>
@@ -431,34 +443,34 @@ console.log("scrollTop",scrollTop)
             <div style={secondTextStyle}>4/20</div>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./4.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/2" target="_blank"><img src={"./4.png"} style={posterStyle}/></a>
           </Col>
           <Col style={colStyle}>
-            <img src={"./9.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/1" target="_blank"><img src={"./9.png"} style={posterStyle}/></a>
           </Col>
         </Row>
 
         <Row style={rowStyle} >
           <Col span={4} style={colStyle}>
-            <div style={textStyle}>TBD</div>
+            <div style={textStyle}>Non-Non-Fungible</div>
             <div style={secondTextStyle}>~ 11:15 AM ET</div>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./8.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/3" target="_blank"><img src={"./8.png"} style={posterStyle}/></a>
           </Col>
           <Col span={4} style={colStyle}>
             <div style={textStyle}>Lessons From Early Days of Ujo</div>
             <div style={secondTextStyle}>~ 11:30 AM ET</div>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./2.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/5" target="_blank"><img src={"./2.png"} style={posterStyle}/></a>
           </Col>
           <Col span={4} style={colStyle}>
             <div style={textStyle}>Behavioral Economics and NFTs (Live Experiment!!!)</div>
             <div style={secondTextStyle}>~ 11:45 AM ET</div>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./13_1.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/4" target="_blank"><img src={"./13_1.png"} style={posterStyle}/></a>
           </Col>
         </Row>
 
@@ -470,23 +482,23 @@ console.log("scrollTop",scrollTop)
             <div style={secondTextStyle}>~ 12:00 PM ET</div>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./5.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/7" target="_blank"><img src={"./5.png"} style={posterStyle}/></a>
           </Col>
           <Col style={colStyle}>
-            <img src={"./4.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/2" target="_blank"><img src={"./4.png"} style={posterStyle}/></a>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./2.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/5" target="_blank"><img src={"./2.png"} style={posterStyle}/></a>
           </Col>
           <Col style={colStyle}>
-            <img src={"./8.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/3" target="_blank"><img src={"./8.png"} style={posterStyle}/></a>
           </Col>
           <Col span={4} style={colStyle}>
             <div style={textStyle}>An Introduction to Flowertokens</div>
             <div style={secondTextStyle}>~ 12:45 PM ET</div>
           </Col>
           <Col  style={colStyle}>
-             <img src={"./29.png"} style={posterStyle}/>
+             <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/9" target="_blank"><img src={"./29.png"} style={posterStyle}/></a>
           </Col>
         </Row>
 
@@ -498,17 +510,20 @@ console.log("scrollTop",scrollTop)
             <div style={secondTextStyle}>~ 1:00 PM ET</div>
           </Col>
           <Col  style={colStyle}>
-             <img src={"./30.png"} style={posterStyle}/>
+             <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/6" target="_blank"><img src={"./30.png"} style={posterStyle}/></a>
           </Col>
           <Col span={6} style={colStyle}>
             <div style={textStyle}>Wanderer Above a Sea of FUD</div>
             <div style={secondTextStyle}>~ 1:15 PM ET</div>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./5.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/7" target="_blank"><img src={"./5.png"} style={posterStyle}/></a>
           </Col>
           <Col style={colStyle}>
-            <img src={"./27.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/8" target="_blank"><img src={"./27.png"} style={posterStyle}/></a>
+          </Col>
+          <Col style={colStyle}>
+            <img src={"./32.png"} style={posterStyle}/>
           </Col>
         </Row>
 
@@ -518,13 +533,19 @@ console.log("scrollTop",scrollTop)
             <div style={secondTextStyle}>~ 1:30 PM ET</div>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./11.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/12" target="_blank"><img src={"./11.png"} style={posterStyle}/></a>
           </Col>
           <Col style={colStyle}>
-            <img src={"./16.png"} style={posterStyle}/>
+            <img src={"./33.png"} style={posterStyle}/>
           </Col>
           <Col style={colStyle}>
-            <img src={"./27.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/11" target="_blank"><img src={"./16.png"} style={posterStyle}/></a>
+          </Col>
+          <Col style={colStyle}>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/8" target="_blank"><img src={"./27.png"} style={posterStyle}/></a>
+          </Col>
+          <Col style={colStyle}>
+            <img src={"./31.png"} style={posterStyle}/>
           </Col>
         </Row>
 
@@ -532,22 +553,22 @@ console.log("scrollTop",scrollTop)
         <Row style={rowStyle} >
           <Col span={4} style={colStyle}>
             <div style={textStyle}>AUDIO PANEL</div>
-            <div style={secondTextStyle}>~ 2:00 PM ET</div>
+            <div style={secondTextStyle}>~ 2:10 PM ET</div>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./6_1.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/14" target="_blank"><img src={"./6_1.png"} style={posterStyle}/></a>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./25.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/10" target="_blank"><img src={"./25.png"} style={posterStyle}/></a>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./28.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/15" target="_blank"><img src={"./28.png"} style={posterStyle}/></a>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./2.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/5" target="_blank"><img src={"./2.png"} style={posterStyle}/></a>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./26.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/13" target="_blank"><img src={"./26.png"} style={posterStyle}/></a>
           </Col>
         </Row>
 
@@ -555,60 +576,49 @@ console.log("scrollTop",scrollTop)
         <Row style={rowStyle} >
           <Col span={4} style={colStyle}>
             <div style={textStyle}>FUTURE PANEL</div>
-            <div style={secondTextStyle}>~ 2:30 PM ET</div>
+            <div style={secondTextStyle}>~ 2:40 PM ET</div>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./17.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/17" target="_blank"><img src={"./17.png"} style={posterStyle}/></a>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./14.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/18" target="_blank"><img src={"./14.png"} style={posterStyle}/></a>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./15.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/16" target="_blank"><img src={"./15.png"} style={posterStyle}/></a>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./7.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/20" target="_blank"><img src={"./7.png"} style={posterStyle}/></a>
           </Col>
           <Col style={colStyle}>
-            <img src={"./3.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/19" target="_blank"><img src={"./3.png"} style={posterStyle}/></a>
           </Col>
         </Row>
 
 
         <Row style={rowStyle} >
-          <Col span={6} style={colStyle}>
+          <Col span={4} style={colStyle}>
             <div style={textStyle}>The Curse of Non-Fungibility</div>
-            <div style={secondTextStyle}>~ 3:00 PM ET</div>
-          </Col>
-          <Col  style={colStyle}>
-            <img src={"./10.png"} style={posterStyle}/>
-          </Col>
-          <Col span={6} style={colStyle}>
-            <div style={textStyle}>TBD</div>
             <div style={secondTextStyle}>~ 3:15 PM ET</div>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./12.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/21" target="_blank"><img src={"./10.png"} style={posterStyle}/></a>
           </Col>
-        </Row>
-
-        <Row style={rowStyle} >
-          <Col span={6} style={colStyle}>
-            <div style={textStyle}>TBD</div>
+          <Col span={4} style={colStyle}>
+            <div style={textStyle}>RareAF Stories</div>
             <div style={secondTextStyle}>~ 3:30 PM ET</div>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./11.png"} style={posterStyle}/>
+            <img src={"./12af.png"} style={posterStyle}/>
           </Col>
-          <Col span={6} style={colStyle}>
+          <Col span={4} style={colStyle}>
             <div style={textStyle}>Notes on the Synthesis of Digital Form</div>
             <div style={secondTextStyle}>~ 3:45 PM ET</div>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./4.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/2" target="_blank"><img src={"./4.png"} style={posterStyle}/></a>
           </Col>
         </Row>
-
 
         <Row style={rowStyle} >
           <Col span={4} style={colStyle}>
@@ -616,25 +626,25 @@ console.log("scrollTop",scrollTop)
             <div style={secondTextStyle}>~ 4PM ET</div>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./19.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/22" target="_blank"><img src={"./19.png"} style={posterStyle}/></a>
           </Col>
           <Col style={colStyle}>
-            <img src={"./18.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/29" target="_blank"><img src={"./18.png"} style={posterStyle}/></a>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./20.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/31" target="_blank"><img src={"./20.png"} style={posterStyle}/></a>
           </Col>
           <Col style={colStyle}>
-            <img src={"./21.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/32" target="_blank"><img src={"./21.png"} style={posterStyle}/></a>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./22.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/30" target="_blank"><img src={"./22.png"} style={posterStyle}/></a>
           </Col>
           <Col style={colStyle}>
-            <img src={"./23.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/28" target="_blank"><img src={"./23.png"} style={posterStyle}/></a>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./24.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/27" target="_blank"><img src={"./24.png"} style={posterStyle}/></a>
           </Col>
 
         </Row>
@@ -646,7 +656,7 @@ console.log("scrollTop",scrollTop)
             <div style={secondTextStyle}>4/20</div>
           </Col>
           <Col  style={colStyle}>
-            <img src={"./9.png"} style={posterStyle}/>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/1" target="_blank"><img src={"./9.png"} style={posterStyle}/></a>
           </Col>
         </Row>
 
