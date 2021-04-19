@@ -38,7 +38,7 @@ yarn start
 
 > (You might need to use the IPFS block instead of the Axios stuff if you are loading from IPFS)
 
-
+📝 Don't forget to update the **INFURA_ID** in `constants.js` in `packages/react-app/src` before you deploy to prod...
 
 ![image](https://user-images.githubusercontent.com/2653167/115158550-f21e5e80-a04b-11eb-8f28-8b91413dc802.png)
 
