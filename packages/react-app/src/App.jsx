@@ -249,10 +249,10 @@ function App(props) {
 
   //console.log("scrollTop",scrollTop)
 
-
+    const pushEverythingDown=700
   //const [ started, setStarted ] = useState()
 
-  const bounds = [ 710, 1926, 522, 1150  ]
+  const bounds = [ 710, 1926, 540, 1150  ]
 
   const randomOG = ()=>{ return Math.floor(Math.random()*OGs)+1 }
 
@@ -263,12 +263,12 @@ function App(props) {
 
   const [ currentPoster, setCurrentPoster ] = useState( startingOG )//random of posters
 
-  useEffect(()=>{
+  /*useEffect(()=>{
     setTimeout(()=>{
       window.scrollTo( window.screen.width/10, 0 );
     },500)
 
-  },[])
+  },[])*/
 
   const [ renderedThings, setRenderedThings ] = useState([])
 
@@ -276,6 +276,7 @@ function App(props) {
   let renderList = []
 
   const posterSize = 140
+
 
   for( let r in renderedThings ){
     //console.log(renderedThings[r])
@@ -291,7 +292,7 @@ function App(props) {
   let valid = false
   if( currentPoster && mouseLocation ){
 
-    if(mouseLocation[0]>bounds[0]*newScale && mouseLocation[0]<bounds[1]*newScale && mouseLocation[1]>bounds[2]*newScale && mouseLocation[1]<bounds[3]*newScale ){
+    if(mouseLocation[0]>bounds[0]*newScale && mouseLocation[0]<bounds[1]*newScale && mouseLocation[1]>bounds[2]*newScale+pushEverythingDown && mouseLocation[1]<bounds[3]*newScale+pushEverythingDown ){
       valid = true
     }
 
@@ -314,7 +315,7 @@ function App(props) {
     //console.log("CLICK",e)
 
     let validDoubleCheck = false
-    if(e.pageX>bounds[0]*newScale && e.pageX<bounds[1]*newScale && e.pageY>bounds[2]*newScale && e.pageY<bounds[3]*newScale ){
+    if(e.pageX>bounds[0]*newScale && e.pageX<bounds[1]*newScale && e.pageY>bounds[2]*newScale+pushEverythingDown && e.pageY<bounds[3]*newScale+pushEverythingDown ){
       validDoubleCheck = true
     }
 
@@ -383,7 +384,14 @@ function App(props) {
     >
     <div className="App" >
 
-      <div style={{position:"relative",opacity:1-1*scrollTop/1700,width:2660*newScale}}>
+    <div style={{position:"absolute",left:"calc(50vw - 310px)",top:150,backgroundColor:"#000000"}}>
+      <div style={{zIndex:1,position:"absolute",left:0,top:0}}>
+       <img style={{maxWidth:620}} src="./streamCropped.png"/>
+      </div>
+      <iframe style={{zIndex:1,position:"absolute",left:26,top:45,backgroundColor:"#000000"}} width={videoWidth*scale} height={videoHeight*scale} src="https://www.youtube.com/embed/GOUfSMlIu24" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+
+      <div style={{position:"relative",marginTop:pushEverythingDown,opacity:1-1*scrollTop/(1700+pushEverythingDown),width:2660*newScale}}>
         <img src="/ognftdate.png" style={{width:2660*newScale, height:1540*newScale,outline:"none"}}/>
         {/*<img src="/tv.gif" style={{zIndex:1,position:"absolute",top:1033*newScale,left:517*newScale,maxWidth:240*newScale}} />*/}
 
@@ -405,12 +413,7 @@ function App(props) {
       </div>
 
 
-        <div style={{position:"absolute",left:696,top:588,backgroundColor:"#000000"}}>
-          <div style={{zIndex:1,position:"absolute",left:0,top:0}}>
-           <img style={{maxWidth:620}} src="./streamCropped.png"/>
-          </div>
-          <iframe style={{zIndex:1,position:"absolute",left:26,top:45,backgroundColor:"#000000"}} width={videoWidth*scale} height={videoHeight*scale} src="https://www.youtube.com/embed/GOUfSMlIu24" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        </div>
+
 
 
 
@@ -422,23 +425,23 @@ function App(props) {
 
       </div>
 
-      <div style={{zIndex:3,position:"absolute",opacity:1,top:1900-Math.min(2000,scrollTop*1.6),left:"35vw"}}>
+      <div style={{zIndex:3,position:"absolute",opacity:1,top:(1900+pushEverythingDown)-Math.min(2000,(Math.max(0,scrollTop-pushEverythingDown/2))*1.5),left:"35vw"}}>
         <img src="./middlebuilding.png" style={{minWidth:wallSize*0.9}} />
       </div>
 
-      <div style={{zIndex:4,position:"absolute",top:2000-scrollTop,left:"30vw"}}>
+      <div style={{zIndex:4,position:"absolute",top:(2000+pushEverythingDown)-(Math.max(0,scrollTop-pushEverythingDown/2)),left:"30vw"}}>
         <div><img src="./bdl.png" style={{minWidth:wallSize}} /></div>
         <div><img src="./bdl2.png" style={{minWidth:wallSize}} /></div>
       </div>
 
       {/* <div style={{position:"absolute",top:400-scrollTop,left:280, fontFamily:"'Press Start 2P'", fontSize:16,color:"#ffffff" }}> MINT NFTs  <CaretRightOutlined /></div> */}
 
-      <div style={{zIndex:2, position:"absolute",top:600-scrollTop,left:280, fontFamily:"'Press Start 2P'", fontSize:16,color:"#ffffff" }}> SCHEDULE  <CaretDownOutlined /></div>
+      <div style={{zIndex:2, position:"absolute",top:(800)-(Math.max(0,scrollTop-pushEverythingDown/2)),left:280, fontFamily:"'Press Start 2P'", fontSize:16,color:"#ffffff" }}> SCHEDULE  <CaretDownOutlined /></div>
 
       {/* <div style={{position:"absolute",top:800-scrollTop,left:1580, fontFamily:"'Press Start 2P'", fontSize:16,color:"#ffffff" }}> <Button type="primary" onClick={()=>{alert("coming soon ;)")}}>MINT NFT</Button></div>
 */}
 
-      <div style={{ zIndex:5, position:"absolute",top:2100-scrollTop,left:"calc(30vw + 110px)",width:1448,transform:"scale("+scheduleZoom+")",transformOrigin:scheduleOrigin}}>
+      <div style={{ zIndex:5, position:"absolute",top:(2100+pushEverythingDown)-(Math.max(0,scrollTop-pushEverythingDown/2)),left:"calc(30vw + 110px)",width:1448,transform:"scale("+scheduleZoom+")",transformOrigin:scheduleOrigin}}>
 
         <Row style={rowStyle} >
           <Col span={4} style={colStyle}>
