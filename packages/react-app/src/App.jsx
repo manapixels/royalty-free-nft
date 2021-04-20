@@ -353,15 +353,17 @@ function App(props) {
   const wallSize = 1300
 
   const rowStyle = { borderBottom: "8px solid #444444", paddingBottom:hardSpacer }
+  const bottomRowStyle = { marginTop:-32, borderBottom: "8px solid #444444",borderTop: "8px solid #444444", paddingBottom:hardSpacer }
   const colStyle = { marginTop:hardSpacer, padding:8, letterSpacing:-1.5 }
   const posterStyle = { maxWidth:136 }
+  const smallPosterStyle = { maxWidth:120 }
 
   const textStyle = { fontFamily:"'Press Start 2P'", fontSize:22 }
   const secondTextStyle = { fontFamily:"'Press Start 2P'", fontSize:16}
 
   const videoWidth = 967
   const videoHeight = 544
-  const scale = 0.35
+  const scale = 0.586
 
   return (
     <ReactScrollWheelHandler
@@ -401,13 +403,15 @@ function App(props) {
 
         </div>
       </div>
-      { /*
 
-        <div style={{zIndex:1,position:"absolute",left:400,top:400,width:536,height:552,backgroundImage:"url('tv.gif')"}}>
-          <iframe style={{marginTop:299,marginLeft:-169}} width={videoWidth*scale} height={videoHeight*scale} src="https://www.youtube.com/embed/GOUfSMlIu24" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+        <div style={{position:"absolute",left:696,top:588,backgroundColor:"#000000"}}>
+          <div style={{zIndex:1,position:"absolute",left:0,top:0}}>
+           <img style={{maxWidth:620}} src="./streamCropped.png"/>
+          </div>
+          <iframe style={{zIndex:1,position:"absolute",left:26,top:45,backgroundColor:"#000000"}} width={videoWidth*scale} height={videoHeight*scale} src="https://www.youtube.com/embed/GOUfSMlIu24" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
-        
-      */ }
+
 
 
       {renderList}
@@ -676,7 +680,44 @@ function App(props) {
           }}/>
 
         </div>
+
+
+        <Row style={bottomRowStyle} >
+          <Col span={4} style={colStyle}>
+            <div style={textStyle}>GROUPIES</div>
+            <div style={secondTextStyle}>( thanks!!! )</div>
+          </Col>
+          <Col  style={colStyle}>
+            <img src={"./AJ_Adams.png"} style={smallPosterStyle}/>
+          </Col>
+          <Col  style={colStyle}>
+            <img src={"./Jonathan_Palmer.png"} style={smallPosterStyle}/>
+          </Col>
+          <Col  style={colStyle}>
+            <img src={"./Dhia_Houaidi.png"} style={smallPosterStyle}/>
+          </Col>
+          <Col  style={colStyle}>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/14" target="_blank"><img src={"./6_1.png"} style={smallPosterStyle}/></a>
+          </Col>
+          <Col style={colStyle}>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/19" target="_blank"><img src={"./3.png"} style={smallPosterStyle}/></a>
+          </Col>
+          <Col style={colStyle}>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/8" target="_blank"><img src={"./27.png"} style={smallPosterStyle}/></a>
+          </Col>
+          <Col  style={colStyle}>
+            <a href="https://opensea.io/assets/0x72148fcae1d77eebcd9486af7e656bb736c213ef/7" target="_blank"><img src={"./5.png"} style={smallPosterStyle}/></a>
+          </Col>
+          <Col  style={colStyle}>
+            <img src={"./1.png"} style={smallPosterStyle}/>
+          </Col>
+        </Row>
+
+
+
       </div>
+
+
 
 
 
