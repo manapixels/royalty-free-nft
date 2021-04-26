@@ -1,5 +1,7 @@
 # 🏗 scaffold-eth - 🌐 GTGS
 
+> NFT "shards" collected from original "Voice Gems"
+
 ---
 
 # 🏃‍♀️ Quick Start
