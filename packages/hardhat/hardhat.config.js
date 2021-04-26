@@ -90,7 +90,15 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
-    },
+    },    
+    mumbai: {
+        gasPrice:1000000000,
+        url: "https://rpc-mumbai.maticvigil.com",
+      accounts: {
+        mnemonic: mnemonic(),
+      },
+    }
+    
   },
   solidity: {
     compilers: [

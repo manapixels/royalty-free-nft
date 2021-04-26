@@ -67,7 +67,7 @@ export default function FrontPage({
           // let ensAddress = useLookupAddress(mainnetProvider, txnData.args[0]);
           return (
             <>       
-            <Modal title="Transaction Details" visible={isModalVisible} onOk={handleOk}>
+            <Modal title="Transaction Details" visible={isModalVisible} onCancel={handleOk} destroyOnClose={true} onOk={handleOk} footer={null} closable={true} maskClosable={true}>
               {txnInfo && <div>
                   <p><b>Event Name :</b> {txnInfo.functionFragment.name}</p>
                   <p><b>Function Signature :</b> {txnInfo.signature}</p>

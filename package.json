@@ -56,5 +56,9 @@
       "**/@graphprotocol/graph-ts",
       "**/@graphprotocol/graph-ts/**"
     ]
+  },
+  "dependencies": {
+    "caniuse-lite": "^1.0.30001207",
+    "postcss-browser-comments": "^3.0.0"
   }
 }
