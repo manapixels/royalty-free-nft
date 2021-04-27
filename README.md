@@ -1,6 +1,6 @@
 # 🏗 scaffold-eth:  🎫 Nifty Viewer
 
-> forkable nft gallery with transfer functionality
+> forkable nft gallery with transfer functionality and burner wallets
 
 ---
 
