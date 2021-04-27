@@ -74,10 +74,26 @@ export default function CreateTransaction({poolServerUrl, contractName, address,
     decodedData = (
       <div>
         <div style={{marginTop:16,marginBottom:16}}>
-          {decodedDataObject.signature}
+          <b>Function Signature : </b>{decodedDataObject.signature}
         </div>
-        {argDisplay}
-      </div>
+        {decodedDataObject.functionFragment && decodedDataObject.functionFragment.inputs.map((element, index) => {
+            if (element.type === "address") {
+              return (
+                <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "left" }}>
+                  <b>{element.name} :&nbsp;</b>
+                  <Address fontsize={16} address={decodedDataObject.args[index]} ensProvider={mainnetProvider} />
+                </div>
+              );
+            }
+            if (element.type === "uint256") {
+              return (
+                <p style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "left" }}>
+                  <b>{element.name} : </b> {decodedDataObject.args[index] && decodedDataObject.args[index].toNumber()}
+                </p>
+              );
+            }
+          })}
+        </div>
     )
   }
 

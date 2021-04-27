@@ -58,6 +58,7 @@
     ]
   },
   "dependencies": {
+    "@ant-design/icons": "^4.6.2",
     "caniuse-lite": "^1.0.30001207",
     "postcss-browser-comments": "^3.0.0"
   }
