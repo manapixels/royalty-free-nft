@@ -8,9 +8,11 @@ required: [Node](https://nodejs.org/dist/latest-v12.x/) plus [Yarn](https://clas
 
 
 ```bash
-git clone https://github.com/austintgriffith/scaffold-eth.git
+git clone https://github.com/austintgriffith/scaffold-eth.git nifty-viewer
 
-cd scaffold-eth
+cd nifty-viewer
+
+git checkout nifty-viewer
 ```
 
 ```bash
