@@ -9,6 +9,8 @@ const main = async () => {
 
   console.log("\n\n 📡 Deploying...\n");
 
+// frontend address = 0xed391EfDC7580e58E4a97D687e63accEcAf0E201 (localhost)
+                    // 0xbB69eAb3c34A368151277823e36921Fb366EaE1e (ropsten)
 
   const streamingMetaMultiSigWallet = await deploy("StreamingMetaMultiSigWallet",[
     31337,
