@@ -47,7 +47,7 @@ const ipfs = ipfsAPI({host: 'ipfs.infura.io', port: '5001', protocol: 'https' })
 
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS['mainnet']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS['xdai']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true
@@ -107,11 +107,6 @@ function App(props) {
   // Just plug in different 🛰 providers to get your balance on different chains:
   const yourMainnetBalance = useBalance(mainnetProvider, address);
 
-  // Load in your local 📝 contract and read a value from it:
-  const readContracts = useContractLoader(localProvider)
-
-  // If you want to make 🔐 write transactions to your contracts, use the userProvider:
-  const writeContracts = useContractLoader(userProvider)
 
   // EXTERNAL CONTRACT EXAMPLE:
   //
@@ -136,7 +131,7 @@ function App(props) {
      let collectibleUpdate = []
      for(let tokenIndex=yourNFTBalancetoNumber-1;tokenIndex>=0;tokenIndex--){
        try{
-          //console.log("Getting token index",tokenIndex)
+          console.log("Getting token index",tokenIndex)
           const tokenId = await nftContractRead.tokenOfOwnerByIndex(address, tokenIndex)
           if(DEBUG&&tokenId)console.log("🆔 tokenId",tokenId)
           const tokenURI = await nftContractRead.tokenURI(tokenId)
@@ -145,35 +140,35 @@ function App(props) {
           //loading your token information from the tokenURI might work in a few different ways....
 
           //you might just grab the data from the uri directly:
-          const jsonManifest = await axios({url: tokenURI})
+          /*const jsonManifest = await axios({url: tokenURI})
           console.log("jsonManifest",jsonManifest)
           if(jsonManifest){
             //console.log("manifest",manifest)
             collectibleUpdate.push({ id:tokenId._hex, ...jsonManifest.data })
-          }
+          }*/
 
           //Or, a custom call based on tokenID without even loading the uri:
           //const jsonManifest = await axios({url: "https://www.folia.app/.netlify/functions/metadata/"+tokenId.toNumber()})
 
           // best case, the tokenURI is just an IPFS hash and we can get it there:
-          /*const ipfsHash = tokenURI.substr(tokenURI.lastIndexOf("/")+1)
+          const ipfsHash = tokenURI.substr(tokenURI.lastIndexOf("/")+1)
           //console.log("#️⃣ ipfsHash",ipfsHash)
           if(ipfsHash){
             const jsonManifest = await getFromIPFS(ipfsHash)
             if(jsonManifest){
               const manifest = JSON.parse(jsonManifest.toString())
-              //console.log("manifest",manifest)
+              console.log("manifest",manifest)
               collectibleUpdate.push({ id:tokenId.toNumber(), ...manifest })
             }
           }
-          */
+
        }catch(e){console.log(e)}
        setYourCollectibles(collectibleUpdate)
      }
 
    }
    updateYourCollectibles()
-  },[ readContracts, address, yourNFTBalancetoNumber ])
+  },[ nftContractRead, address, yourNFTBalancetoNumber ])
 
   console.log("👛 yourCollectibles",yourCollectibles)
   let yourCollectiblesRender = []
@@ -269,23 +264,19 @@ function App(props) {
   }
 
   const stackedNFTDisplay = yourNFTBalance && yourNFTBalance.toNumber() ? (
-    <div style={{ maxWidth:1020, margin: "auto", marginTop:64, paddingBottom:256 }}>
+    <div style={{  width:400, margin: "auto", marginTop:64, paddingBottom:256 }}>
 
-      <div style={{fontSize:32,marginBottom:32,marginTop:32}}>
-        {yourNFTBalance && yourNFTBalance.toNumber()} {contractName}
-      </div>
+
 
        <StackGrid
-         columnWidth={220}
+         columnWidth={400}
          gutterWidth={16}
-         gutterHeight={32}
+         gutterHeight={16}
        >
          {yourCollectiblesRender}
        </StackGrid>
 
-       <div style={{fontSize:16,marginTop:64, opacity:0.9}}>
-         {contractName} smart contract: <Address fontSize={16} minimized={false} address={nftContractRead&&nftContractRead.address} ensProvider={props.ensProvider} />
-       </div>
+
 
     </div>
   ):<div style={{marginTop:64}}><Spin/></div>
@@ -301,7 +292,7 @@ function App(props) {
   console.log("🏷 Resolved austingriffith.eth as:",addressFromENS)
   */
 
-  useEffect(()=>{
+  /*useEffect(()=>{
     if(DEBUG && mainnetProvider && address && selectedChainId && yourLocalBalance && yourMainnetBalance && readContracts && writeContracts){
       console.log("_____________________________________ 🏗 scaffold-eth _____________________________________")
       console.log("🌎 mainnetProvider",mainnetProvider)
@@ -314,7 +305,7 @@ function App(props) {
       console.log("🔐 writeContracts",writeContracts)
     }
   }, [mainnetProvider, address, selectedChainId, yourLocalBalance, yourMainnetBalance, readContracts, writeContracts])
-
+*/
 
 
   let networkDisplay = ""
@@ -385,14 +376,17 @@ function App(props) {
       {networkDisplay}
       <BrowserRouter>
 
-        <Menu style={{ textAlign:"center" }} selectedKeys={[route]} mode="horizontal">
-          <Menu.Item key="/">
+
+          {/*
+            <Menu style={{ textAlign:"center" }} selectedKeys={[route]} mode="horizontal">
+            <Menu.Item key="/">
             <Link onClick={()=>{setRoute("/")}} to="/">holdings</Link>
           </Menu.Item>
-          <Menu.Item key="/contract">
-            <Link onClick={()=>{setRoute("/contract")}} to="/contract">contract</Link>
+          <Menu.Item key="/debug">
+            <Link onClick={()=>{setRoute("/debug")}} to="/debug">debug</Link>
           </Menu.Item>
         </Menu>
+            */}
 
         <Switch>
           <Route exact path="/">
@@ -401,6 +395,10 @@ function App(props) {
                 this <Contract/> component will automatically parse your ABI
                 and give you a form to interact with it locally
             */}
+
+            <div style={{width:500, margin:"auto", border:"1px solid #e7e7e7",padding:32,marginBottom:64,marginTop:64}}>
+              This is an NFT symbolizing your participation in the first randomized control test of Seth Roberts' <i>Appetite Theory</i>. It is an ink from mrdee.eth of the results of the test, with hunger on the vertical axis and time on the horizontal. The lower line is a loess of the "treatment" condition, which the test of Seth's Theory. You can read more at <a href="https://p1anck.com" target="_blank">p1anck.com</a>.
+            </div>
 
             { stackedNFTDisplay }
 
@@ -425,7 +423,14 @@ function App(props) {
             />
             */ }
           </Route>
-          <Route path="/contract">
+          <Route path="/debug">
+          <div style={{fontSize:32,marginBottom:32,marginTop:32}}>
+            {yourNFTBalance && yourNFTBalance.toNumber()} {contractName}
+          </div>
+
+          <div style={{fontSize:16,marginTop:64, opacity:0.9}}>
+            {contractName} smart contract: <Address fontSize={16} minimized={false} address={nftContractRead&&nftContractRead.address} ensProvider={props.ensProvider} />
+          </div>
             <Contract
               name="NFT"
               customContract={nftContractWrite}
@@ -457,7 +462,7 @@ function App(props) {
          {faucetHint}
       </div>
 
-      {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
+      {/* 🗺 Extra UI like gas price, eth price, faucet, and support:
        <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
          <Row align="middle" gutter={[4, 4]}>
            <Col span={8}>
@@ -486,8 +491,6 @@ function App(props) {
          <Row align="middle" gutter={[4, 4]}>
            <Col span={24}>
              {
-
-               /*  if the local provider has a signer, let's show the faucet:  */
                faucetAvailable ? (
                  <Faucet localProvider={localProvider} price={price} ensProvider={mainnetProvider}/>
                ) : (
@@ -496,7 +499,7 @@ function App(props) {
              }
            </Col>
          </Row>
-       </div>
+       </div>*/}
 
     </div>
   );

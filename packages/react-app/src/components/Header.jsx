@@ -7,8 +7,8 @@ export default function Header() {
   return (
     <a href="/">
       <PageHeader
-        title="🎫  Nifty Viewer"
-        subTitle="forkable NFT gallery"
+        title="👣 Planck.Nifty.ink"
+        subTitle=""
         style={{ cursor: "pointer" }}
       />
     </a>
