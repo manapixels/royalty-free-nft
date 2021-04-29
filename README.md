@@ -190,6 +190,12 @@ You should see the correct network in the frontend:
 
 ![image](https://user-images.githubusercontent.com/2653167/109539305-655d1880-7a7e-11eb-9385-c169645dc2b5.png)
 
+> Also change the poolServerUrl constant to your deployed backend (via yarn backend)
+
+![image](https://user-images.githubusercontent.com/31567169/116589184-6f3fb280-a92d-11eb-8fff-d1e32b8359ff.png)
+
+Alternatively you can use the pool server url in the above screenshot
+
 ---
 
 #### 🔶 Infura
