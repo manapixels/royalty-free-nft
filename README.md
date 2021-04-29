@@ -1,4 +1,4 @@
-# 🏗 scaffold-eth - streaming meta multi sig example
+# 🏗 scaffold-eth - Streaming Multi Signature Wallet
 
 > an off-chain signature based multi sig with streaming
 
@@ -34,13 +34,6 @@ yarn chain
 
 ```
 
-> in a third terminal window:
-
-```bash
-cd scaffold-eth
-yarn deploy
-
-```
 
 🔏 Edit your smart contract `StreamingMetaMultiSigWallet.sol` in `packages/hardhat/contracts`
 
@@ -50,10 +43,9 @@ yarn deploy
 
 📱 Open http://localhost:3000 to see the app
 
-> in a fourth terminal window:
+> in a third terminal window:
 
 ```bash
-
 yarn backend
 
 ```
@@ -66,7 +58,7 @@ yarn backend
 
 
 
-> Deploy again with your frontend address as one of the owners:
+> in a fourth terminal deploy with your frontend address as one of the owners:
 
 ```bash
 
@@ -85,52 +77,66 @@ yarn deploy
 
 This will take you to a populated transaction create page:
 
-![image](https://user-images.githubusercontent.com/2653167/99156894-010a7a80-2682-11eb-9b19-8d749e678ce0.png)
+![image](https://user-images.githubusercontent.com/31567169/116584822-cabb7180-a928-11eb-8470-32d80717e704.png)
+
+
 
 > Create & sign the new transaction:
 
-![image](https://user-images.githubusercontent.com/2653167/99156898-0b2c7900-2682-11eb-96f1-aae5dfb13179.png)
+![image](https://user-images.githubusercontent.com/31567169/116584952-f2aad500-a928-11eb-82a1-906550008988.png)
 
 You will see the new transaction in the pool (this is all off-chain):
 
-![image](https://user-images.githubusercontent.com/2653167/99156905-2a2b0b00-2682-11eb-8da9-6016cc32aaa8.png)
+![image](https://user-images.githubusercontent.com/31567169/116585121-1bcb6580-a929-11eb-8e43-b5b0921cca2e.png)
+
+Click on the ellipsses button [...] to read the details of the transaction
+
+
+![image](https://user-images.githubusercontent.com/31567169/116585196-300f6280-a929-11eb-8ecf-be11b59b44c3.png)
+
 
 > Give your account some gas at the faucet and execute the transaction
 
 The transction will appear as "executed" on the front page:
 
-![image](https://user-images.githubusercontent.com/2653167/99156918-6199b780-2682-11eb-89d4-7379fe5adb54.png)
+![image](https://user-images.githubusercontent.com/31567169/116585477-82e91a00-a929-11eb-9e2c-dbd5af894e4a.png)
 
 
 > Create a transaction to open a stream to your frontend account:
 
-![image](https://user-images.githubusercontent.com/2653167/99156945-8db53880-2682-11eb-8477-059094a99723.png)
+![image](https://user-images.githubusercontent.com/31567169/116585714-b7f56c80-a929-11eb-8abe-0e06b1629f38.png)
+
+
 
 Again, this will take you to a populated transaction form:
 
-![image](https://user-images.githubusercontent.com/2653167/99156981-a6255300-2682-11eb-9120-090bbbba513f.png)
+![image](https://user-images.githubusercontent.com/31567169/116585998-03a81600-a92a-11eb-9a33-cd49d7eae0b7.png)
+
 
 
 This time we will need a second signature:
 
-![image](https://user-images.githubusercontent.com/2653167/99156994-bc331380-2682-11eb-9492-7e0c83ea0fcc.png)
+![image](https://user-images.githubusercontent.com/31567169/116586177-38b46880-a92a-11eb-82c9-396db404773b.png)
+
 
 > Sign the transacton with enough owners:
 
-![image](https://user-images.githubusercontent.com/2653167/99157010-d10fa700-2682-11eb-8f9a-328c561e97ef.png)
 
 (You'll notice you don't need ⛽️gas to sign transactions.)
 
 > Execute the transction to open the stream:
 
-![image](https://user-images.githubusercontent.com/2653167/99157033-04523600-2683-11eb-8f97-1f6f3ed7b752.png)
+![image](https://user-images.githubusercontent.com/31567169/116586333-66011680-a92a-11eb-8637-ffa70ae5c05a.png)
+
 
 The stream will live update with each new block mined:
 
-![image](https://user-images.githubusercontent.com/2653167/99157075-5004df80-2683-11eb-8438-40ab8fbd5bf5.png)
+![image](https://user-images.githubusercontent.com/31567169/116586420-7e713100-a92a-11eb-804e-016e627d91e3.png)
+
 
 (You might need to trigger a new block by sending yourself some faucet funds or something. HartHat blocks only get mined when there is a transaction.)
 
 > Click the button any time and it will withdraw:
 
-![image](https://user-images.githubusercontent.com/2653167/99157102-7fb3e780-2683-11eb-8cb5-121a94d78bac.png)
+
+![image](https://user-images.githubusercontent.com/31567169/116586516-9ea0f000-a92a-11eb-97a1-dfae6070c634.png)
