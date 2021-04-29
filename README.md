@@ -140,3 +140,89 @@ The stream will live update with each new block mined:
 
 
 ![image](https://user-images.githubusercontent.com/31567169/116586516-9ea0f000-a92a-11eb-97a1-dfae6070c634.png)
+
+
+💼 Edit your deployment script `deploy.js` in `packages/hardhat/scripts`
+
+🔏 Edit your contracts form, `StreamingMetaMultiSigWallet.sol` in `packages/hardhat/contracts`
+
+📝 Edit your frontend in `packages/react-app/src/views`
+
+## ⚔️ Side Quests
+
+#### 🐟 Create custom signer roles for your Wallet
+You may not want every signer to create new streams, only allow them to sign existing transactions or a mega-admin role who will be able to veto any transaction.
+
+#### 😎 Integrate this MultiSig wallet into other branches like nifty-ink  
+Make a MultiSig wallet to store your precious doodle-NFTs!? 
+
+---
+
+## 📡 Deploy the wallet!
+
+🛰 Ready to deploy to a testnet?
+
+> Change the `defaultNetwork` in `packages/hardhat/hardhat.config.js`
+
+![image](https://user-images.githubusercontent.com/2653167/109538427-4d38c980-7a7d-11eb-878b-b59b6d316014.png)
+
+🔐 Generate a deploy account with `yarn generate`
+
+![image](https://user-images.githubusercontent.com/2653167/109537873-a2c0a680-7a7c-11eb-95de-729dbf3399a3.png)
+
+
+👛 View your deployer address using `yarn account` (You'll need to fund this account. Hint: use an [instant wallet](https://instantwallet.io) to fund your account via QR code)
+
+![image](https://user-images.githubusercontent.com/2653167/109537339-ff6f9180-7a7b-11eb-85b0-46cd72311d12.png)
+
+👨‍🎤 Deploy your wallet:
+
+```bash
+yarn deploy
+```
+---
+
+> ✏️ Edit your frontend `App.jsx` in `packages/react-app/src` to change the `targetNetwork` to wherever you deployed your contract:
+
+![image](https://user-images.githubusercontent.com/2653167/109539175-3e9ee200-7a7e-11eb-8d26-3b107a276461.png)
+
+You should see the correct network in the frontend:
+
+![image](https://user-images.githubusercontent.com/2653167/109539305-655d1880-7a7e-11eb-9385-c169645dc2b5.png)
+
+---
+
+#### 🔶 Infura
+
+> You will need to get a key from [infura.io](https://infura.io) and paste it into `constants.js` in `packages/react-app/src`:
+
+![image](https://user-images.githubusercontent.com/2653167/109541146-b5d57580-7a80-11eb-9f9e-04ea33f5f45a.png)
+
+---
+
+## 🛳 Ship the app!
+
+> ⚙️ build and upload your frontend and share the url with your friends...
+
+```bash
+
+# build it:
+
+yarn build
+
+# upload it:
+
+yarn surge
+
+OR
+
+yarn s3
+
+OR
+
+yarn ipfs
+```
+
+![image](https://user-images.githubusercontent.com/2653167/109540985-7575f780-7a80-11eb-9ebd-39079cc2eb55.png)
+
+> 👩‍❤️‍👨 Share your public url with friends, add signers and stream some tasty ETH to a few lucky ones 😉!!
