@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
 import "antd/dist/antd.css";
-import {  JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
+import {  JsonRpcProvider, Web3Provider, InfuraProvider } from "@ethersproject/providers";
 import "./App.css";
 import { Row, Col, Button, Menu, Alert } from "antd";
 import Web3Modal from "web3modal";
@@ -36,7 +36,7 @@ import { Subgraph, CreateTransaction, Transactions, Owners, Streams, FrontPage }
 */
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS['ropsten']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS['rinkeby']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 const poolServerUrl = "https://backend.multisig.holdings:49832/"
 // const poolServerUrl = "http://localhost:49832/"
@@ -47,8 +47,8 @@ const DEBUG = true
 // 🛰 providers
 if(DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
 // const mainnetProvider = getDefaultProvider("mainnet", { infura: INFURA_ID, etherscan: ETHERSCAN_KEY, quorum: 1 });
-// const mainnetProvider = new InfuraProvider("mainnet",INFURA_ID);
-const mainnetProvider = new JsonRpcProvider("https://mainnet.infura.io/v3/" + INFURA_ID)
+const mainnetProvider = new InfuraProvider("mainnet",INFURA_ID);
+// const mainnetProvider = new JsonRpcProvider("https://mainnet.infura.io/v3/" + INFURA_ID)
 // ( ⚠️ Getting "failed to meet quorum" errors? Check your INFURA_ID)
 
 // 🏠 Your local provider is usually pointed at your local blockchain

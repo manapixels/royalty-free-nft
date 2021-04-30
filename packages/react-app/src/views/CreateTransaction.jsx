@@ -73,7 +73,7 @@ export default function CreateTransaction({poolServerUrl, contractName, address,
     }
     decodedData = (
       <div>
-        <div style={{marginTop:16,marginBottom:16}}>
+        <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "left",marginTop:16,marginBottom:16}}>
           <b>Function Signature : </b>{decodedDataObject.signature}
         </div>
         {decodedDataObject.functionFragment && decodedDataObject.functionFragment.inputs.map((element, index) => {
@@ -81,7 +81,7 @@ export default function CreateTransaction({poolServerUrl, contractName, address,
               return (
                 <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "left" }}>
                   <b>{element.name} :&nbsp;</b>
-                  <Address fontsize={16} address={decodedDataObject.args[index]} ensProvider={mainnetProvider} />
+                  <Address fontSize={16} address={decodedDataObject.args[index]} ensProvider={mainnetProvider} />
                 </div>
               );
             }
@@ -135,7 +135,10 @@ export default function CreateTransaction({poolServerUrl, contractName, address,
           </div>
 
           <Button style={{marginTop:32}} onClick={async ()=>{
-
+            if(data&&data=="0x"){
+              setResult("ERROR, Call Data Invalid")
+              return;
+            }
             console.log("customNonce",customNonce)
             let nonce = customNonce?customNonce:await readContracts[contractName].nonce()
             console.log("nonce",nonce)

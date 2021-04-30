@@ -16,17 +16,10 @@ const TransactionListItem = function ({item, mainnetProvider, blockExplorer, pri
     setIsModalVisible(false);
   };
 
-  // const transactionDetailsHandler = (item) => {
-  //   setTxnInfo(readContracts[contractName].interface.parseTransaction(item));
-  //   showModal();
-  //   console.log(
-  //     "🔥🔥🔥🔥",
-  //     // item
-  //     readContracts[contractName].interface.parseTransaction(item),
-  //   );
-  // }
+
+  console.log("🔥🔥🔥🔥", item)
+
   const txnData = readContracts[contractName].interface.parseTransaction(item);
-  console.log("🔥🔥🔥🔥", item.nonce)
   
   return <>
     <TransactionDetailsModal

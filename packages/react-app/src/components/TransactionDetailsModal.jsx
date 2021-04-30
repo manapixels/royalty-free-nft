@@ -28,7 +28,7 @@ const TransactionDetailsModal = function ({visible, txnInfo, handleOk, mainnetPr
               return (
                 <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "left" }}>
                   <b>{element.name} :&nbsp;</b>
-                  <Address address={txnInfo.args[index]} ensProvider={mainnetProvider} />
+                  <Address fontSize={16} address={txnInfo.args[index]} ensProvider={mainnetProvider} />
                 </div>
               );
             }
