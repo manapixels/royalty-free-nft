@@ -11,6 +11,7 @@ import { useUserAddress } from "eth-hooks";
 import { useOnBlock, useExchangePrice, useGasPrice, useUserProvider, useContractLoader, useContractReader, useEventListener, useBalance, useExternalContractLoader } from "./hooks";
 import { Address, AddressInput, Header, Account, Faucet, Ramp, Contract, GasGauge, ThemeSwitch } from "./components";
 import { Transactor } from "./helpers";
+import { ethers } from "ethers"
 import { formatEther, parseEther } from "@ethersproject/units";
 import axios from "axios";
 import { Hints, ExampleUI, Subgraph } from "./views"
@@ -135,43 +136,22 @@ function App(props) {
   useEffect(()=>{
    const updateYourCollectibles = async () => {
      let collectibleUpdate = []
-     for(let tokenIndex=yourNFTBalancetoNumber-1;tokenIndex>=0;tokenIndex--){
-       try{
-          //console.log("Getting token index",tokenIndex)
-          const tokenId = await nftContractRead.tokenOfOwnerByIndex(address, tokenIndex)
-          if(DEBUG&&tokenId)console.log("🆔 tokenId",tokenId)
-          const tokenURI = await nftContractRead.tokenURI(tokenId)
-          if(DEBUG&&tokenURI)console.log("🏷 tokenURI",tokenURI)
+     if(nftContractRead && nftContractRead.tokensOfOwner){
+       //console.log("Getting token index",tokenIndex)
+       const allTokens =  await nftContractRead.tokensOfOwner(address)
 
-          //loading your token information from the tokenURI might work in a few different ways....
+       if(DEBUG&&allTokens) console.log("🆔 allTokens",allTokens)
 
-          //you might just grab the data from the uri directly:
-          const jsonManifest = await axios({url: tokenURI})
-          console.log("jsonManifest",jsonManifest)
-          if(jsonManifest){
-            //console.log("manifest",manifest)
-            collectibleUpdate.push({ id:tokenId._hex, ...jsonManifest.data })
-          }
-
-          //Or, a custom call based on tokenID without even loading the uri:
-          //const jsonManifest = await axios({url: "https://www.folia.app/.netlify/functions/metadata/"+tokenId.toNumber()})
-
-          // best case, the tokenURI is just an IPFS hash and we can get it there:
-          /*const ipfsHash = tokenURI.substr(tokenURI.lastIndexOf("/")+1)
-          //console.log("#️⃣ ipfsHash",ipfsHash)
-          if(ipfsHash){
-            const jsonManifest = await getFromIPFS(ipfsHash)
-            if(jsonManifest){
-              const manifest = JSON.parse(jsonManifest.toString())
-              //console.log("manifest",manifest)
-              collectibleUpdate.push({ id:tokenId.toNumber(), ...manifest })
-            }
-          }
-          */
-       }catch(e){console.log(e)}
-       setYourCollectibles(collectibleUpdate)
+       for(let t in allTokens){
+         try{
+           console.log("THIS TOKJEN",allTokens[t])
+           const theToken =  await nftContractRead.getToken(allTokens[t])
+           console.log("theToken",theToken)
+           collectibleUpdate.push({ id:allTokens[t], image: "https://cryptogs.io/cryptogs/"+ethers.utils.parseBytes32String(theToken.image)})
+           setYourCollectibles(collectibleUpdate)
+         }catch(e){console.log(e)}
+       }
      }
-
    }
    updateYourCollectibles()
   },[ readContracts, address, yourNFTBalancetoNumber ])
