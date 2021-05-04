@@ -12,7 +12,7 @@ git clone https://github.com/austintgriffith/scaffold-eth.git nifty-viewer
 
 cd nifty-viewer
 
-git checkout nifty-viewer
+git checkout meebits-viewer
 ```
 
 ```bash

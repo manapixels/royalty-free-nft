@@ -258,7 +258,7 @@ function App(props) {
 
 
 
-     yourCollectiblesRender.push(
+  yourCollectiblesRender.push(
        <Card actions={cardActions} style={{backgroundColor:"#eeeeee",border:"1px solid #444444"}} key={"your"+yourCollectibles[c].entropy+yourCollectibles[c].id} title={(
          <span style={{color:"#666666"}}>
             {yourCollectibles[c].name}
