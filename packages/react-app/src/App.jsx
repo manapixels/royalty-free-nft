@@ -116,18 +116,18 @@ function App(props) {
 
   // EXTERNAL CONTRACT EXAMPLE:
   //
-  // If you want to bring in the mainnet DAI contract it would look like:
+  // If you want to bring in the mainnet nft contract it would look like:
   const nftContractRead = useExternalContractLoader( localProvider, NFT_CONTRACT_ADDRESS, NFT_CONTRACT_ABI)
 
-  // If you want to bring in the mainnet DAI contract it would look like:
+  // If you want to bring in the mainnet nft contract it would look like:
   const nftContractWrite = useExternalContractLoader( userProvider, NFT_CONTRACT_ADDRESS, NFT_CONTRACT_ABI)
 
 
-  const contractName = useContractReader({nftContractRead},"nftContractRead", "name")
+  const contractName = useContractReader({nftContractRead}, "nftContractRead", "name")
 
   // keep track of a variable from the contract in the local React state:
-  const yourNFTBalance = useContractReader({nftContractRead},"nftContractRead", "balanceOf", [ address ])
-  if(DEBUG&&yourNFTBalance) console.log("🧮 yourNFTBalance",yourNFTBalance)
+  const yourNFTBalance = useContractReader({nftContractRead}, "nftContractRead", "balanceOf", [ address ])
+  if(DEBUG && yourNFTBalance) console.log("🧮 yourNFTBalance", yourNFTBalance)
 
   const [ yourCollectibles, setYourCollectibles ] = useState()
 

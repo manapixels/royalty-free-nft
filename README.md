@@ -1,4 +1,4 @@
-# 🏗 scaffold-eth:  🎫 Nifty Viewer
+# 🏗 scaffold-eth:  🎫 Meebits Viewer
 
 > forkable nft gallery with transfer functionality and burner wallets
 
