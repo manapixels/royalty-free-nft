@@ -6,7 +6,9 @@
     "react",
     "uniswap",
     "workspaces",
-    "yarn"
+    "yarn",
+    "nft",
+    "meebits"
   ],
   "private": true,
   "scripts": {
