@@ -241,7 +241,7 @@ function App(props) {
             */}
 
             <Contract
-              name="YourContract"
+              name="GrabBag"
               signer={userProvider.getSigner()}
               provider={localProvider}
               address={address}

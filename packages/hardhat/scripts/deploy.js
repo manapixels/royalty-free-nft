@@ -9,7 +9,24 @@ const main = async () => {
 
   console.log("\n\n 📡 Deploying...\n");
 
-  const yourContract = await deploy("YourContract") // <-- add in constructor args like line 19 vvvv
+  const grabBag = await deploy("GrabBag") // <-- add in constructor args like line 19 vvvv
+
+  /*
+  //add things one at a time:
+  for(let e in entries){
+    console.log("ENTRY",entries[e])
+    await grabBag.addEntry(utils.formatBytes32String(entries[e]))
+  }*/
+
+  ///or add an array of random entries:
+  let entries = []
+  for(let amount=100;amount>0;amount--){
+    entries.push(utils.formatBytes32String(Math.random()*999999999))
+  }
+
+  await grabBag.addEntries(entries)
+
+  await grabBag.transferOwnership("0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1")
 
   //const yourContract = await ethers.getContractAt('YourContract', "0xaAC799eC2d00C013f1F11c37E654e59B0429DF6A") //<-- if you want to instantiate a version of a contract at a specific address!
   //const secondContract = await deploy("SecondContract")
