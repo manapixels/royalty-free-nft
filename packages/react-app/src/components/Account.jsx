@@ -3,12 +3,13 @@ import { Button } from "antd";
 import Address from "./Address";
 import Balance from "./Balance";
 import Wallet from "./Wallet";
+import { useThemeSwitcher } from "react-css-theme-switcher";
 import TransactionDetails from "./TransactionDetails";
 
 /*
   ~ What it does? ~
 
-  Displays an Address, Balance, and Wallet as one Account component, 
+  Displays an Address, Balance, and Wallet as one Account component,
   also allows users to log in to existing accounts and log out
 
   ~ How can I use? ~
@@ -26,7 +27,7 @@ import TransactionDetails from "./TransactionDetails";
   />
 
   ~ Features ~
-  
+
   - Provide address={address} and get balance corresponding to the given address
   - Provide localProvider={localProvider} to access balance on local network
   - Provide userProvider={userProvider} to display a wallet
@@ -81,12 +82,15 @@ export default function Account({
     }
   }
 
+  const { currentTheme } = useThemeSwitcher();
+
   const display = minimized ? (
     ""
   ) : (
     <span>
       {address ? <Address address={address} ensProvider={mainnetProvider} blockExplorer={blockExplorer} /> : "Connecting..."}
       <Balance address={address} provider={localProvider} price={price} />
+      <Wallet address={address} provider={userProvider} ensProvider={mainnetProvider} price={price} color={currentTheme == "light" ? "#1890ff" : "#2caad9"} />
       <TransactionDetails address={address} provider={userProvider} ensProvider={mainnetProvider} price={price} />
     </span>
   );

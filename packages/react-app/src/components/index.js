@@ -16,3 +16,4 @@ export { default as GasGauge } from "./GasGauge";
 export { default as BytesStringInput } from "./BytesStringInput";
 export { default as TransactionDetailsModal} from "./TransactionDetailsModal";
 export { default as TransactionListItem} from "./TransactionListItem";
+export { default as ThemeSwitch } from "./ThemeSwitch";

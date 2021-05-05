@@ -1,18 +1,19 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
 import "antd/dist/antd.css";
-import {  JsonRpcProvider, Web3Provider, InfuraProvider } from "@ethersproject/providers";
+import {  StaticJsonRpcProvider, JsonRpcProvider, Web3Provider,InfuraProvider } from "@ethersproject/providers";
 import "./App.css";
-import { Row, Col, Button, Menu, Alert } from "antd";
+import { Row, Col, Button, Menu, Alert, Switch as SwitchD } from "antd";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { useUserAddress } from "eth-hooks";
-import { useExchangePrice, useGasPrice, useUserProvider, useContractLoader, useContractReader, useBalance, useEventListener, useExternalContractLoader } from "./hooks";
-import { Balance, Header, Account, Faucet, Ramp, Contract, GasGauge, Address } from "./components";
+import { Balance, Header, Account, Faucet, Ramp, Contract, GasGauge, Address, ThemeSwitch } from "./components";
+import { useExchangePrice, useGasPrice, useUserProvider, useContractLoader, useContractReader, useEventListener, useBalance, useExternalContractLoader, useOnBlock } from "./hooks";
 import { Transactor } from "./helpers";
 import { formatEther, parseEther } from "@ethersproject/units";
 //import Hints from "./Hints";
-//import { Hints, ExampleUI, Subgraph } from "./views"
+import { Hints, ExampleUI, Subgraph } from "./views"
+import { useThemeSwitcher } from "react-css-theme-switcher";
 import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS } from "./constants";
 import { Subgraph, CreateTransaction, Transactions, Owners, Streams, FrontPage } from "./views"
 
@@ -30,10 +31,11 @@ import { Subgraph, CreateTransaction, Transactions, Owners, Streams, FrontPage }
     (this is your connection to the main Ethereum network for ENS etc.)
 
 
-    📡 EXTERNAL CONTRACTS:
+    🌏 EXTERNAL CONTRACTS:
     You can also bring in contract artifacts in `constants.js`
     (and then use the `useExternalContractLoader()` hook!)
 */
+
 
 /// 📡 What chain are your contracts deployed to?
 const targetNetwork = NETWORKS['rinkeby']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
@@ -44,19 +46,24 @@ const poolServerUrl = "https://backend.multisig.holdings:49832/"
 // 😬 Sorry for all the console logging
 const DEBUG = true
 
+
 // 🛰 providers
 if(DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
 // const mainnetProvider = getDefaultProvider("mainnet", { infura: INFURA_ID, etherscan: ETHERSCAN_KEY, quorum: 1 });
-const mainnetProvider = new InfuraProvider("mainnet",INFURA_ID);
-// const mainnetProvider = new JsonRpcProvider("https://mainnet.infura.io/v3/" + INFURA_ID)
-// ( ⚠️ Getting "failed to meet quorum" errors? Check your INFURA_ID)
+// const mainnetProvider = new InfuraProvider("mainnet",INFURA_ID);
+//
+// attempt to connect to our own scaffold eth rpc and if that fails fall back to infura...
+const scaffoldEthProvider = new JsonRpcProvider("https://rpc.scaffoldeth.io:48544")
+const mainnetInfura = new JsonRpcProvider("https://mainnet.infura.io/v3/" + INFURA_ID)
+// ( ⚠️ Getting "failed to meet quorum" errors? Check your INFURA_I
 
 // 🏠 Your local provider is usually pointed at your local blockchain
 const localProviderUrl = targetNetwork.rpcUrl;
 // as you deploy to other networks you can set REACT_APP_PROVIDER=https://dai.poa.network in packages/react-app/.env
 const localProviderUrlFromEnv = process.env.REACT_APP_PROVIDER ? process.env.REACT_APP_PROVIDER : localProviderUrl;
 if(DEBUG) console.log("🏠 Connecting to provider:", localProviderUrlFromEnv);
-const localProvider = new JsonRpcProvider(localProviderUrlFromEnv);
+const localProvider = new StaticJsonRpcProvider(localProviderUrlFromEnv);
+
 
 // 🔭 block explorer URL
 const blockExplorer = targetNetwork.blockExplorer;
@@ -65,6 +72,9 @@ const blockExplorer = targetNetwork.blockExplorer;
 
 
 function App(props) {
+
+  const mainnetProvider = (scaffoldEthProvider && scaffoldEthProvider._network) ? scaffoldEthProvider : mainnetInfura
+
   const [injectedProvider, setInjectedProvider] = useState();
   /* 💵 This hook will get the price of ETH from 🦄 Uniswap: */
   const price = useExchangePrice(targetNetwork,mainnetProvider);
@@ -74,14 +84,10 @@ function App(props) {
   // Use your injected provider from 🦊 Metamask or if you don't have it then instantly generate a 🔥 burner wallet.
   const userProvider = useUserProvider(injectedProvider, localProvider);
   const address = useUserAddress(userProvider);
-  if(DEBUG) console.log("👩‍💼 selected address:",address)
 
   // You can warn the user if you would like them to be on a specific network
   let localChainId = localProvider && localProvider._network && localProvider._network.chainId
-  if(DEBUG) console.log("🏠 localChainId",localChainId)
-
   let selectedChainId = userProvider && userProvider._network && userProvider._network.chainId
-  if(DEBUG) console.log("🕵🏻‍♂️ selectedChainId:",selectedChainId)
 
   // For more hooks, check out 🔗eth-hooks at: https://www.npmjs.com/package/eth-hooks
 
@@ -93,19 +99,15 @@ function App(props) {
 
   // 🏗 scaffold-eth is full of handy hooks like this one to get your balance:
   const yourLocalBalance = useBalance(localProvider, address);
-  if(DEBUG) console.log("💵 yourLocalBalance",yourLocalBalance?formatEther(yourLocalBalance):"...")
 
   // Just plug in different 🛰 providers to get your balance on different chains:
   const yourMainnetBalance = useBalance(mainnetProvider, address);
-  if(DEBUG) console.log("💵 yourMainnetBalance",yourMainnetBalance?formatEther(yourMainnetBalance):"...")
 
   // Load in your local 📝 contract and read a value from it:
   const readContracts = useContractLoader(localProvider)
-  if(DEBUG) console.log("📝 readContracts",readContracts)
 
   // If you want to make 🔐 write transactions to your contracts, use the userProvider:
   const writeContracts = useContractLoader(userProvider)
-  if(DEBUG) console.log("🔐 writeContracts",writeContracts)
 
   const contractName = "StreamingMetaMultiSigWallet"
 
@@ -127,25 +129,45 @@ function App(props) {
 
   // If you want to bring in the mainnet DAI contract it would look like:
   const mainnetDAIContract = useExternalContractLoader(mainnetProvider, DAI_ADDRESS, DAI_ABI)
-  console.log("🌍 DAI contract on mainnet:",mainnetDAIContract)
-  //
+
+  // If you want to call a function on a new block
+  useOnBlock(mainnetProvider, () => {
+    console.log(`⛓ A new mainnet block is here: ${mainnetProvider._lastBlockNumber}`)
+  })
+
   // Then read your DAI balance like:
   const myMainnetDAIBalance = useContractReader({DAI: mainnetDAIContract},"DAI", "balanceOf",["0x34aA3F359A9D614239015126635CE7732c18fDF3"])
-  console.log("🥇 myMainnetDAIBalance:",myMainnetDAIBalance)
-
 
   // keep track of a variable from the contract in the local React state:
   const purpose = useContractReader(readContracts,"YourContract", "purpose")
-  console.log("🤗 purpose:",purpose)
 
   //📟 Listen for broadcast events
   const setPurposeEvents = useEventListener(readContracts, "YourContract", "SetPurpose", localProvider, 1);
-  console.log("📟 SetPurpose events:",setPurposeEvents)
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
   console.log("🏷 Resolved austingriffith.eth as:",addressFromENS)
   */
+
+  //
+  // 🧫 DEBUG 👨🏻‍🔬
+  //
+  useEffect(()=>{
+    if(DEBUG && mainnetProvider && address && selectedChainId && yourLocalBalance && yourMainnetBalance && readContracts && writeContracts && mainnetDAIContract){
+      console.log("_____________________________________ 🏗 scaffold-eth _____________________________________")
+      console.log("🌎 mainnetProvider",mainnetProvider)
+      console.log("🏠 localChainId",localChainId)
+      console.log("👩‍💼 selected address:",address)
+      console.log("🕵🏻‍♂️ selectedChainId:",selectedChainId)
+      console.log("💵 yourLocalBalance",yourLocalBalance?formatEther(yourLocalBalance):"...")
+      console.log("💵 yourMainnetBalance",yourMainnetBalance?formatEther(yourMainnetBalance):"...")
+      console.log("📝 readContracts",readContracts)
+      console.log("🌍 DAI contract on mainnet:",mainnetDAIContract)
+      console.log("🔐 writeContracts",writeContracts)
+    }
+  }, [mainnetProvider, address, selectedChainId, yourLocalBalance, yourMainnetBalance, readContracts, writeContracts, mainnetDAIContract])
+
+
   let networkDisplay = ""
   if(localChainId && selectedChainId && localChainId != selectedChainId ){
     networkDisplay = (
@@ -199,7 +221,7 @@ function App(props) {
   }, [setRoute]);
 
   let faucetHint = ""
-  const faucetAvailable = localProvider && localProvider.connection && localProvider.connection.url && localProvider.connection.url.indexOf(window.location.hostname)>=0 && !process.env.REACT_APP_PROVIDER && price > 1;
+  const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name == "localhost"
 
   const [ faucetClicked, setFaucetClicked ] = useState( false );
   if(!faucetClicked&&localProvider&&localProvider._network&&localProvider._network.chainId==31337&&yourLocalBalance&&formatEther(yourLocalBalance)<=0){
@@ -384,6 +406,8 @@ function App(props) {
         </Switch>
       </BrowserRouter>
 
+      <ThemeSwitch />
+
 
       {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
       <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10 }}>
@@ -471,6 +495,14 @@ const logoutOfWeb3Modal = async () => {
 };
 
  window.ethereum && window.ethereum.on('chainChanged', chainId => {
+  web3Modal.cachedProvider &&
+  setTimeout(() => {
+    window.location.reload();
+  }, 1);
+})
+
+ window.ethereum && window.ethereum.on('accountsChanged', accounts => {
+  web3Modal.cachedProvider &&
   setTimeout(() => {
     window.location.reload();
   }, 1);
