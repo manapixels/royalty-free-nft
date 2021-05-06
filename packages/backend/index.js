@@ -28,7 +28,7 @@ const loadGas = async ()=>{
   console.log("Getting gas price...")
   let gasPrice = await axios.get("https://ethgasstation.info/api/ethgasAPI.json")
   if(gasPrice && gasPrice.data){
-    globalGasPriceCache = gasPrice.data.fast/10 * 1000000000
+    globalGasPriceCache = gasPrice.data.fast/10 * 1001001001
     gasPriceAge = Date.now()
   }
   console.log("globalGasPriceCache",globalGasPriceCache)
