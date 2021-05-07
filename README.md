@@ -46,20 +46,31 @@ yarn backend
 
 > Connect a web3 wallet:
 
-![image](https://user-images.githubusercontent.com/2653167/117459398-963b4d00-af08-11eb-84d6-1b690fba6fff.png)
+![image](https://user-images.githubusercontent.com/2653167/117460778-1a420480-af0a-11eb-88dc-5d7000e6111f.png)
 
 
 ---
+
 
 > Sign a message with your web3 wallet:
 
-![image](https://user-images.githubusercontent.com/2653167/117459227-655b1800-af08-11eb-9ada-e4d1d9e8da10.png)
+![image](https://user-images.githubusercontent.com/2653167/117460914-4067a480-af0a-11eb-9c2c-89559655055d.png)
 
-![image](https://user-images.githubusercontent.com/2653167/117459503-b5d27580-af08-11eb-9f47-10fcd5370fc6.png)
+---
+
+MetaMask will prompt you with the message to sign:
+
+![image](https://user-images.githubusercontent.com/2653167/117460945-48274900-af0a-11eb-830e-6f3a776c2494.png)
 
 
 ---
 
+You will get a block explorer link back when the server successfully drops you ETH:
+
+![image](https://user-images.githubusercontent.com/2653167/117461115-72790680-af0a-11eb-83f9-8d4397a9e101.png)
+
+
+---
 
 
 > The server will try to do a good job of rate limiting by ETH address and IP address:
