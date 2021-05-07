@@ -28,7 +28,7 @@ const TransactionListItem = function ({item, mainnetProvider, blockExplorer, pri
       handleOk={handleOk}
       mainnetProvider={mainnetProvider}
     />
-    <List.Item style={{ position: "relative" }}>
+    <List.Item key={item.hash} style={{ position: "relative" }}>
       <div
         style={{
           position: "absolute",

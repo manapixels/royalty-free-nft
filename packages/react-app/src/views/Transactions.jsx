@@ -29,7 +29,7 @@ export default function Transactions({
   const [transactions, setTransactions] = useState();
   usePoller(() => {
     const getTransactions = async () => {
-      if (DEBUG) console.log("🛰 Requesting Transaction List");
+      if (true) console.log("🛰 Requesting Transaction List");
       const res = await axios.get(
         poolServerUrl + readContracts[contractName].address + "_" + localProvider._network.chainId,
       );
@@ -53,7 +53,7 @@ export default function Transactions({
         }
       }
       setTransactions(newTransactions);
-      // console.log("Loaded",newTransactions.length)
+      console.log("Loaded",newTransactions.length)
     };
     if (readContracts) getTransactions();
   }, 3777);
@@ -93,7 +93,7 @@ export default function Transactions({
     return <Spin />;
   }
 
-  // console.log("transactions",transactions)
+  console.log("transactions",transactions)
 
   return (
     <div style={{ maxWidth: 750, margin: "auto", marginTop: 32, marginBottom: 32 }}>
@@ -155,6 +155,8 @@ export default function Transactions({
                 Sign
               </Button>
               <Button
+
+                key={item.hash}
                 onClick={async () => {
                   const newHash = await readContracts[contractName].getTransactionHash(
                     item.nonce,

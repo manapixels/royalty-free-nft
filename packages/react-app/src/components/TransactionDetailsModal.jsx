@@ -26,7 +26,7 @@ const TransactionDetailsModal = function ({visible, txnInfo, handleOk, mainnetPr
           {txnInfo.functionFragment.inputs.map((element, index) => {
             if (element.type === "address") {
               return (
-                <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "left" }}>
+                <div key={element.name} style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "left" }}>
                   <b>{element.name} :&nbsp;</b>
                   <Address fontSize={16} address={txnInfo.args[index]} ensProvider={mainnetProvider} />
                 </div>
@@ -34,7 +34,7 @@ const TransactionDetailsModal = function ({visible, txnInfo, handleOk, mainnetPr
             }
             if (element.type === "uint256") {
               return (
-                <p>
+                <p key={element.name}>
                   <b>{element.name} : </b> {txnInfo.args[index] && txnInfo.args[index].toNumber()}
                 </p>
               );
