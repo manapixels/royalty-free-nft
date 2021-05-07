@@ -10,10 +10,11 @@ const axios = require('axios');
 let cache = {}
 let currentMessage = "I am **ADDRESS** and I would like some ETH please!"
 
+//     infura.txt:      { "projectId":"XXXX", "projectSecret":"XXXX" }
 const INFURA = JSON.parse(fs.readFileSync("./infura.txt").toString().trim())
 const PK = fs.readFileSync("./pk.txt").toString().trim()
 
-let wallet = new ethers.Wallet(PK,new ethers.providers.InfuraProvider("homestead",INFURA))//new ethers.providers.InfuraProvider("goerli",INFURA)
+let wallet = new ethers.Wallet(PK,new ethers.providers.InfuraProvider("goerli",INFURA))//new ethers.providers.InfuraProvider("homestead",INFURA)
 console.log(wallet.address)
 
 const checkWalletBalance = async ()=>{
