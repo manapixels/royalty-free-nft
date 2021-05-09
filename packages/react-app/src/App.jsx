@@ -15,7 +15,7 @@ import { formatEther, parseEther } from "@ethersproject/units";
 import { Hints, ExampleUI, Subgraph } from "./views"
 import { useThemeSwitcher } from "react-css-theme-switcher";
 import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS } from "./constants";
-import { Subgraph, CreateTransaction, Transactions, Owners, Streams, FrontPage } from "./views"
+import { CreateTransaction, Transactions, Owners, Streams, FrontPage } from "./views"
 
 /*
     Welcome to 🏗 scaffold-eth !
@@ -38,10 +38,10 @@ import { Subgraph, CreateTransaction, Transactions, Owners, Streams, FrontPage }
 
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS['rinkeby']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS['localhost']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
-const poolServerUrl = "https://backend.multisig.holdings:49832/"
-// const poolServerUrl = "http://localhost:49832/"
+// const poolServerUrl = "https://backend.multisig.holdings:49832/"
+const poolServerUrl = "http://localhost:49832/"
 
 // 😬 Sorry for all the console logging
 const DEBUG = true
