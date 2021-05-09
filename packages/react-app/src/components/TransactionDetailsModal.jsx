@@ -2,7 +2,7 @@ import React from "react";
 import { Modal } from "antd";
 import Address from "./Address";
 import Balance from "./Balance";
-const TransactionDetailsModal = function ({visible, txnInfo, handleOk, mainnetProvider, price=100}) {
+const TransactionDetailsModal = function ({visible, handleOk, mainnetProvider, price, txnInfo = null}) {
   return (
     <Modal
       title="Transaction Details"

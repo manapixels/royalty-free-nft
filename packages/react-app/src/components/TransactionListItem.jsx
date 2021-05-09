@@ -19,9 +19,12 @@ const TransactionListItem = function ({item, mainnetProvider, blockExplorer, pri
 
 
   console.log("🔥🔥🔥🔥", item)
-
-  const txnData = readContracts[contractName].interface.parseTransaction(item);
-  
+  let txnData;
+  try {
+    txnData = readContracts[contractName].interface.parseTransaction(item);
+  } catch (error){
+    console.log("ERROR", error)
+  }
   return <>
     <TransactionDetailsModal
       visible={isModalVisible}
