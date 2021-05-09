@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import { useHistory } from "react-router-dom";
-import { Button, List, Divider, Input, Card, DatePicker, Slider, Switch, Progress, Spin } from "antd";
+import { Button, Select, List, Divider, Input, Card, DatePicker, Slider, Switch, Progress, Spin } from "antd";
 import { SyncOutlined } from "@ant-design/icons";
 import { parseEther, formatEther } from "@ethersproject/units";
 import { Address, AddressInput, Balance, EtherInput, Blockie } from "../components";
 import { useContractReader, useEventListener } from "../hooks";
+const { Option } = Select;
 
 const axios = require("axios");
 
@@ -23,21 +24,23 @@ export default function CreateTransaction({
   writeContracts,
 }) {
   const history = useHistory();
-  
+
   // keep track of a variable from the contract in the local React state:
   const nonce = useContractReader(readContracts, contractName, "nonce");
   const calldataInputRef = useRef("0x");
-  
+
   console.log("🤗 nonce:", nonce);
-  
+
   console.log("price", price);
-  
+
   const [customNonce, setCustomNonce] = useState();
   const [to, setTo] = useLocalStorage("to");
   const [amount, setAmount] = useLocalStorage("amount", "0");
   const [data, setData] = useLocalStorage("data", "0x");
   const [isCreateTxnEnabled, setCreateTxnEnabled] = useState(true);
-  const [temp, setTemp] = useState();
+  const [decodedDataState, setDecodedData] = useState();
+  const [methodName, setMethodName] = useState();
+  const [selectDisabled, setSelectDisabled] = useState(false);
   let decodedData = "";
 
   const [result, setResult] = useState();
@@ -45,61 +48,79 @@ export default function CreateTransaction({
   const inputStyle = {
     padding: 10,
   };
-  let decodedDataObject = ""
-  useEffect(()=> {
+  let decodedDataObject = "";
+  useEffect(() => {
     const inputTimer = setTimeout(async () => {
-      console.log("EFFECT RUNNING")
-        try{
-          decodedDataObject = readContracts ? await readContracts[contractName].interface.parseTransaction({ data }) : "";
-          console.log("decodedDataObject", decodedDataObject);
-          setCreateTxnEnabled(true);
-          decodedData = (
-      <div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "left",
-            marginTop: 16,
-            marginBottom: 16,
-          }}
-        >
-          {decodedDataObject && decodedDataObject.signature && <b>Function Signature : </b>}
-          {decodedDataObject.signature}
-        </div>
-        {decodedDataObject.functionFragment &&
-          decodedDataObject.functionFragment.inputs.map((element, index) => {
-            if (element.type === "address") {
-              return (
-                <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "left" }}>
-                  <b>{element.name} :&nbsp;</b>
-                  <Address fontSize={16} address={decodedDataObject.args[index]} ensProvider={mainnetProvider} />
-                </div>
-              );
-            }
-            if (element.type === "uint256") {
-              return (
-                <p style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "left" }}>
-                  <b>{element.name} : </b> {decodedDataObject.args[index] && decodedDataObject.args[index].toNumber()}
-                </p>
-              );
-            }
-          })}
-      </div>
-    );
-          setTemp(decodedData)
-} catch(error){
-  console.log(error)
-  setResult("ERROR: Invalid calldata");
-  setCreateTxnEnabled(false);
-}
+      console.log("EFFECT RUNNING");
+      try {
+        if(methodName == "transferFunds"){
+          console.log("Send transaction selected")
+          console.log("🔥🔥🔥🔥🔥🔥",amount)
+            const calldata = readContracts[contractName].interface.encodeFunctionData("transferFunds",[to,parseEther("" + parseFloat(amount).toFixed(12))])
+            setData(calldata);  
+        }
+        decodedDataObject = readContracts ? await readContracts[contractName].interface.parseTransaction({ data }) : "";
+        console.log("decodedDataObject", decodedDataObject);
+        setCreateTxnEnabled(true);
+        if(decodedDataObject.signature === "addSigner(address,uint256)"){
+          setMethodName("addSigner")
+          setSelectDisabled(true)
+        } else if (decodedDataObject.signature === "removeSigner(address,uint256)"){
+          setMethodName("removeSigner")
+          setSelectDisabled(true)
+        }
+        decodedData = (
+          <div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "left",
+                marginTop: 16,
+                marginBottom: 16,
+              }}
+            >
+              {decodedDataObject && decodedDataObject.signature && <b>Function Signature : </b>}
+              {decodedDataObject.signature}
+            </div>
+            {decodedDataObject.functionFragment &&
+              decodedDataObject.functionFragment.inputs.map((element, index) => {
+                if (element.type === "address") {
+                  return (
+                    <div
+                      style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "left" }}
+                    >
+                      <b>{element.name} :&nbsp;</b>
+                      <Address fontSize={16} address={decodedDataObject.args[index]} ensProvider={mainnetProvider} />
+                    </div>
+                  );
+                }
+                if (element.type === "uint256") {
+                  return (
+                    <p style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "left" }}>
+                  {element.name === "value" ? <><b>{element.name} : </b> <Balance fontSize={16} balance={decodedDataObject.args[index]} dollarMultiplier={price} /> </> : <><b>{element.name} : </b> {decodedDataObject.args[index] && decodedDataObject.args[index].toNumber()}</>}
+                    </p>
+                  );
+                }
+              })}
+          </div>
+        );
+        setDecodedData(decodedData);
+        setCreateTxnEnabled(true);
+        setResult();
 
-    }, 500)
+      } catch (error) {
+
+        console.log("mistake: ",error);
+        if(data!== "0x") setResult("ERROR: Invalid calldata");
+        setCreateTxnEnabled(false);
+      }
+    }, 500);
     return () => {
       clearTimeout(inputTimer);
-    }
-  },[data]);
+    };
+  }, [data, decodedData, amount]);
 
   let resultDisplay;
   if (result) {
@@ -117,8 +138,6 @@ export default function CreateTransaction({
     }
   }
 
-      
-
   return (
     <div>
       {/*
@@ -135,7 +154,13 @@ export default function CreateTransaction({
               onChange={setCustomNonce}
             />
           </div>
-
+                  <div style={{margin:8,padding:8}}>
+          <Select value={methodName} disabled={selectDisabled} style={{ width: "100%" }} onChange={ setMethodName }>
+            <Option key="transferFunds">transferFunds()</Option>
+            <Option disabled={true} key="addSigner">addSigner()</Option>
+            <Option disabled={true} key="removeSigner">removeSigner()</Option>
+          </Select>
+        </div>
           <div style={inputStyle}>
             <AddressInput
               autoFocus
@@ -146,9 +171,9 @@ export default function CreateTransaction({
             />
           </div>
 
-          <div style={inputStyle}>
-          </div>
-
+          {!selectDisabled && <div style={inputStyle}>
+            <EtherInput price={price} mode="USD" value={amount} onChange={setAmount} />
+          </div>}
           <div style={inputStyle}>
             <Input
               placeholder="calldata"
@@ -158,19 +183,18 @@ export default function CreateTransaction({
               }}
               ref={calldataInputRef}
             />
-            {temp}
+            {decodedDataState}
           </div>
 
           <Button
             style={{ marginTop: 32 }}
             disabled={!isCreateTxnEnabled}
             onClick={async () => {
-
               // setData(calldataInputRef.current.state.value)
-              if (data && data == "0x") {
-                setResult("ERROR, Call Data Invalid");
-                return;
-              }
+              // if (data && data == "0x") {
+              //   setResult("ERROR, Call Data Invalid");
+              //   return;
+              // }
               console.log("customNonce", customNonce);
               const nonce = customNonce || (await readContracts[contractName].nonce());
               console.log("nonce", nonce);

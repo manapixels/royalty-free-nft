@@ -27,7 +27,7 @@ export default function FrontPage({
             address={readContracts ? readContracts[contractName].address : readContracts}
             provider={localProvider}
             dollarMultiplier={price}
-            size={64}
+            fontSize={64}
           />
         </div>
         <div>

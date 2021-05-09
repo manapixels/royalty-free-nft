@@ -1,8 +1,8 @@
 import React from "react";
 import { Modal } from "antd";
 import Address from "./Address";
-
-const TransactionDetailsModal = function ({visible, txnInfo, handleOk, mainnetProvider}) {
+import Balance from "./Balance";
+const TransactionDetailsModal = function ({visible, txnInfo, handleOk, mainnetProvider, price=100}) {
   return (
     <Modal
       title="Transaction Details"
@@ -35,7 +35,7 @@ const TransactionDetailsModal = function ({visible, txnInfo, handleOk, mainnetPr
             if (element.type === "uint256") {
               return (
                 <p key={element.name}>
-                  <b>{element.name} : </b> {txnInfo.args[index] && txnInfo.args[index].toNumber()}
+                  {element.name === "value" ? <><b>{element.name} : </b> <Balance fontSize={16} balance={txnInfo.args[index]} dollarMultiplier={price} /> </> : <><b>{element.name} : </b> {txnInfo.args[index] && txnInfo.args[index].toNumber()}</>}
                 </p>
               );
             }

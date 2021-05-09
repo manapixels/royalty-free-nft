@@ -157,6 +157,7 @@ export default function Transactions({
               <Button
 
                 key={item.hash}
+                
                 onClick={async () => {
                   const newHash = await readContracts[contractName].getTransactionHash(
                     item.nonce,

@@ -36,7 +36,7 @@ import { Subgraph, CreateTransaction, Transactions, Owners, Streams, FrontPage }
 */
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS['localhost']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS['rinkeby']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 const poolServerUrl = "https://backend.multisig.holdings:49832/"
 // const poolServerUrl = "http://localhost:49832/"
@@ -233,9 +233,9 @@ function App(props) {
           <Menu.Item key="/owners">
             <Link onClick={()=>{setRoute("/owners")}} to="/owners">Owners</Link>
           </Menu.Item>
-          <Menu.Item key="/streams">
+          {/* <Menu.Item key="/streams">
             <Link onClick={()=>{setRoute("/streams")}} to="/streams">Streams</Link>
-          </Menu.Item>
+          </Menu.Item> */}
           <Menu.Item key="/create">
             <Link onClick={()=>{setRoute("/create")}} to="/create">Create</Link>
           </Menu.Item>
@@ -259,7 +259,7 @@ function App(props) {
               blockExplorer={blockExplorer}
             />
           </Route>
-          <Route exact path="/streams">
+          {/* <Route exact path="/streams">
             <Streams
               contractName={contractName}
               address={address}
@@ -277,6 +277,7 @@ function App(props) {
               openStreamEvents={openStreamEvents}
               signaturesRequired={signaturesRequired}
             />
+          </Route> */}
 
 
             { /* uncomment for a second contract:
@@ -299,7 +300,6 @@ function App(props) {
               blockExplorer={blockExplorer}
             />
             */ }
-          </Route>
           <Route exact path="/owners">
             <Owners
               contractName={contractName}
