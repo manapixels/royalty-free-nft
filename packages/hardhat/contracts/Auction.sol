@@ -29,10 +29,10 @@ contract Auction is IERC721Receiver {
         uint128 _price,
         uint256 _duration
     ) external {
-        require(msg.sender != address(0));
-        require(_nft != address(0));
-        require(_price > 0);
-        require(_duration > 0);
+        require(msg.sender != address(0), "Invalid Address");
+        require(_nft != address(0), "Invalid Account");
+        require(_price > 0, "Price should be more than 0");
+        require(_duration > 0, "Invalid duration value");
         tokenDetails memory _auction = tokenDetails({
             seller: msg.sender,
             price: uint128(_price),
@@ -52,8 +52,8 @@ contract Auction is IERC721Receiver {
     */
     function bid(address _nft, uint256 _tokenId) external payable {
         tokenDetails storage auction = tokenToAuction[_nft][_tokenId];
-        require(msg.value >= auction.price);
-        require(auction.isActive);
+        require(msg.value >= auction.price, "bid price is less than current price");
+        require(auction.isActive, "auction not active");
         require(auction.duration > block.timestamp, "Deadline already passed");
         if (bids[_nft][_tokenId][msg.sender] > 0) {
             (bool success, ) = msg.sender.call{value: bids[_nft][_tokenId][msg.sender]}("");
@@ -78,8 +78,8 @@ contract Auction is IERC721Receiver {
     function executeSale(address _nft, uint256 _tokenId) external {
         tokenDetails storage auction = tokenToAuction[_nft][_tokenId];
         require(auction.duration <= block.timestamp, "Deadline did not pass yet");
-        require(auction.seller == msg.sender);
-        require(auction.isActive);
+        require(auction.seller == msg.sender, "Not seller");
+        require(auction.isActive, "auction not active");
         auction.isActive = false;
         if (auction.bidAmounts.length == 0) {
             ERC721(_nft).safeTransferFrom(
@@ -109,10 +109,10 @@ contract Auction is IERC721Receiver {
     /**
        Called by the seller if they want to cancel the auction for their nft so the bidders get back the locked eeth and the seller get's back the nft
     */
-    function cancelAution(address _nft, uint256 _tokenId) external {
+    function cancelAuction(address _nft, uint256 _tokenId) external {
         tokenDetails storage auction = tokenToAuction[_nft][_tokenId];
-        require(auction.seller == msg.sender);
-        require(auction.isActive);
+        require(auction.seller == msg.sender, "Not seller");
+        require(auction.isActive, "auction not active");
         auction.isActive = false;
         bool success;
         for (uint256 i = 0; i < auction.users.length; i++) {
