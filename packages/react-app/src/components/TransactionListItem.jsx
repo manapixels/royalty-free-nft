@@ -33,7 +33,7 @@ const TransactionListItem = function ({item, mainnetProvider, blockExplorer, pri
       mainnetProvider={mainnetProvider}
       price={price}
     />
-    <List.Item key={item.hash} style={{ position: "relative" }}>
+    {txnData && <List.Item key={item.hash} style={{ position: "relative" }}>
       <div
         style={{
           position: "absolute",
@@ -72,7 +72,7 @@ const TransactionListItem = function ({item, mainnetProvider, blockExplorer, pri
         <EllipsisOutlined />
       </Button>
       
-    </List.Item>
+    </List.Item>}
     </>
 };
 export default TransactionListItem;
