@@ -1,1 +1,1 @@
-module.exports = ["StreamingMetaMultiSigWallet"];
+module.exports = ["MetaMultiSigWallet"];

@@ -13,7 +13,7 @@ const main = async () => {
                     // 0xbB69eAb3c34A368151277823e36921Fb366EaE1e (ropsten/rinkeby)
                     // 0x22d63804D00b4B2BF3dE7Dd21c22aD839E62f920 (meta-wallet)
 
-  const streamingMetaMultiSigWallet = await deploy("StreamingMetaMultiSigWallet",[
+  const MetaMultiSigWallet = await deploy("MetaMultiSigWallet",[
     31337,
     [ "0xc229416BE6a1c18D30fafB28Cf33e472D47B0fc3" ],
     1

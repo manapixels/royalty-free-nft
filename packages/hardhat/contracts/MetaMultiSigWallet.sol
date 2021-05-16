@@ -12,7 +12,7 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/cryptography/ECDSA.sol";
 
-contract StreamingMetaMultiSigWallet {
+contract MetaMultiSigWallet {
     using ECDSA for bytes32;
 
     event Deposit(address indexed sender, uint amount, uint balance);
