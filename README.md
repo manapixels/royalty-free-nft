@@ -1,8 +1,8 @@
 # 🏦🏗 scaffold-eth - Signature based NFT Auction
 
-> 📹 [Watch the 10m speed run video](https://www.youtube.com/watch?v=z6_D0phXb8s&t=75s)
+> Signature based NFT auction with off-chain bidding where the seller commits the highest bid onchain
 
-> Discover how you can build your own Signature based NFT auction with off-chain bidding where the highest bid gets an NFT
+> 📹 [Watch the 10m video](https://www.youtube.com/watch?v=z6_D0phXb8s&t=75s)
 
 <details open="open">
   <summary>Table of Contents</summary>
