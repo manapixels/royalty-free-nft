@@ -2,7 +2,7 @@
 
 > Signature based NFT auction with off-chain bidding where the seller commits the highest bid onchain
 
-> 📹 [Watch the 10m video](https://www.youtube.com/watch?v=z6_D0phXb8s&t=75s)
+[![sigbasednftauction](https://user-images.githubusercontent.com/2653167/118852411-00041100-b890-11eb-92c5-fefd2c3063ff.png)](https://www.youtube.com/watch?v=z6_D0phXb8s&t=75s)
 
 <details open="open">
   <summary>Table of Contents</summary>
