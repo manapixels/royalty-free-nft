@@ -1,5 +1,7 @@
 # 🏦🏗 scaffold-eth - Signature based NFT Auction
 
+> 📹 [Watch the 10m speed run video](https://www.youtube.com/watch?v=z6_D0phXb8s&t=75s)
+
 > Discover how you can build your own Signature based NFT auction with off-chain bidding where the highest bid gets an NFT
 
 <details open="open">
