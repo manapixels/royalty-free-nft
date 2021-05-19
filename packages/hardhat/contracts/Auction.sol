@@ -16,14 +16,16 @@ contract Auction is IERC721Receiver, SignatureChecker {
 
     mapping(address => mapping(uint256 => tokenDetails)) public tokenToAuction;
 
-    mapping(address => mapping(uint256 => mapping(address => uint256))) public bids;
+    mapping(address => mapping(uint256 => mapping(address => uint256))) public stakes;
+
+    mapping(address => uint) public totalStake;
 
     constructor() {
       setCheckSignatureFlag(true);
     }
 
     function getStakeInfo(address _nft, uint256 _tokenId, address addr) public view returns (uint256) {
-        return bids[_nft][_tokenId][addr];
+        return stakes[_nft][_tokenId][addr];
     }
     
     /**
@@ -51,24 +53,25 @@ contract Auction is IERC721Receiver, SignatureChecker {
     }
 
     /**
-      Before making off-chain bids potential bidders need to stake eth and either they will get it back when the auction ends or they can withdraw it any anytime.
+      Before making off-chain stakes potential bidders need to stake eth and either they will get it back when the auction ends or they can withdraw it any anytime.
     */
     function stake(address _nft, uint256 _tokenId) payable external {
         require(msg.sender != address(0));
         tokenDetails storage auction = tokenToAuction[_nft][_tokenId];
         require(msg.value >= auction.price);
         require(auction.duration > block.timestamp, "Auction for this nft has ended");
-        bids[_nft][_tokenId][msg.sender] += msg.value;
+        stakes[_nft][_tokenId][msg.sender] += msg.value;
+        totalStake[msg.sender] += msg.value;
     }
 
     /**
-       Called by the seller when the auction duration, since all bids are made offchain so the seller needs to pick the highest bid infoirmation and pass it on-chain ito this function
+       Called by the seller when the auction duration, since all stakes are made offchain so the seller needs to pick the highest bid infoirmation and pass it on-chain ito this function
     */
     function executeSale(address _nft, uint256 _tokenId, address bidder, uint256 amount, bytes memory sig) external {
         require(bidder != address(0));
         tokenDetails storage auction = tokenToAuction[_nft][_tokenId];
         require(bidder != auction.seller);
-        require(amount <=  bids[_nft][_tokenId][bidder]);
+        require(amount <=  stakes[_nft][_tokenId][bidder]);
         require(amount >= auction.price);
         require(auction.duration <= block.timestamp, "Auction hasn't ended yet");
         require(auction.seller == msg.sender);
@@ -78,7 +81,8 @@ contract Auction is IERC721Receiver, SignatureChecker {
         bool isBidder = checkSignature(messageHash, sig, bidder);
         require(isBidder, "Invalid Bidder"); 
         // since this is individualized hence okay to delete
-        delete bids[_nft][_tokenId][bidder];
+        delete stakes[_nft][_tokenId][bidder];
+        totalStake[bidder] -= amount;
         ERC721(_nft).safeTransferFrom(
                 address(this),
                 bidder,
@@ -91,10 +95,11 @@ contract Auction is IERC721Receiver, SignatureChecker {
     function withdrawStake(address _nft, uint256 _tokenId) external {
         require(msg.sender != address(0));
         tokenDetails storage auction = tokenToAuction[_nft][_tokenId];
-        require(bids[_nft][_tokenId][msg.sender] > 0); 
+        require(stakes[_nft][_tokenId][msg.sender] > 0); 
         require(auction.duration <= block.timestamp, "Auction hasn't ended yet");
-        uint amount = bids[_nft][_tokenId][msg.sender];
-        delete bids[_nft][_tokenId][msg.sender];
+        uint amount = stakes[_nft][_tokenId][msg.sender];
+        delete stakes[_nft][_tokenId][msg.sender];
+        totalStake[msg.sender] -= amount;
         (bool success, ) = msg.sender.call{value: amount}("");
         require(success);
     }
@@ -109,9 +114,10 @@ contract Auction is IERC721Receiver, SignatureChecker {
         auction.isActive = false;
         bool success;
         for (uint256 i = 0; i < _bidders.length; i++) {
-        require(bids[_nft][_tokenId][_bidders[i]] > 0);
-        uint amount = bids[_nft][_tokenId][_bidders[i]];
-        delete bids[_nft][_tokenId][_bidders[i]];
+        require(stakes[_nft][_tokenId][_bidders[i]] > 0);
+        uint amount = stakes[_nft][_tokenId][_bidders[i]];
+        delete stakes[_nft][_tokenId][_bidders[i]];
+        totalStake[_bidders[i]] -= amount;
         (success, ) = _bidders[i].call{value: amount}("");        
         require(success);
         }
@@ -121,6 +127,10 @@ contract Auction is IERC721Receiver, SignatureChecker {
     function getTokenAuctionDetails(address _nft, uint256 _tokenId) public view returns (tokenDetails memory) {
         tokenDetails memory auction = tokenToAuction[_nft][_tokenId];
         return auction;
+    }
+
+    function getTotalBidderStake(address _bidder) external view returns (uint) {
+        return totalStake[_bidder];
     }
 
     function onERC721Received(
