@@ -17,24 +17,11 @@ import { Hints, ExampleUI, Subgraph } from "./views"
 import { useThemeSwitcher } from "react-css-theme-switcher";
 import { INFURA_ID, NFT_CONTRACT_ADDRESS, NFT_CONTRACT_ABI, NETWORK, NETWORKS } from "./constants";
 import StackGrid from "react-stack-grid"
-/*
-    Welcome to 🏗 scaffold-eth !
+import ethers from "ethers"
+import { NftProvider, useNft } from "use-nft"
 
-    Code:
-    https://github.com/austintgriffith/scaffold-eth
-
-    Support:
-    https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA
-    or DM @austingriffith on twitter or telegram
-
-    You should get your own Infura.io ID and put it in `constants.js`
-    (this is your connection to the main Ethereum network for ENS etc.)
-
-
-    🌏 EXTERNAL CONTRACTS:
-    You can also bring in contract artifacts in `constants.js`
-    (and then use the `useExternalContractLoader()` hook!)
-*/
+// We are using the "ethers" fetcher here.
+const fetcher = ["ethers", { ethers, provider: ethers.getDefaultProvider() }]
 
 const { BufferList } = require('bl')
 //
@@ -406,6 +393,8 @@ function App(props) {
                 and give you a form to interact with it locally
             */}
 
+            {NftDisplay}
+
             { stackedNFTDisplay }
 
             { /* uncomment for a second contract:
@@ -557,6 +546,41 @@ const getFromIPFS = async hashToGet => {
     //console.log(content)
     return content
   }
+}
+
+// Wrap your app with <NftProvider />.
+function NftDisplay() {
+  return (
+    <NftProvider fetcher={fetcher}>
+      <Nft />
+    </NftProvider>
+  )
+}
+
+// useNft() is now ready to be used in your app. Pass
+// the NFT contract and token ID to fetch the metadata.
+function Nft() {
+  const { loading, error, nft } = useNft(
+    "0xd07dc4262bcdbf85190c01c996b4c06a461d2430",
+    "90473"
+  )
+
+  // nft.loading is true during load.
+  if (loading) return "Loading…"
+
+  // nft.error is an Error instance in case of error.
+  if (error) return "Error."
+
+  // You can now display the NFT metadata.
+  return (
+    <section>
+      <h1>{nft.name}</h1>
+      <img src={nft.image} alt="" />
+      <p>{nft.description}</p>
+      <p>Owner: {nft.owner}</p>
+      <p>Metadata URL: {nft.metadataUrl}</p>
+</section>
+  )
 }
 
 export default App;
