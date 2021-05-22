@@ -187,7 +187,7 @@ function App(props) {
   const balance = useContractReader(readContracts,"YourCollectible", "balanceOf", [ address ])
   if (DEBUG) console.log("🤗 balance:",balance)
 
-  const stakedEth = useContractReader(readContracts, "Auction", "getStakeInfo", [address])
+  const stakedEth = useContractReader(readContracts, "Auction", "getTotalBidderStake", [address])
 
   //📟 Listen for broadcast events
   const transferEvents = useEventListener(readContracts, "YourCollectible", "Transfer", localProvider, 1);
@@ -666,7 +666,7 @@ function App(props) {
 
             <div style={{ maxWidth:1024, margin: "auto", marginTop:32, paddingBottom:56 }}>
               <Button disabled={galleryList.length === 0} onClick={updateYourCollectibles} style={{marginBottom: "25px"}}>Update collectibles</Button>
-
+              <p>Total ETH staked: <b>{formatEther(stakedEth)}</b></p>
 
               <StackGrid
                 columnWidth={300}
