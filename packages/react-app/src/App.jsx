@@ -9,7 +9,18 @@ import ReactJson from "react-json-view";
 import { BrowserRouter, Link, Route, Switch } from "react-router-dom";
 import Web3Modal from "web3modal";
 import "./App.css";
-import { Account, Address, AddressInput, Contract, Faucet, GasGauge, Header, Ramp, ThemeSwitch } from "./components";
+import {
+  Account,
+  Address,
+  AddressInput,
+  Contract,
+  Faucet,
+  GasGauge,
+  Header,
+  Ramp,
+  ThemeSwitch,
+  Sell,
+} from "./components";
 import { DAI_ABI, DAI_ADDRESS, INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
 import {
@@ -367,11 +378,16 @@ function App(props) {
   const [sending, setSending] = useState();
   const [ipfsHash, setIpfsHash] = useState();
   const [ipfsDownHash, setIpfsDownHash] = useState();
+  const [collectionContract, setCollectionContract] = useState();
+  const [raribleTokenId, setRaribleTokenId] = useState();
 
   const [downloading, setDownloading] = useState();
   const [ipfsContent, setIpfsContent] = useState();
 
+  const [sellOrderContent, setSellOrderContent] = useState();
+
   const [transferToAddresses, setTransferToAddresses] = useState({});
+  const [approveAddresses, setApproveAddresses] = useState({});
 
   return (
     <div className="App">
@@ -388,6 +404,16 @@ function App(props) {
               to="/"
             >
               YourCollectibles
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="/rarible">
+            <Link
+              onClick={() => {
+                setRoute("/rarible");
+              }}
+              to="/rarible"
+            >
+              Rarible
             </Link>
           </Menu.Item>
           <Menu.Item key="/transfers">
@@ -487,12 +513,73 @@ function App(props) {
                         >
                           Transfer
                         </Button>
+                        <AddressInput
+                          ensProvider={mainnetProvider}
+                          placeholder="approve address"
+                          value={approveAddresses[id]}
+                          onChange={newValue => {
+                            const update = {};
+                            update[id] = newValue;
+                            setApproveAddresses({ ...approveAddresses, ...update });
+                          }}
+                        />
+                        <Button
+                          onClick={() => {
+                            console.log("writeContracts", writeContracts);
+                            tx(writeContracts.YourCollectible.approve(transferToAddresses[id], id));
+                          }}
+                        >
+                          Approve
+                        </Button>
+                        <Sell provider={userProvider} accountAddress={address} ERC721Address={writeContracts.YourCollectible.address} tokenId={id}></Sell>
                       </div>
                     </List.Item>
                   );
                 }}
               />
             </div>
+          </Route>
+
+          <Route path="/rarible">
+            <div style={{ paddingTop: 32, width: 740, margin: "auto" }}>
+              <AddressInput
+                ensProvider={mainnetProvider}
+                placeholder="NFT collection address"
+                value={collectionContract}
+                onChange={newValue => {
+                  setCollectionContract(newValue);
+                }}
+              />
+              <Input
+                value={raribleTokenId}
+                placeHolder=""
+                onChange={e => {
+                  setRaribleTokenId(e.target.value);
+                }}
+              />
+            </div>
+            <Button
+              style={{ margin: 8 }}
+              loading={sending}
+              size="large"
+              shape="round"
+              type="primary"
+              onClick={async () => {
+                console.log("DOWNLOADING...", ipfsDownHash);
+                const getSellOrdersByItemUrl = `https://api-staging.rarible.com/protocol/v0.1/ethereum/order/orders/sell/byItem?contract=${collectionContract}&tokenId=${raribleTokenId}&sort=LAST_UPDATE`;
+                setDownloading(true);
+                const sellOrderResult = await fetch(getSellOrdersByItemUrl);
+                const resultJson = await sellOrderResult.json();
+                if (resultJson) {
+                  setSellOrderContent(JSON.stringify(resultJson));
+                }
+                setDownloading(false);
+              }}
+            >
+              Get Sell Orders
+            </Button>
+
+            <pre style={{ padding: 16, width: 500, margin: "auto", paddingBottom: 150 }}>{sellOrderContent}</pre>
           </Route>
 
           <Route path="/transfers">
@@ -590,6 +677,13 @@ function App(props) {
           <Route path="/debugcontracts">
             <Contract
               name="YourCollectible"
+              signer={userProvider.getSigner()}
+              provider={localProvider}
+              address={address}
+              blockExplorer={blockExplorer}
+            />
+            <Contract
+              name="YourERC20"
               signer={userProvider.getSigner()}
               provider={localProvider}
               address={address}

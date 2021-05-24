@@ -12,6 +12,8 @@ export const BLOCKNATIVE_DAPPID = "0b58206a-f3c0-4701-a62f-73c7243e8c77";
 
 export const DAI_ADDRESS = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
 
+export const RARIBLE_EXCHANGE_RINKEBY = "0x1e1B6E13F0eB4C570628589e3c088BC92aD4dB45"
+
 export const DAI_ABI = [
   {
     inputs: [{ internalType: "uint256", name: "chainId_", type: "uint256" }],
