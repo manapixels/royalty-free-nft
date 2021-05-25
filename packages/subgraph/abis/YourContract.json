@@ -46,7 +46,7 @@
     ],
     "name": "setPurpose",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   }
 ]
