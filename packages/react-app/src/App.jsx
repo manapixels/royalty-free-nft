@@ -379,7 +379,6 @@ function App(props) {
   const [ipfsHash, setIpfsHash] = useState();
   const [ipfsDownHash, setIpfsDownHash] = useState();
   const [collectionContract, setCollectionContract] = useState();
-  const [raribleTokenId, setRaribleTokenId] = useState();
 
   const [downloading, setDownloading] = useState();
   const [ipfsContent, setIpfsContent] = useState();
@@ -550,13 +549,6 @@ function App(props) {
                   setCollectionContract(newValue);
                 }}
               />
-              <Input
-                value={raribleTokenId}
-                placeHolder=""
-                onChange={e => {
-                  setRaribleTokenId(e.target.value);
-                }}
-              />
             </div>
             <Button
               style={{ margin: 8 }}
@@ -566,7 +558,7 @@ function App(props) {
               type="primary"
               onClick={async () => {
                 console.log("DOWNLOADING...", ipfsDownHash);
-                const getSellOrdersByItemUrl = `https://api-staging.rarible.com/protocol/v0.1/ethereum/order/orders/sell/byItem?contract=${collectionContract}&tokenId=${raribleTokenId}&sort=LAST_UPDATE`;
+                const getSellOrdersByItemUrl = `https://api-staging.rarible.com/protocol/v0.1/ethereum/order/orders/sell/byCollection?collection=${collectionContract}&sort=LAST_UPDATE`;
                 setDownloading(true);
                 const sellOrderResult = await fetch(getSellOrdersByItemUrl);
                 const resultJson = await sellOrderResult.json();
