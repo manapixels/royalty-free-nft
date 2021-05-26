@@ -42,6 +42,7 @@ async function sign(provider, order, account, verifyingContract) {
 		chainId,
 		verifyingContract
 	}, 'Order', order, Types);
+  console.log({data})
 	return (await EIP712.signTypedData(provider, account, data)).sig;
 }
 
