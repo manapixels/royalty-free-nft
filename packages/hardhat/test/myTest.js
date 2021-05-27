@@ -56,7 +56,7 @@ describe("My Dapp", function () {
       it("Should throw if invalid signature", async function () {
         await erc1271Dao.setFakeSignature(demoHash, demoSigHash, magicValue, 1);
         await erc1271Dao.setFakeProposal(1, false);
-        expect (erc1271Dao.isValidSignature(demoHash, demoSig)).to.be.revertedWith('Invalid signature hash');
+        expect (erc1271Dao.isValidSignature(demoHash, demoBadSig)).to.be.revertedWith('Invalid signature hash');
       });
     });
   });

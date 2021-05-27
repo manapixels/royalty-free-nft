@@ -1,1 +1,1 @@
-module.exports = ["YourCollectible","YourContract","YourERC20"];
+module.exports = ["ERC1271DAO","NFTHolder","YourCollectible","YourContract","YourERC20"];

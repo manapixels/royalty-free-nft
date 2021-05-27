@@ -1,3 +1,5 @@
+import {TypedDataUtils} from "eth-sig-util"
+import {bufferToHex} from "ethereumjs-util"
 const EIP712 = require("./EIP712");
 
 function AssetType(assetClass, data) {
@@ -34,7 +36,7 @@ const Types = {
 	]
 };
 
-async function sign(provider, order, account, verifyingContract) {
+export async function sign(provider, order, account, verifyingContract) {
 	const chainId = Number(provider._network.chainId);
 	const data = EIP712.createTypeData({
 		name: "Exchange",
@@ -46,4 +48,14 @@ async function sign(provider, order, account, verifyingContract) {
 	return (await EIP712.signTypedData(provider, account, data)).sig;
 }
 
-module.exports = { AssetType, Asset, Order, sign }
+export async function getMessageHash(provider, order, account, verifyingContract) {
+	const chainId = Number(provider._network.chainId);
+	const data = EIP712.createTypeData({
+		name: "Exchange",
+		version: "2",
+		chainId,
+		verifyingContract
+	}, 'Order', order, Types);
+  console.log({data})
+	return bufferToHex(TypedDataUtils.sign(data))
+}

@@ -18,7 +18,7 @@ contract ERC1271DAO is IERC1271 {
       uint256 proposalId;
   }
 
-    mapping (bytes32 => DAOSignature) signatures;
+    mapping (bytes32 => DAOSignature) public signatures;
     
     mapping (uint256 => bool) public fakeProposals;
     

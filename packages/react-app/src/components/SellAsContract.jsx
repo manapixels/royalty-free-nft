@@ -1,17 +1,19 @@
 import React from "react";
 import { Button, Input, Tooltip } from "antd";
-import { createSellOrder} from "../rarible/createOrders";
-import { RARIBLE_EXCHANGE_RINKEBY } from "../constants";
+import { createSellOrderAsContract, sendOrderToRarible } from "../rarible/createOrders";
+import { RARIBLE_EXCHANGE_RINKEBY, RINKEBY_NFT_HOLDER_ADDRESS } from "../constants";
 const { utils } = require("ethers");
 
 function handleMenuClick(e) {
   console.log("click", e);
 }
 
-export default function Sell(props) {
+export default function SellAsContract(props) {
   const [sellState, setSellState] = React.useState();
   const [sellForEthValue, setSellForEthValue] = React.useState();
+  const [proposalId, setProposalId] = React.useState();
   const [salt, setSalt] = React.useState();
+  const [daoSig, setDaoSig] = React.useState();
   const buttons = (
     <Tooltip placement="right" title="* 10 ** 18">
       <div
@@ -45,25 +47,62 @@ export default function Sell(props) {
             suffix={buttons}
           />
           <Input
+            value={proposalId}
+            placeholder="0"
+            onChange={e => {
+              setProposalId(e.target.value);
+            }}
+          />
+          <Input
+            value={daoSig}
+            placeholder="Signature..."
+            onChange={e => {
+              setDaoSig(e.target.value);
+            }}
+          />
+          <Input
             value={salt}
-            placeholder="Salt... 0-10000"
+            placeholder="salt... 0-10000"
             onChange={e => {
               setSalt(e.target.value);
             }}
           />
           <Button
             onClick={() =>
-              createSellOrder("MAKE_ERC721_TAKE_ETH", props.provider, {
-                accountAddress: props.accountAddress,
+              createSellOrderAsContract(
+                "MAKE_ERC721_TAKE_ETH",
+                props.provider,
+                {
+                  accountAddress: RINKEBY_NFT_HOLDER_ADDRESS,
+                  exchangeContract: RARIBLE_EXCHANGE_RINKEBY,
+                  makeERC721Address: props.ERC721Address,
+                  makeERC721TokenId: props.tokenId,
+                  ethAmt: sellForEthValue.toString(),
+                  proposalId: proposalId.toString(),
+                  salt: salt.toString(),
+                  signature: daoSig,
+                },
+                props.writeContracts,
+              )
+            }
+          >
+            Create Sell Order as Contract
+          </Button>
+          <Button
+            onClick={() =>
+              sendOrderToRarible("MAKE_ERC721_TAKE_ETH", {
+                accountAddress: RINKEBY_NFT_HOLDER_ADDRESS,
                 exchangeContract: RARIBLE_EXCHANGE_RINKEBY,
                 makeERC721Address: props.ERC721Address,
                 makeERC721TokenId: props.tokenId,
                 ethAmt: sellForEthValue.toString(),
+                proposalId: proposalId.toString(),
                 salt: salt.toString(),
+                signature: daoSig,
               })
             }
           >
-            Create Sell Order
+            Send order (once tx mines)
           </Button>
         </div>
       )) ||
