@@ -4,13 +4,28 @@ const chalk = require("chalk");
 const { config, ethers, tenderly, run } = require("hardhat");
 const { utils } = require("ethers");
 const R = require("ramda");
-
+const {Wallet} = ethers;
 const main = async () => {
-
+  const frontEndAdmin = "0xc229416BE6a1c18D30fafB28Cf33e472D47B0fc3"
   console.log("\n\n 📡 Deploying...\n");
+  // cost other = new Wallet.createRandom();
+  const MoodToken = await deploy("MoodToken") // <-- add in constructor args like line 19 vvvv
+  await MoodToken.deployed();
+  const VotingContract = await deploy("Voting", [MoodToken.address]);
+  await VotingContract.deployed();
+  try {
+    await MoodToken.mintTokens(frontEndAdmin, 100000);
+    await MoodToken.approve(VotingContract.address, 100000);
+    await VotingContract.stakeVotingTokens(100);
+    await VotingContract.createPoll("This is the auto poll", 2, "😀", "😭");
+    await VotingContract.castVote(1, true, 20);
 
-  const yourContract = await deploy("YourContract") // <-- add in constructor args like line 19 vvvv
 
+    await VotingContract.transferOwnership(frontEndAdmin);
+  } catch (err) {
+    console.log(err);
+  }
+  
   //const yourContract = await ethers.getContractAt('YourContract', "0xaAC799eC2d00C013f1F11c37E654e59B0429DF6A") //<-- if you want to instantiate a version of a contract at a specific address!
   //const secondContract = await deploy("SecondContract")
 

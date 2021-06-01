@@ -23,7 +23,7 @@ import {
   useUserProvider,
 } from "./hooks";
 // import Hints from "./Hints";
-import { ExampleUI, Hints, Subgraph } from "./views";
+import { MoodDAO, Hints } from "./views";
 /*
     Welcome to 🏗 scaffold-eth !
 
@@ -146,11 +146,11 @@ function App(props) {
   ]);
 
   // keep track of a variable from the contract in the local React state:
-  const purpose = useContractReader(readContracts, "YourContract", "purpose");
+  // const purpose = useContractReader(readContracts, "YourContract", "purpose");
 
   // 📟 Listen for broadcast events
-  const setPurposeEvents = useEventListener(readContracts, "YourContract", "SetPurpose", localProvider, 1);
-
+  const pollCreated = useEventListener(readContracts, "Voting", "pollCreated", localProvider, 1);
+  console.log("pollCreated",pollCreated)
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
   console.log("🏷 Resolved austingriffith.eth as:",addressFromENS)
@@ -159,6 +159,7 @@ function App(props) {
   //
   // 🧫 DEBUG 👨🏻‍🔬
   //
+
   useEffect(() => {
     if (
       DEBUG &&
@@ -292,6 +293,7 @@ function App(props) {
       {networkDisplay}
       <BrowserRouter>
         <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
+          
           <Menu.Item key="/">
             <Link
               onClick={() => {
@@ -299,7 +301,27 @@ function App(props) {
               }}
               to="/"
             >
-              YourContract
+              moodDAO
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="/voting">
+            <Link
+              onClick={() => {
+                setRoute("/voting");
+              }}
+              to="/voting"
+            >
+              Voting
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="/token">
+            <Link
+              onClick={() => {
+                setRoute("/token");
+              }}
+              to="/token"
+            >
+              Token
             </Link>
           </Menu.Item>
           <Menu.Item key="/hints">
@@ -312,40 +334,20 @@ function App(props) {
               Hints
             </Link>
           </Menu.Item>
-          <Menu.Item key="/exampleui">
-            <Link
-              onClick={() => {
-                setRoute("/exampleui");
-              }}
-              to="/exampleui"
-            >
-              ExampleUI
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/mainnetdai">
-            <Link
-              onClick={() => {
-                setRoute("/mainnetdai");
-              }}
-              to="/mainnetdai"
-            >
-              Mainnet DAI
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/subgraph">
-            <Link
-              onClick={() => {
-                setRoute("/subgraph");
-              }}
-              to="/subgraph"
-            >
-              Subgraph
-            </Link>
-          </Menu.Item>
+          
         </Menu>
 
         <Switch>
-          <Route exact path="/">
+        <Route exact path="/">
+
+          <MoodDAO
+           mainnetProvider={mainnetProvider}
+           price={price}
+           readContracts={readContracts}
+           contractName={"Voting"}
+          />
+        </Route>
+          <Route exact path="/voting">
             {/*
                 🎛 this scaffolding is full of commonly used components
                 this <Contract/> component will automatically parse your ABI
@@ -353,7 +355,7 @@ function App(props) {
             */}
 
             <Contract
-              name="YourContract"
+              name="Voting"
               signer={userProvider.getSigner()}
               provider={localProvider}
               address={address}
@@ -389,37 +391,13 @@ function App(props) {
               price={price}
             />
           </Route>
-          <Route path="/exampleui">
-            <ExampleUI
-              address={address}
-              userProvider={userProvider}
-              mainnetProvider={mainnetProvider}
-              localProvider={localProvider}
-              yourLocalBalance={yourLocalBalance}
-              price={price}
-              tx={tx}
-              writeContracts={writeContracts}
-              readContracts={readContracts}
-              purpose={purpose}
-              setPurposeEvents={setPurposeEvents}
-            />
-          </Route>
-          <Route path="/mainnetdai">
+          <Route path="/token">
             <Contract
-              name="DAI"
-              customContract={mainnetDAIContract}
+              name="MoodToken"
               signer={userProvider.getSigner()}
-              provider={mainnetProvider}
+              provider={localProvider}
               address={address}
-              blockExplorer="https://etherscan.io/"
-            />
-          </Route>
-          <Route path="/subgraph">
-            <Subgraph
-              subgraphUri={props.subgraphUri}
-              tx={tx}
-              writeContracts={writeContracts}
-              mainnetProvider={mainnetProvider}
+              blockExplorer={blockExplorer}
             />
           </Route>
         </Switch>
