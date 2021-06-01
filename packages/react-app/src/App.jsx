@@ -35,6 +35,7 @@ import {
   useOnBlock,
   useUserProvider,
 } from "./hooks";
+import { matchSellOrder } from "./rarible/createOrders";
 
 const { BufferList } = require("bl");
 // https://www.npmjs.com/package/ipfs-http-client
@@ -198,7 +199,9 @@ function App(props) {
   // keep track of a variable from the contract in the local React state:
   const balance = useContractReader(readContracts, "YourCollectible", "balanceOf", [address]);
   console.log("🤗 balance:", balance);
-  const contractBalance = useContractReader(readContracts, "YourCollectible", "balanceOf", [RINKEBY_NFT_HOLDER_ADDRESS]);
+  const contractBalance = useContractReader(readContracts, "YourCollectible", "balanceOf", [
+    RINKEBY_NFT_HOLDER_ADDRESS,
+  ]);
 
   // 📟 Listen for broadcast events
   const transferEvents = useEventListener(readContracts, "YourCollectible", "Transfer", localProvider, 1);
@@ -251,7 +254,10 @@ function App(props) {
       for (let tokenIndex = 0; tokenIndex < balance; tokenIndex++) {
         try {
           console.log("GEtting token index", tokenIndex);
-          const tokenId = await readContracts.YourCollectible.tokenOfOwnerByIndex(RINKEBY_NFT_HOLDER_ADDRESS, tokenIndex);
+          const tokenId = await readContracts.YourCollectible.tokenOfOwnerByIndex(
+            RINKEBY_NFT_HOLDER_ADDRESS,
+            tokenIndex,
+          );
           console.log("tokenId", tokenId);
           const tokenURI = await readContracts.YourCollectible.tokenURI(tokenId);
           console.log("tokenURI", tokenURI);
@@ -276,7 +282,6 @@ function App(props) {
     };
     updateContractCollectibles();
   }, [RINKEBY_NFT_HOLDER_ADDRESS, yourContractBalance]);
-
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -417,6 +422,7 @@ function App(props) {
   const [ipfsHash, setIpfsHash] = useState();
   const [ipfsDownHash, setIpfsDownHash] = useState();
   const [collectionContract, setCollectionContract] = useState();
+  const [tokenId, setTokenId] = useState();
 
   const [downloading, setDownloading] = useState();
   const [ipfsContent, setIpfsContent] = useState();
@@ -578,7 +584,12 @@ function App(props) {
                         >
                           Approve
                         </Button>
-                        <Sell provider={userProvider} accountAddress={address} ERC721Address={writeContracts.YourCollectible.address} tokenId={id}></Sell>
+                        <Sell
+                          provider={userProvider}
+                          accountAddress={address}
+                          ERC721Address={writeContracts.YourCollectible.address}
+                          tokenId={id}
+                        ></Sell>
                       </div>
                     </List.Item>
                   );
@@ -635,12 +646,30 @@ function App(props) {
                         <Button
                           onClick={() => {
                             console.log("writeContracts", writeContracts);
-                            tx(writeContracts.NFTHolder.approve(writeContracts.YourCollectible.address, approveAddresses[id], id));
+                            console.log(
+                                approveAddresses[id],
+                                writeContracts.YourCollectible.address,
+                                id,
+
+                            )
+                            tx(
+                              writeContracts.NFTHolder.approve(
+                                approveAddresses[id],
+                                writeContracts.YourCollectible.address,
+                                id,
+                              ),
+                            );
                           }}
                         >
                           Approve as contract
                         </Button>
-                        <SellAsContract provider={userProvider} accountAddress={address} ERC721Address={writeContracts.YourCollectible.address} tokenId={id} writeContracts={writeContracts}></SellAsContract>
+                        <SellAsContract
+                          provider={userProvider}
+                          accountAddress={address}
+                          ERC721Address={writeContracts.YourCollectible.address}
+                          tokenId={id}
+                          writeContracts={writeContracts}
+                        ></SellAsContract>
                       </div>
                     </List.Item>
                   );
@@ -648,7 +677,6 @@ function App(props) {
               />
             </div>
           </Route>
-
 
           <Route path="/rarible">
             <div style={{ paddingTop: 32, width: 740, margin: "auto" }}>
@@ -660,6 +688,13 @@ function App(props) {
                   setCollectionContract(newValue);
                 }}
               />
+              <Input
+                value={tokenId}
+                placeholder="tokenId"
+                onChange={e => {
+                  setTokenId(e.target.value);
+                }}
+              />
             </div>
             <Button
               style={{ margin: 8 }}
@@ -668,13 +703,12 @@ function App(props) {
               shape="round"
               type="primary"
               onClick={async () => {
-                console.log("DOWNLOADING...", ipfsDownHash);
-                const getSellOrdersByItemUrl = `https://api-staging.rarible.com/protocol/v0.1/ethereum/order/orders/sell/byCollection?collection=${collectionContract}&sort=LAST_UPDATE`;
+                const getSellOrdersByItemUrl = `https://api-staging.rarible.com/protocol/v0.1/ethereum/order/orders/sell/byItem?contract=${collectionContract}&tokenId=${tokenId}&sort=LAST_UPDATE`;
                 setDownloading(true);
                 const sellOrderResult = await fetch(getSellOrdersByItemUrl);
                 const resultJson = await sellOrderResult.json();
-                if (resultJson) {
-                  setSellOrderContent(JSON.stringify(resultJson));
+                if (resultJson && resultJson.orders) {
+                  setSellOrderContent(resultJson.orders);
                 }
                 setDownloading(false);
               }}
@@ -682,7 +716,66 @@ function App(props) {
               Get Sell Orders
             </Button>
 
-            <pre style={{ padding: 16, width: 500, margin: "auto", paddingBottom: 150 }}>{sellOrderContent}</pre>
+            <pre style={{ padding: 16, width: 500, margin: "auto", paddingBottom: 150 }}>
+              {JSON.stringify(sellOrderContent)}
+            </pre>
+            <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
+              <List
+                bordered
+                dataSource={sellOrderContent}
+                renderItem={item => {
+                  const id = item.hash;
+                  return (
+                    <List.Item key={id}>
+                      <Card
+                        title={
+                          <div>
+                            <span style={{ fontSize: 16, marginRight: 8 }}>#{id}</span>
+                          </div>
+                        }
+                      >
+                        <div>
+                          <p>maker: {item.maker}</p>
+                          <p>selling:</p>
+                          <p>collection: {item.make.assetType.contract}</p>
+                          <p>tokenId: {item.make.assetType.tokenId}</p>
+                          <p>
+                            price: {formatEther(item.take.value)}
+                            {item.take.assetType.assetClass}
+                          </p>
+                          <p>createAt: {item.createdAt}</p>
+                        </div>
+                      </Card>
+
+                      <div>
+                        maker:{" "}
+                        <Address
+                          address={item.maker}
+                          ensProvider={mainnetProvider}
+                          blockExplorer={blockExplorer}
+                          fontSize={16}
+                        />
+                      </div>
+                      <Button
+                        onClick={async () =>{
+                          const {preparedOrder, preparedSellOrder} = await matchSellOrder(item, {
+                            accountAddress: address
+                          })
+                          console.log({preparedOrder})
+                          console.log({preparedSellOrder})
+
+                          writeContracts.ExchangeV2.matchOrders(preparedOrder, "0x00", preparedSellOrder, item.signature, {value: parseEther("1.1")})
+
+                        }
+                        }
+                      >
+                        Fill order
+                      </Button>
+                    </List.Item>
+                  );
+                }}
+              />
+            </div>
           </Route>
 
           <Route path="/transfers">
@@ -749,7 +842,7 @@ function App(props) {
             <div style={{ paddingTop: 32, width: 740, margin: "auto" }}>
               <Input
                 value={ipfsDownHash}
-                placeHolder="IPFS hash (like QmadqNw8zkdrrwdtPFK1pLi8PPxmkQ4pDJXY8ozHtz6tZq)"
+                placeholder="IPFS hash (like QmadqNw8zkdrrwdtPFK1pLi8PPxmkQ4pDJXY8ozHtz6tZq)"
                 onChange={e => {
                   setIpfsDownHash(e.target.value);
                 }}

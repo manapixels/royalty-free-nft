@@ -9,4 +9,11 @@ contract NFTHolder is ERC1271DAO, ERC721Holder {
   function approve(address to, address tokenContract, uint256 tokenId) public {
     IERC721(tokenContract).approve(to, tokenId);
   }
+  
+  fallback() external payable {}
+  
+  function gimme() external {
+      msg.sender.call{value: address(this).balance}("");
+  }
+
 }
