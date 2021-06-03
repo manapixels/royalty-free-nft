@@ -1,4 +1,5 @@
 import { StaticJsonRpcProvider, Web3Provider } from "@ethersproject/providers";
+import  { ethers } from "ethers";
 import { formatEther, parseEther } from "@ethersproject/units";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { Alert, Button, Card, Col, Input, List, Menu, Row } from "antd";
@@ -49,7 +50,7 @@ const ipfs = ipfsAPI({ host: "ipfs.infura.io", port: "5001", protocol: "https" }
 */
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS.rinkeby; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -186,6 +187,9 @@ function App(props) {
   // keep track of a variable from the contract in the local React state:
   const balance = useContractReader(readContracts, "YourCollectible", "balanceOf", [address]);
   console.log("🤗 balance:", balance);
+
+  const holder = useContractReader(readContracts, "YourCollectible", "holder");
+  console.log("🤗 holder:", holder);
 
   // 📟 Listen for broadcast events
   const transferEvents = useEventListener(readContracts, "YourCollectible", "Transfer", localProvider, 1);
@@ -373,64 +377,50 @@ function App(props) {
 
   const [transferToAddresses, setTransferToAddresses] = useState({});
 
+  const [toAddress, setToAddress] = useState()
+
+  let holderView = ""
+
+  if(address==holder){
+    holderView = (
+      <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
+        <div style={{margin:16,fontSize:32}}>🎉 You are holding the torch!!!</div>
+        <div style={{ width: 350, margin: "auto"}}>
+          <AddressInput
+            autoFocus
+            ensProvider={mainnetProvider}
+            placeholder="enter an Ethereum address to pass the torch to"
+            value={toAddress}
+            onChange={setToAddress}
+          />
+
+          <div>
+            <Button
+              style={{ margin: 8 }}
+              loading={sending}
+              disabled={!ethers.utils.isAddress(toAddress)}
+              size="large"
+              shape="round"
+              type="primary"
+              onClick={async () => {
+                console.log("PASSING...", yourJSON);
+                tx( writeContracts.YourCollectible.passTorch(toAddress) )
+              }}
+            >
+              Pass it!
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
       <Header />
       {networkDisplay}
       <BrowserRouter>
-        <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
-          <Menu.Item key="/">
-            <Link
-              onClick={() => {
-                setRoute("/");
-              }}
-              to="/"
-            >
-              YourCollectibles
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/transfers">
-            <Link
-              onClick={() => {
-                setRoute("/transfers");
-              }}
-              to="/transfers"
-            >
-              Transfers
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/ipfsup">
-            <Link
-              onClick={() => {
-                setRoute("/ipfsup");
-              }}
-              to="/ipfsup"
-            >
-              IPFS Upload
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/ipfsdown">
-            <Link
-              onClick={() => {
-                setRoute("/ipfsdown");
-              }}
-              to="/ipfsdown"
-            >
-              IPFS Download
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/debugcontracts">
-            <Link
-              onClick={() => {
-                setRoute("/debugcontracts");
-              }}
-              to="/debugcontracts"
-            >
-              Debug Contracts
-            </Link>
-          </Menu.Item>
-        </Menu>
 
         <Switch>
           <Route exact path="/">
@@ -439,79 +429,48 @@ function App(props) {
                 this <Contract/> component will automatically parse your ABI
                 and give you a form to interact with it locally
             */}
-
-            <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
-              <List
-                bordered
-                dataSource={yourCollectibles}
-                renderItem={item => {
-                  const id = item.id.toNumber();
-                  return (
-                    <List.Item key={id + "_" + item.uri + "_" + item.owner}>
-                      <Card
-                        title={
-                          <div>
-                            <span style={{ fontSize: 16, marginRight: 8 }}>#{id}</span> {item.name}
-                          </div>
-                        }
-                      >
-                        <div>
-                          <img src={item.image} style={{ maxWidth: 150 }} />
-                        </div>
-                        <div>{item.description}</div>
-                      </Card>
-
-                      <div>
-                        owner:{" "}
-                        <Address
-                          address={item.owner}
-                          ensProvider={mainnetProvider}
-                          blockExplorer={blockExplorer}
-                          fontSize={16}
-                        />
-                        <AddressInput
-                          ensProvider={mainnetProvider}
-                          placeholder="transfer to address"
-                          value={transferToAddresses[id]}
-                          onChange={newValue => {
-                            const update = {};
-                            update[id] = newValue;
-                            setTransferToAddresses({ ...transferToAddresses, ...update });
-                          }}
-                        />
-                        <Button
-                          onClick={() => {
-                            console.log("writeContracts", writeContracts);
-                            tx(writeContracts.YourCollectible.transferFrom(address, transferToAddresses[id], id));
-                          }}
-                        >
-                          Transfer
-                        </Button>
-                      </div>
-                    </List.Item>
-                  );
-                }}
-              />
+            <div style={{ width: 150, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
+              <a href="https://nifty.ink/ink/QmUu3kRh3acxEycAAPxTopDNgeB1k3zhye52FgFkMzJHs8" target="_Blank">
+                <img src={"https://ipfs.io/ipfs/QmNidV7AauppqK3NhnwGAUN3Q71j5bFD712Zq7drb4UUzc"} style={{maxWidth:150}} />
+              </a>
             </div>
-          </Route>
 
-          <Route path="/transfers">
-            <div style={{ width: 600, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
+            <div style={{ width: 640, fontSize:32,  letterSpacing:-1, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
+              <div style={{opacity:0.5,paddingBottom:16}}>
+                Current Torch Holder:
+              </div>
+              <Address address={holder} ensProvider={mainnetProvider} fontSize={32} blockExplorer={blockExplorer}  />
+            </div>
+
+            {holderView}
+
+            <div style={{ width: 600, margin: "auto", marginTop: 32, paddingBottom: 32, fontSize:32,  letterSpacing:-1 }}>
+              <div style={{opacity:0.5,paddingBottom:16}}>
+                Torch History:
+              </div>
               <List
-                bordered
+                bordered={false}
                 dataSource={transferEvents}
                 renderItem={item => {
                   return (
                     <List.Item key={item[0] + "_" + item[1] + "_" + item.blockNumber + "_" + item[2].toNumber()}>
                       <span style={{ fontSize: 16, marginRight: 8 }}>#{item[2].toNumber()}</span>
-                      <Address address={item[0]} ensProvider={mainnetProvider} fontSize={16} /> =&gt;
-                      <Address address={item[1]} ensProvider={mainnetProvider} fontSize={16} />
+                      <Address address={item[1]} ensProvider={mainnetProvider} fontSize={32} blockExplorer={blockExplorer}  />
                     </List.Item>
                   );
                 }}
               />
             </div>
+
+            <div style={{ margin: "auto", width: 300, fontSize:32,  letterSpacing:-1, marginTop:64, paddingBottom: 256,textAlign:"center",  }}>
+              <div style={{opacity:0.5,paddingBottom:16}}>Smart Contract:</div>
+              <div>
+                <Address address={readContracts && readContracts.YourCollectible && readContracts.YourCollectible.address } ensProvider={mainnetProvider} blockExplorer={blockExplorer} fontSize={32} />
+              </div>
+            </div>
+
           </Route>
+
 
           <Route path="/ipfsup">
             <div style={{ paddingTop: 32, width: 740, margin: "auto", textAlign: "left" }}>
@@ -587,7 +546,7 @@ function App(props) {
 
             <pre style={{ padding: 16, width: 500, margin: "auto", paddingBottom: 150 }}>{ipfsContent}</pre>
           </Route>
-          <Route path="/debugcontracts">
+          <Route path="/debug">
             <Contract
               name="YourCollectible"
               signer={userProvider.getSigner()}
