@@ -23,7 +23,7 @@ import {
   useUserProvider,
 } from "./hooks";
 // import Hints from "./Hints";
-import { ExampleUI, Hints, Subgraph } from "./views";
+import { Collections, CollectionDetail, MyCollectibles} from "./views";
 /*
     Welcome to 🏗 scaffold-eth !
 
@@ -56,7 +56,7 @@ if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
 //
 // attempt to connect to our own scaffold eth rpc and if that fails fall back to infura...
 // Using StaticJsonRpcProvider as the chainId won't change see https://github.com/ethers-io/ethers.js/issues/901
-const scaffoldEthProvider = new StaticJsonRpcProvider("https://rpc.scaffoldeth.io:48544");
+const scaffoldEthProvider = "";
 const mainnetInfura = new StaticJsonRpcProvider("https://mainnet.infura.io/v3/" + INFURA_ID);
 // ( ⚠️ Getting "failed to meet quorum" errors? Check your INFURA_I
 
@@ -150,6 +150,9 @@ function App(props) {
 
   // 📟 Listen for broadcast events
   const setPurposeEvents = useEventListener(readContracts, "YourContract", "SetPurpose", localProvider, 1);
+  
+
+  //const poolsCount = useContractReader(readContracts, "Collections", "poolsCount");
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -292,134 +295,105 @@ function App(props) {
       {networkDisplay}
       <BrowserRouter>
         <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
-          <Menu.Item key="/">
+        <Menu.Item key="/">
             <Link
               onClick={() => {
                 setRoute("/");
               }}
               to="/"
             >
-              YourContract
+              The Collections
             </Link>
           </Menu.Item>
-          <Menu.Item key="/hints">
+          <Menu.Item key="/mycollectibles">
             <Link
               onClick={() => {
-                setRoute("/hints");
+                setRoute("/mycollectibles");
               }}
-              to="/hints"
+              to="/mycollectibles"
             >
-              Hints
+              My Collectibles
             </Link>
           </Menu.Item>
-          <Menu.Item key="/exampleui">
-            <Link
+          <Menu.Item key="/collections">
+          <Link
               onClick={() => {
-                setRoute("/exampleui");
+                setRoute("/collections");
               }}
-              to="/exampleui"
+              to="/collections"
             >
-              ExampleUI
+              Collections (DEBUG)
             </Link>
           </Menu.Item>
-          <Menu.Item key="/mainnetdai">
+          <Menu.Item key="/collectible">
             <Link
               onClick={() => {
-                setRoute("/mainnetdai");
+                setRoute("/collectibe");
               }}
-              to="/mainnetdai"
+              to="/collectible"
             >
-              Mainnet DAI
+              Collectible (DEBUG)
             </Link>
           </Menu.Item>
-          <Menu.Item key="/subgraph">
+          <Menu.Item key="/erc20token">
             <Link
               onClick={() => {
-                setRoute("/subgraph");
+                setRoute("/erc20token");
               }}
-              to="/subgraph"
+              to="/erc20token"
             >
-              Subgraph
+              EMEM Token (DEBUG)
             </Link>
           </Menu.Item>
         </Menu>
 
         <Switch>
+          <Route exact path="/collections">
+            <Contract
+              name="Collections"
+              signer={userProvider.getSigner()}
+              provider={localProvider}
+              address={address}
+              blockExplorer={blockExplorer}
+            />
+          </Route>
+          <Route exact path="/collectible">
+            <Contract
+              name="Collectible"
+              signer={userProvider.getSigner()}
+              provider={localProvider}
+              address={address}
+              blockExplorer={blockExplorer}
+            />
+          </Route>
+          <Route exact path="/erc20Token">
+            <Contract
+              name="EMEMToken"
+              signer={userProvider.getSigner()}
+              provider={localProvider}
+              address={address}
+              blockExplorer={blockExplorer}
+            />
+          </Route>
           <Route exact path="/">
-            {/*
-                🎛 this scaffolding is full of commonly used components
-                this <Contract/> component will automatically parse your ABI
-                and give you a form to interact with it locally
-            */}
-
-            <Contract
-              name="YourContract"
-              signer={userProvider.getSigner()}
-              provider={localProvider}
+            <Collections
               address={address}
-              blockExplorer={blockExplorer}
-            />
-
-            {/* uncomment for a second contract:
-            <Contract
-              name="SecondContract"
-              signer={userProvider.getSigner()}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-            />
-            */}
-
-            {/* Uncomment to display and interact with an external contract (DAI on mainnet):
-            <Contract
-              name="DAI"
-              customContract={mainnetDAIContract}
-              signer={userProvider.getSigner()}
-              provider={mainnetProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-            />
-            */}
-          </Route>
-          <Route path="/hints">
-            <Hints
-              address={address}
-              yourLocalBalance={yourLocalBalance}
-              mainnetProvider={mainnetProvider}
-              price={price}
+              readContracts={readContracts}
             />
           </Route>
-          <Route path="/exampleui">
-            <ExampleUI
+          <Route path="/mycollectibles">
+            <MyCollectibles
               address={address}
-              userProvider={userProvider}
-              mainnetProvider={mainnetProvider}
-              localProvider={localProvider}
+              readContracts={readContracts}
+            />
+          </Route>
+          <Route path="/collection/:collectionId">
+            <CollectionDetail
+              address={address}
               yourLocalBalance={yourLocalBalance}
-              price={price}
               tx={tx}
               writeContracts={writeContracts}
               readContracts={readContracts}
-              purpose={purpose}
-              setPurposeEvents={setPurposeEvents}
-            />
-          </Route>
-          <Route path="/mainnetdai">
-            <Contract
-              name="DAI"
-              customContract={mainnetDAIContract}
-              signer={userProvider.getSigner()}
-              provider={mainnetProvider}
-              address={address}
-              blockExplorer="https://etherscan.io/"
-            />
-          </Route>
-          <Route path="/subgraph">
-            <Subgraph
-              subgraphUri={props.subgraphUri}
-              tx={tx}
-              writeContracts={writeContracts}
-              mainnetProvider={mainnetProvider}
             />
           </Route>
         </Switch>
