@@ -1,4 +1,4 @@
-pragma solidity >=0.6.0 <0.9.0;
+pragma solidity 0.8.0;
 //SPDX-License-Identifier: MIT
 //import "@openzeppelin/contracts/access/Ownable.sol"; //https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol
 
@@ -22,6 +22,7 @@ contract MVPC {
       uint256 timeout;
       uint256 stake;
   }
+
   mapping (bytes32 => Session) public sessions;
 
   function getStatus(bytes32 id) external view returns (Status) {
@@ -29,6 +30,15 @@ contract MVPC {
   }
   //keep track of leftover funds
   mapping (address => uint256) public remainder;
+
+  function getRemainder(address signer) public view returns (uint256) {
+    return remainder[signer];
+  }
+
+  function getSession(bytes32 id) public view returns (Session memory) {
+    Session memory session = sessions[id];
+    return session;
+  }
 
   //signer can open a session by sending some ETH
   function open(address signer, address payable destination, uint256 timeout, uint256 addRemainder) public payable {
