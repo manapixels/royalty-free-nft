@@ -13,7 +13,7 @@ import StackGrid from "react-stack-grid";
 import Web3Modal from "web3modal";
 import "./App.css";
 import assets from "./assets.js";
-import { Account, Address, AddressInput, Contract, Faucet, GasGauge, Header, Ramp, ThemeSwitch } from "./components";
+import { EtherInput, Account, Address, AddressInput, Contract, Faucet, GasGauge, Header, Ramp, ThemeSwitch } from "./components";
 import { DAI_ABI, DAI_ADDRESS, INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
 import {
@@ -59,7 +59,7 @@ console.log("📦 Assets: ", assets);
 const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
-const DEBUG = true;
+const DEBUG = false;
 
 // EXAMPLE STARTING JSON:
 const STARTING_JSON = {
@@ -191,11 +191,14 @@ function App(props) {
   ]);
 
   // keep track of a variable from the contract in the local React state:
-  const balance = useContractReader(readContracts, "YourCollectible", "balanceOf", [address]);
+  const balance = useContractReader(readContracts, "BoomboxIRLNFT", "balanceOf", [ address ]);
   console.log("🤗 balance:", balance);
 
+  const artist = useContractReader(readContracts, "BoomboxIRLNFT", "artist");
+  console.log("👨‍🎨 artist:", artist);
+
   // 📟 Listen for broadcast events
-  const transferEvents = useEventListener(readContracts, "YourCollectible", "Transfer", localProvider, 1);
+  const transferEvents = useEventListener(readContracts, "BoomboxIRLNFT", "Transfer", localProvider, 1);
   console.log("📟 Transfer events:", transferEvents);
 
   //
@@ -210,23 +213,22 @@ function App(props) {
       for (let tokenIndex = 0; tokenIndex < balance; tokenIndex++) {
         try {
           console.log("GEtting token index", tokenIndex);
-          const tokenId = await readContracts.YourCollectible.tokenOfOwnerByIndex(address, tokenIndex);
+          const tokenId = await readContracts.BoomboxIRLNFT.tokenOfOwnerByIndex(address, tokenIndex);
           console.log("tokenId", tokenId);
-          const tokenURI = await readContracts.YourCollectible.tokenURI(tokenId);
+          const tokenURI = await readContracts.BoomboxIRLNFT.tokenURI(tokenId);
           console.log("tokenURI", tokenURI);
-
           const ipfsHash = tokenURI.replace("https://ipfs.io/ipfs/", "");
           console.log("ipfsHash", ipfsHash);
-
           const jsonManifestBuffer = await getFromIPFS(ipfsHash);
 
           try {
             const jsonManifest = JSON.parse(jsonManifestBuffer.toString());
             console.log("jsonManifest", jsonManifest);
-            collectibleUpdate.push({ id: tokenId, uri: tokenURI, owner: address, ...jsonManifest });
+            collectibleUpdate.push({ id: tokenId, index: tokenIndex, uri: tokenURI, owner: address, ...jsonManifest });
           } catch (e) {
             console.log(e);
           }
+
         } catch (e) {
           console.log(e);
         }
@@ -386,20 +388,19 @@ function App(props) {
       const assetUpdate = [];
       for (const a in assets) {
         try {
-          const forSale = await readContracts.YourCollectible.forSale(utils.id(a));
-          let owner;
-          if (!forSale) {
-            const tokenId = await readContracts.YourCollectible.uriToTokenId(utils.id(a));
-            owner = await readContracts.YourCollectible.ownerOf(tokenId);
-          }
-          assetUpdate.push({ id: a, ...assets[a], forSale, owner });
+          const tokenId = await readContracts.BoomboxIRLNFT.uriToTokenId(utils.id(a));
+          const owner = await readContracts.BoomboxIRLNFT.ownerOf(tokenId);
+          assetUpdate.push({ id: a, tokenId: tokenId, ...assets[a], owner });
         } catch (e) {
           console.log(e);
+
+          //asset doesn't exist yet probably...
+          assetUpdate.push({ id: a, ...assets[a] });
         }
       }
       setLoadedAssets(assetUpdate);
     };
-    if (readContracts && readContracts.YourCollectible) updateYourCollectibles();
+    if (readContracts && readContracts.BoomboxIRLNFT) updateYourCollectibles();
   }, [assets, readContracts, transferEvents]);
 
   const galleryList = [];
@@ -407,20 +408,53 @@ function App(props) {
     console.log("loadedAssets", a, loadedAssets[a]);
 
     const cardActions = [];
-    if (loadedAssets[a].forSale) {
-      cardActions.push(
-        <div>
+    if (loadedAssets[a].owner) {
+
+      let artistApprover = ""
+      if(loadedAssets[a].owner==readContracts.BoomboxIRLMarket.address){
+        artistApprover = (
+          <div>
           <Button
             onClick={() => {
-              console.log("gasPrice,", gasPrice);
-              tx(writeContracts.YourCollectible.mintItem(loadedAssets[a].id, { gasPrice }));
+              console.log("artistApprover,", a,loadedAssets[a]);
+              tx(writeContracts.BoomboxIRLMarket.buy(
+                loadedAssets[a].tokenId,
+                { gasPrice, value:parseEther("0.5") }));
             }}
           >
-            Mint
+            Buy
           </Button>
-        </div>,
-      );
-    } else {
+          </div>
+        )
+      } else if(loadedAssets[a].owner==address && address==artist){
+        artistApprover = (
+          <div>
+          <Button
+            onClick={() => {
+              console.log("artistApprover,", a,loadedAssets[a]);
+              tx(writeContracts.BoomboxIRLNFT.approve(
+                readContracts.BoomboxIRLMarket.address,
+                loadedAssets[a].tokenId,
+                { gasPrice }));
+            }}
+          >
+            Approve Market
+          </Button>
+          <Button
+            onClick={() => {
+              console.log("artistApprover,", a,loadedAssets[a]);
+              tx(writeContracts.BoomboxIRLMarket.sell(
+                loadedAssets[a].tokenId,
+                parseEther("0.5"),
+                { gasPrice }));
+            }}
+          >
+            Sell
+          </Button>
+          </div>
+        )
+      }
+
       cardActions.push(
         <div>
           owned by:{" "}
@@ -430,8 +464,36 @@ function App(props) {
             blockExplorer={blockExplorer}
             minimized
           />
+          <div>
+            {artistApprover}
+          </div>
         </div>,
       );
+    } else {
+      if( address && artist && address==artist ){
+        cardActions.push(
+          <div>
+
+            <Button
+              onClick={() => {
+                tx(writeContracts.BoomboxIRLNFT.mintItem(
+                  loadedAssets[a].id,
+                  "X:1;T:A la santé de Noe;A:Valle d'Aosta;B:;C:trad.;O:Italia;Z:Gian Mario Navillod;Q:1/4=120;M:2/4;L:1/16;K:G;G2B2 |d2d2 e2e2 |d2 z2 G2A2 |B2B2 A4 |G2 z2 G2B2 |d2d2 e2e2 |d2 z2 G2A2 |B2B2 A4 |G4 g2g2 |f2f2 e2e2 |d2 z2 e2e2 |d2d2 c2c2 |B2 z2 G2B2 |d2d2 d2 z2 |G2B2 d2d2 |d2 z2 G2B2 |d2 z2 G2B2 |d2 z2 G2B2 |d2d2 e4 |;d2 z2 A2B2 |c2B2 A4 |G2 z2 |]",
+                  { gasPrice }));
+              }}
+            >
+              Mint
+            </Button>
+          </div>,
+        );
+      }else{
+        cardActions.push(
+          <div>
+            ( Not minted yet )
+          </div>,
+        );
+      }
+
     }
 
     galleryList.push(
@@ -497,7 +559,7 @@ function App(props) {
               Transfers
             </Link>
           </Menu.Item>
-          <Menu.Item key="/ipfsup">
+          {/*<Menu.Item key="/ipfsup">
             <Link
               onClick={() => {
                 setRoute("/ipfsup");
@@ -516,7 +578,7 @@ function App(props) {
             >
               IPFS Download
             </Link>
-          </Menu.Item>
+          </Menu.Item>*/}
           <Menu.Item key="/debugcontracts">
             <Link
               onClick={() => {
@@ -524,7 +586,7 @@ function App(props) {
               }}
               to="/debugcontracts"
             >
-              Debug Contracts
+              Debug
             </Link>
           </Menu.Item>
         </Menu>
@@ -587,7 +649,7 @@ function App(props) {
                         <Button
                           onClick={() => {
                             console.log("writeContracts", writeContracts);
-                            tx(writeContracts.YourCollectible.transferFrom(address, transferToAddresses[id], id));
+                            tx(writeContracts.BoomboxIRLNFT.transferFrom(address, transferToAddresses[id], id));
                           }}
                         >
                           Transfer
@@ -694,7 +756,7 @@ function App(props) {
           </Route>
           <Route path="/debugcontracts">
             <Contract
-              name="YourCollectible"
+              name="BoomboxIRLNFT"
               signer={userProvider.getSigner()}
               provider={localProvider}
               address={address}

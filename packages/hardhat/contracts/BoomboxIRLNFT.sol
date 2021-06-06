@@ -9,32 +9,31 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 
 // GET LISTED ON OPENSEA: https://testnets.opensea.io/get-listed/step-two
 
-contract YourCollectible is ERC721 {
+contract BoomboxIRLNFT is ERC721 {
+
+  address public immutable artist;
 
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
 
-  constructor(bytes32[] memory assetsForSale) public ERC721("YourCollectible", "YCB") {
-    _setBaseURI("https://ipfs.io/ipfs/");
-    for(uint256 i=0;i<assetsForSale.length;i++){
-      forSale[assetsForSale[i]] = true;
-    }
+  constructor(address _artist) public ERC721("BoomboxIRLNFT", "BBX") {
+    //_setBaseURI("https://ipfs.io/ipfs/");
+    artist = _artist;
   }
 
-  //this marks an item in IPFS as "forsale"
-  mapping (bytes32 => bool) public forSale;
+  mapping (bytes32 => string) public notation;
+  mapping (bytes32 => bool) public ghosted;
+
   //this lets you look up a token by the uri (assuming there is only one of each uri for now)
   mapping (bytes32 => uint256) public uriToTokenId;
 
-  function mintItem(string memory tokenURI)
+  function mintItem(string memory tokenURI, string memory _notation)
       public
       returns (uint256)
   {
-      bytes32 uriHash = keccak256(abi.encodePacked(tokenURI));
+      require( msg.sender == artist, "NOT THE ARTIST");
 
-      //make sure they are only minting something that is marked "forsale"
-      require(forSale[uriHash],"NOT FOR SALE");
-      forSale[uriHash]=false;
+      bytes32 uriHash = keccak256(abi.encodePacked(tokenURI));
 
       _tokenIds.increment();
 
@@ -44,6 +43,9 @@ contract YourCollectible is ERC721 {
 
       uriToTokenId[uriHash] = id;
 
+      notation[uriHash] = _notation;
+
       return id;
   }
+
 }

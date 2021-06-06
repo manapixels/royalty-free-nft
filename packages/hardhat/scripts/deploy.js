@@ -11,6 +11,7 @@ const main = async () => {
   console.log("\n\n 📡 Deploying...\n");
 
   // read in all the assets to get their IPFS hash...
+  /*
   let uploadedAssets = JSON.parse(fs.readFileSync("./uploaded.json"))
   let bytes32Array = []
   for(let a in uploadedAssets){
@@ -20,9 +21,14 @@ const main = async () => {
     bytes32Array.push(bytes32)
   }
   console.log(" \n")
+  */
 
   // deploy the contract with all the artworks forSale
-  const yourCollectible = await deploy("YourCollectible",[ bytes32Array ]) // <-- add in constructor args like line 19 vvvv
+  const yourCollectible = await deploy("BoomboxIRLNFT",[ "0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1" ]) // <-- add in constructor args like line 19 vvvv
+
+  const yourMarket = await deploy("BoomboxIRLMarket",[ "0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1", yourCollectible.address ]) // <-- add in constructor args like line 19 vvvv
+
+
 
   //const yourContract = await ethers.getContractAt('YourContract', "0xaAC799eC2d00C013f1F11c37E654e59B0429DF6A") //<-- if you want to instantiate a version of a contract at a specific address!
   //const secondContract = await deploy("SecondContract")
