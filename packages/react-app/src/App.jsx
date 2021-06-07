@@ -23,7 +23,7 @@ import {
 import { Address, Header, Account, Faucet, Ramp, Contract, GasGauge, ThemeSwitch } from "./components";
 import { Transactor } from "./helpers";
 // import Hints from "./Hints";
-import { Hints, ExampleUI, Subgraph } from "./views";
+import { Hints, ExampleUI, Subgraph, ViewChannel } from "./views";
 import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS } from "./constants";
 /*
     Welcome to 🏗 scaffold-eth !
@@ -248,7 +248,7 @@ function App(props) {
 
   const remainder = useContractReader(readContracts, "MVPC", "getRemainder", [address]);
 
-  const [channels, setChannels] = useState([]);
+  const [channels, setChannels] = useState(null);
   const openEvents = useEventListener(readContracts, "MVPC", "Open", localProvider, 1);
 
   const createChannel = async () => {
@@ -372,14 +372,26 @@ function App(props) {
                 Create channel
               </Button>
               <h3 style={{ marginTop: "20px" }}>Opened channels</h3>
-              {channels.map(({ id, session }) => (
-                <Card style={{ marginBottom: "20px" }}>
-                  <Address address={session.signer} ensProvider={mainnetProvider} fontSize={16} />
-                  <p>
-                    <b>Session ID:</b> {id.substr(0, 10)}...
-                  </p>
-                </Card>
-              ))}
+              {channels &&
+                channels.map(({ id, session }) => (
+                  <Card style={{ marginBottom: "20px" }}>
+                    <b>Signer: </b>
+                    <Address address={session.signer} ensProvider={mainnetProvider} fontSize={16} />
+                    <p style={{ margin: 0 }}>
+                      <b>Session ID:</b> {id.substr(0, 10)}...
+                    </p>
+                    <Button type="primary" style={{ marginTop: "10px" }}>
+                      <Link to={id}>Visit channel</Link>
+                    </Button>
+                  </Card>
+                ))}
+              {channels !== null && channels.length === 0 && <p>No channels created yet.</p>}
+              {channels === null && <p>Fetching channels..</p>}
+            </div>
+          </Route>
+          <Route exact path="/:id">
+            <div style={{ maxWidth: "576px", margin: "0 auto", textAlign: "left", marginTop: "20px" }}>
+              <ViewChannel readContracts={readContracts} mainnetProvider={mainnetProvider} />
             </div>
           </Route>
           <Route exact path="/mvpc">
