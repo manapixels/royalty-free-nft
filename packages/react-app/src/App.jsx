@@ -27,6 +27,11 @@ import {
   useOnBlock,
   useUserProvider,
 } from "./hooks";
+const axios = require('axios');
+
+//const serverUrl = "https://backend.ether.delivery:49832/"
+const serverUrl = "http://localhost:49832/"
+
 
 const { BufferList } = require("bl");
 // https://www.npmjs.com/package/ipfs-http-client
@@ -383,6 +388,10 @@ function App(props) {
   const [transferToAddresses, setTransferToAddresses] = useState({});
 
   const [loadedAssets, setLoadedAssets] = useState();
+
+  const [email, setEmail] = useState();
+  const [emailSent, setEmailSent] = useState();
+
   useEffect(() => {
     const updateYourCollectibles = async () => {
       const assetUpdate = [];
@@ -422,7 +431,7 @@ function App(props) {
                 { gasPrice, value:parseEther("0.5") }));
             }}
           >
-            Buy
+            Buy for Ξ0.5
           </Button>
           </div>
         )
@@ -449,11 +458,54 @@ function App(props) {
                 { gasPrice }));
             }}
           >
-            Sell
+            Sell For Ξ0.5
           </Button>
           </div>
         )
+      } else if(loadedAssets[a].owner==address && address!=artist){
+        if(emailSent){
+          artistApprover = (
+            <div>
+              {email} sent...
+            </div>
+          )
+        }else{
+          artistApprover = (
+            <div>
+              Contact for shipping:
+              <div>
+                <Input
+                  placeholder = {"enter email address"}
+                  value={email}
+                  onChange={(e)=>{setEmail(e.target.value)}}
+                />
+              </div>
+              <Button
+                disabled={!email}
+                onClick={async() => {
+                  let message = "BoomboxIRLNFT, my contact info is: "+email
+                  console.log("message",message,address)
+                  let sig = await userProvider.send("personal_sign", [ message, address ]);
+                  console.log("sig",sig)
+                  const res = await axios.post(serverUrl, {
+                    address: address,
+                    message: message,
+                    signature: sig,
+                  })
+                  setEmailSent(true)
+                }}
+              >
+                Save
+              </Button>
+              <div>(this will be kept very private)</div>
+
+            </div>
+          )
+        }
+
       }
+
+
 
       cardActions.push(
         <div>
