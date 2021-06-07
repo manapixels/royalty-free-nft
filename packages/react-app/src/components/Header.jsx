@@ -8,7 +8,7 @@ export default function Header() {
     <a href="/">
       <PageHeader
         title="🔥 Pass the Torch"
-        subTitle=""
+        subTitle="(purple)"
         style={{ cursor: "pointer" }}
       />
     </a>

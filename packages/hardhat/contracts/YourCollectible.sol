@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 contract YourCollectible is ERC721 {
 
   address public holder;
-  string public tokenURI = "QmYC3yZRXm1yckSKqCFvpsDJAUzCZmY4238VaUSp7Je7Mp";
+  string public tokenURI = "QmYzYbYLDbQv3LAG75bUx3NSUjffMUinHrg9UXLEzBodVY";
   //uint256 public lastPass;
 
   using Counters for Counters.Counter;
@@ -23,13 +23,20 @@ contract YourCollectible is ERC721 {
     //lastPass = block.timestamp;
   }
 
+  mapping (address => bool) public lit;
+
   function passTorch(address to)
       public
       returns (uint256)
   {
+      require( !lit[to], "THEY ARE ALREADY LIT, BRO");
       require( msg.sender==holder, "NOT THE HOLDER");
+
       holder = to;
+      lit[to] = true;
       //lastPass = block.timestamp;
+
+
 
       _tokenIds.increment();
 

@@ -389,7 +389,7 @@ function App(props) {
           <AddressInput
             autoFocus
             ensProvider={mainnetProvider}
-            placeholder="enter an Ethereum address to pass the torch to"
+            placeholder="eth address or .eth name"
             value={toAddress}
             onChange={setToAddress}
           />
@@ -413,6 +413,15 @@ function App(props) {
         </div>
       </div>
     )
+  } else {
+
+    //CHECK TO SEE IF THEY OWN AN NFT AND DISPLAY IT
+
+    holderView = (
+      <div>Balance: {balance && balance.toNumber()}</div>
+    )
+
+
   }
 
   return (
@@ -429,10 +438,12 @@ function App(props) {
                 this <Contract/> component will automatically parse your ABI
                 and give you a form to interact with it locally
             */}
-            <div style={{ width: 150, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
-              <a href="https://nifty.ink/ink/QmUu3kRh3acxEycAAPxTopDNgeB1k3zhye52FgFkMzJHs8" target="_Blank">
-                <img src={"https://ipfs.io/ipfs/QmNidV7AauppqK3NhnwGAUN3Q71j5bFD712Zq7drb4UUzc"} style={{maxWidth:150}} />
-              </a>
+            <div style={{ width: 420, margin: "auto", marginTop: 32, paddingBottom: 16 }}>
+              <iframe src={"/ETH-Devcon6-Torch-FINAL-01-purple.svg"} style={{width:420, height:420}} />
+            </div>
+
+            <div style={{ width: 420, margin: "auto", marginTop: 8, paddingBottom: 32 }}>
+              <i>The purple torch can only be held once by any address.</i>
             </div>
 
             <div style={{ width: 640, fontSize:32,  letterSpacing:-1, margin: "auto", marginTop: 32, paddingBottom: 32 }}>

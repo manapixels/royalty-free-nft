@@ -20,18 +20,27 @@ const main = async () => {
 
   console.log("\n\n 🎫 Uploading to IPFS...\n");
 
+  ///PURPLE
+  //
+  //"QmYzYbYLDbQv3LAG75bUx3NSUjffMUinHrg9UXLEzBodVY"
+
+  let torchImage = fs.readFileSync("../react-app/public/ETH-Devcon6-Torch-FINAL-01-purple.svg");
+  torchImage = new Buffer(torchImage);
+  const uploadedTorchImage = await ipfs.add(torchImage)
+  console.log("uploadedTorchImage",uploadedTorchImage)
+
   //const yourCollectible = await ethers.getContractAt('YourCollectible', fs.readFileSync("./artifacts/YourCollectible.address").toString())
 
 
   const torchy = {
     "description": "Pass it around!",
-    "external_url": "https://ipfs.io/ipfs/QmNidV7AauppqK3NhnwGAUN3Q71j5bFD712Zq7drb4UUzc",// <-- this can link to a page for the specific file too
-    "image": "https://ipfs.io/ipfs/QmNidV7AauppqK3NhnwGAUN3Q71j5bFD712Zq7drb4UUzc",
-    "name": "Torchy",
+    "external_url": "http://purple.torchy.club",// <-- this can link to a page for the specific file too
+    "image": "https://ipfs.io/ipfs/"+uploadedTorchImage.path,
+    "name": "Purple Torchy",
     "attributes": [
        {
          "trait_type": "Torchy",
-         "value": "lit"
+         "value": "purple"
        }
     ]
   }
