@@ -24,6 +24,8 @@ import {
 } from "./hooks";
 // import Hints from "./Hints";
 import { ExampleUI, Hints, Subgraph } from "./views";
+
+import StackGrid from "react-stack-grid";
 /*
     Welcome to 🏗 scaffold-eth !
 
@@ -44,7 +46,7 @@ import { ExampleUI, Hints, Subgraph } from "./views";
 */
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS.rinkeby; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -125,10 +127,10 @@ function App(props) {
   const yourMainnetBalance = useBalance(mainnetProvider, address);
 
   // Load in your local 📝 contract and read a value from it:
-  const readContracts = useContractLoader(localProvider);
+  const readContracts = false//useContractLoader(localProvider);
 
   // If you want to make 🔐 write transactions to your contracts, use the userProvider:
-  const writeContracts = useContractLoader(userProvider);
+  const writeContracts = false//useContractLoader(userProvider);
 
   // EXTERNAL CONTRACT EXAMPLE:
   //
@@ -141,9 +143,9 @@ function App(props) {
   });
 
   // Then read your DAI balance like:
-  const myMainnetDAIBalance = useContractReader({ DAI: mainnetDAIContract }, "DAI", "balanceOf", [
-    "0x34aA3F359A9D614239015126635CE7732c18fDF3",
-  ]);
+  //const myMainnetDAIBalance = useContractReader({ DAI: mainnetDAIContract }, "DAI", "balanceOf", [
+  //  "0x34aA3F359A9D614239015126635CE7732c18fDF3",
+  //]);
 
   // keep track of a variable from the contract in the local React state:
   const purpose = useContractReader(readContracts, "YourContract", "purpose");
@@ -168,8 +170,8 @@ function App(props) {
       yourLocalBalance &&
       yourMainnetBalance &&
       readContracts &&
-      writeContracts &&
-      mainnetDAIContract
+      writeContracts //&&
+      //mainnetDAIContract
     ) {
       console.log("_____________________________________ 🏗 scaffold-eth _____________________________________");
       console.log("🌎 mainnetProvider", mainnetProvider);
@@ -180,7 +182,7 @@ function App(props) {
       console.log("💵 yourMainnetBalance", yourMainnetBalance ? formatEther(yourMainnetBalance) : "...");
       console.log("📝 readContracts", readContracts);
       console.log("🌍 DAI contract on mainnet:", mainnetDAIContract);
-      console.log("🔐 writeContracts", writeContracts);
+      //console.log("🔐 writeContracts", writeContracts);
     }
   }, [
     mainnetProvider,
@@ -190,7 +192,7 @@ function App(props) {
     yourMainnetBalance,
     readContracts,
     writeContracts,
-    mainnetDAIContract,
+    //mainnetDAIContract,
   ]);
 
   let networkDisplay = "";
@@ -240,8 +242,9 @@ function App(props) {
   }
 
   const loadWeb3Modal = useCallback(async () => {
-    const provider = await web3Modal.connect();
-    setInjectedProvider(new Web3Provider(provider));
+    // REMOVING MM INJECT
+    //const provider = await web3Modal.connect();
+    //setInjectedProvider(new Web3Provider(provider));
   }, [setInjectedProvider]);
 
   useEffect(() => {
@@ -256,7 +259,7 @@ function App(props) {
   }, [setRoute]);
 
   let faucetHint = "";
-  const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name === "localhost";
+  const faucetAvailable = false//localProvider && localProvider.connection && targetNetwork.name === "localhost";
 
   const [faucetClicked, setFaucetClicked] = useState(false);
   if (
@@ -291,58 +294,6 @@ function App(props) {
       <Header />
       {networkDisplay}
       <BrowserRouter>
-        <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
-          <Menu.Item key="/">
-            <Link
-              onClick={() => {
-                setRoute("/");
-              }}
-              to="/"
-            >
-              YourContract
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/hints">
-            <Link
-              onClick={() => {
-                setRoute("/hints");
-              }}
-              to="/hints"
-            >
-              Hints
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/exampleui">
-            <Link
-              onClick={() => {
-                setRoute("/exampleui");
-              }}
-              to="/exampleui"
-            >
-              ExampleUI
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/mainnetdai">
-            <Link
-              onClick={() => {
-                setRoute("/mainnetdai");
-              }}
-              to="/mainnetdai"
-            >
-              Mainnet DAI
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/subgraph">
-            <Link
-              onClick={() => {
-                setRoute("/subgraph");
-              }}
-              to="/subgraph"
-            >
-              Subgraph
-            </Link>
-          </Menu.Item>
-        </Menu>
 
         <Switch>
           <Route exact path="/">
@@ -352,13 +303,27 @@ function App(props) {
                 and give you a form to interact with it locally
             */}
 
-            <Contract
-              name="YourContract"
-              signer={userProvider.getSigner()}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-            />
+
+            <div style={{ width:500, margin:"auto"}}>
+              <StackGrid
+                columnWidth={240}
+              >
+                <div key={"purple"} style={{ cursor:"pointer", width: 210, margin: "auto", marginTop: 32, paddingBottom: 16 }} onClick={()=>{
+                  window.open("http://purple.torchy.club")
+                }}>
+                  <img src={"/ETH-Devcon6-Torch-FINAL-01-purple.svg"} style={{width:210, height:210}} />
+                </div>
+                <div key={"red"} style={{ cursor:"pointer", width: 210, margin: "auto", marginTop: 32, paddingBottom: 16 }} onClick={()=>{
+                  window.open("http://red.torchy.club")
+                }}>
+                  <img src={"/ETH-Devcon6-Torch-FINAL-02-red.svg"} style={{width:210, height:210}} />
+                </div>
+              </StackGrid>
+            </div>
+
+            <div>
+              Players collect an NFT for holding each torch.
+            </div>
 
             {/* uncomment for a second contract:
             <Contract
@@ -381,53 +346,13 @@ function App(props) {
             />
             */}
           </Route>
-          <Route path="/hints">
-            <Hints
-              address={address}
-              yourLocalBalance={yourLocalBalance}
-              mainnetProvider={mainnetProvider}
-              price={price}
-            />
-          </Route>
-          <Route path="/exampleui">
-            <ExampleUI
-              address={address}
-              userProvider={userProvider}
-              mainnetProvider={mainnetProvider}
-              localProvider={localProvider}
-              yourLocalBalance={yourLocalBalance}
-              price={price}
-              tx={tx}
-              writeContracts={writeContracts}
-              readContracts={readContracts}
-              purpose={purpose}
-              setPurposeEvents={setPurposeEvents}
-            />
-          </Route>
-          <Route path="/mainnetdai">
-            <Contract
-              name="DAI"
-              customContract={mainnetDAIContract}
-              signer={userProvider.getSigner()}
-              provider={mainnetProvider}
-              address={address}
-              blockExplorer="https://etherscan.io/"
-            />
-          </Route>
-          <Route path="/subgraph">
-            <Subgraph
-              subgraphUri={props.subgraphUri}
-              tx={tx}
-              writeContracts={writeContracts}
-              mainnetProvider={mainnetProvider}
-            />
-          </Route>
+
         </Switch>
       </BrowserRouter>
 
       <ThemeSwitch />
 
-      {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
+      {/* 👨‍💼 Your account is in the top right with a wallet at connect options
       <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10 }}>
         <Account
           address={address}
@@ -442,8 +367,9 @@ function App(props) {
         />
         {faucetHint}
       </div>
+      */}
 
-      {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
+      {/* 🗺 Extra UI like gas price, eth price, faucet, and support:
       <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
         <Row align="middle" gutter={[4, 4]}>
           <Col span={8}>
@@ -472,7 +398,6 @@ function App(props) {
         <Row align="middle" gutter={[4, 4]}>
           <Col span={24}>
             {
-              /*  if the local provider has a signer, let's show the faucet:  */
               faucetAvailable ? (
                 <Faucet localProvider={localProvider} price={price} ensProvider={mainnetProvider} />
               ) : (
@@ -481,7 +406,7 @@ function App(props) {
             }
           </Col>
         </Row>
-      </div>
+      </div> */}
     </div>
   );
 }
