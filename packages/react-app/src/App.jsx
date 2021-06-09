@@ -231,7 +231,7 @@ function App(props) {
           onClick={() => {
             faucetTx({
               to: address,
-              value: parseEther("0.01"),
+              value: parseEther("1.0"),
             });
             setFaucetClicked(true);
           }}
@@ -250,11 +250,14 @@ function App(props) {
 
   const [channels, setChannels] = useState(null);
   const openEvents = useEventListener(readContracts, "MVPC", "Open", localProvider, 1);
+  const closeEvents = useEventListener(readContracts, "MVPC", "Close", localProvider, 1);
 
   const createChannel = async () => {
-    tx(writeContracts.MVPC.open(address, teacher, duration, remainder), {
-      value: parseEther(payment),
-    });
+    tx(
+      writeContracts.MVPC.open(address, teacher, duration, remainder, {
+        value: parseEther(payment.toString()),
+      }),
+    );
   };
 
   useEffect(() => {
@@ -274,7 +277,7 @@ function App(props) {
     };
 
     fetchChannels();
-  }, [openEvents]);
+  }, [openEvents, closeEvents]);
 
   return (
     <div className="App">
@@ -367,11 +370,11 @@ function App(props) {
               <Button
                 style={{ width: "100%", marginTop: "10px" }}
                 onClick={createChannel}
-                disabled={!payment || !teacher || !duration}
+                disabled={!payment || !teacher || !duration || teacher === address}
               >
                 Create channel
               </Button>
-              <h3 style={{ marginTop: "20px" }}>Opened channels</h3>
+              <h3 style={{ marginTop: "20px" }}>Channels</h3>
               {channels &&
                 channels.map(({ id, session }) => (
                   <Card style={{ marginBottom: "20px" }}>
@@ -380,8 +383,12 @@ function App(props) {
                     <p style={{ margin: 0 }}>
                       <b>Session ID:</b> {id.substr(0, 10)}...
                     </p>
+                    <p style={{ marginTop: 3, marginBottom: 0 }}>
+                      <b>Status:</b> {session.status === 1 ? "Open" : "Closed"}
+                    </p>
                     <Button type="primary" style={{ marginTop: "10px" }}>
-                      <Link to={id}>Visit channel</Link>
+                      {session.owner === address && <Link to={id}>Visit as a student</Link>}
+                      {session.destination === address && <Link to={id}>Visit as a teacher</Link>}
                     </Button>
                   </Card>
                 ))}
@@ -391,7 +398,14 @@ function App(props) {
           </Route>
           <Route exact path="/:id">
             <div style={{ maxWidth: "576px", margin: "0 auto", textAlign: "left", marginTop: "20px" }}>
-              <ViewChannel readContracts={readContracts} mainnetProvider={mainnetProvider} />
+              <ViewChannel
+                readContracts={readContracts}
+                mainnetProvider={mainnetProvider}
+                address={address}
+                userProvider={userProvider}
+                writeContracts={writeContracts}
+                tx={tx}
+              />
             </div>
           </Route>
           <Route exact path="/mvpc">
