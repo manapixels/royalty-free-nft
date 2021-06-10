@@ -158,10 +158,11 @@ const TeacherView = ({ readContracts, writeContracts, session, id, timeLeft, use
 };
 
 const ViewChannel = props => {
-  const { readContracts, mainnetProvider, address } = props;
+  const { tx, writeContracts, readContracts, mainnetProvider, address } = props;
 
   const { id } = useParams();
   const [session, setSession] = useState(null);
+  const [remainder, setRemainder] = useState(0.0);
 
   usePoller(async () => {
     if (readContracts) {
@@ -174,9 +175,36 @@ const ViewChannel = props => {
     return session ? Math.max(session.timeout - Date.now() / 1000, 0).toFixed(2) : 0;
   }, [session]);
 
+  const withdrawRemainder = () => {
+    if (writeContracts) {
+      tx(writeContracts.MVPC.withdraw(address, parseEther(remainder.toString()), "0x0000000000000000000000000000000000000000000000000000000000000000"));
+    }
+  };
+
+  useEffect(() => {
+    const fetchRemainder = async () => {
+      if (readContracts) {
+        const rem = await readContracts.MVPC.getRemainder(address);
+        setRemainder(formatEther(rem));
+      }
+    };
+    if (session && address === session.owner) fetchRemainder();
+  }, [timeLeft]);
+
   return session ? (
     <div>
       <Card>
+        <div>
+          {address === session.owner ? (
+            <>
+              <b>Remainder: </b>
+              {remainder}
+              <Button style={{ marginTop: 7 }} onClick={withdrawRemainder} disabled={session.status != 2}>
+               Withdraw
+              </Button>
+            </>
+          ) : (<p></p>)}
+        </div>
         <p>
           <b>Channel status: </b>
           {session.status === 1 ? "Opened" : "Closed"}
