@@ -95,7 +95,6 @@ contract MVPC {
       remainder[sessions[id].owner] += smallestValue - value;
       smallestValue = value;
     }
-    sessions[optionalId].stake -= smallestValue;
     //send the smallestValue to the destination
     sessions[id].destination.transfer(smallestValue);
     //emit event to let the frontend know
@@ -132,10 +131,12 @@ contract MVPC {
       //add any remainder for the owner if they have it and have requested it
       remainder[sessions[optionalId].owner] += sessions[optionalId].stake;
     }
+    uint amount = remainder[sessions[optionalId].owner];
+    remainder[sessions[optionalId].owner] = 0;
     //then send amount totoAddress
-    toAddress.transfer(remainder[sessions[optionalId].owner]);
+    toAddress.transfer(amount);
     //emit event to let the frontend know
-    emit Withdraw(toAddress,remainder[sessions[optionalId].owner],optionalId);
+    emit Withdraw(toAddress,amount,optionalId);
   }
   event Withdraw(address toAddress,uint256 amount,bytes32 optionalId);
 
