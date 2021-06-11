@@ -20,7 +20,7 @@ import {
   Ramp,
   ThemeSwitch,
   Sell,
-  SellAsContract,
+  Mint,
 } from "./components";
 import { DAI_ABI, DAI_ADDRESS, INFURA_ID, NETWORK, NETWORKS, RINKEBY_NFT_HOLDER_ADDRESS } from "./constants";
 import { Transactor } from "./helpers";
@@ -245,44 +245,6 @@ function App(props) {
     updateYourCollectibles();
   }, [address, yourBalance]);
 
-  const yourContractBalance = contractBalance && contractBalance.toNumber && contractBalance.toNumber();
-  const [contractCollectibles, setContractCollectibles] = useState();
-
-  useEffect(() => {
-    const updateContractCollectibles = async () => {
-      const collectibleUpdate = [];
-      for (let tokenIndex = 0; tokenIndex < balance; tokenIndex++) {
-        try {
-          console.log("GEtting token index", tokenIndex);
-          const tokenId = await readContracts.YourCollectible.tokenOfOwnerByIndex(
-            RINKEBY_NFT_HOLDER_ADDRESS,
-            tokenIndex,
-          );
-          console.log("tokenId", tokenId);
-          const tokenURI = await readContracts.YourCollectible.tokenURI(tokenId);
-          console.log("tokenURI", tokenURI);
-
-          const ipfsHash = tokenURI.replace("https://ipfs.io/ipfs/", "");
-          console.log("ipfsHash", ipfsHash);
-
-          const jsonManifestBuffer = await getFromIPFS(ipfsHash);
-
-          try {
-            const jsonManifest = JSON.parse(jsonManifestBuffer.toString());
-            console.log("jsonManifest", jsonManifest);
-            collectibleUpdate.push({ id: tokenId, uri: tokenURI, owner: RINKEBY_NFT_HOLDER_ADDRESS, ...jsonManifest });
-          } catch (e) {
-            console.log(e);
-          }
-        } catch (e) {
-          console.log(e);
-        }
-      }
-      setContractCollectibles(collectibleUpdate);
-    };
-    updateContractCollectibles();
-  }, [RINKEBY_NFT_HOLDER_ADDRESS, yourContractBalance]);
-
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
   console.log("🏷 Resolved austingriffith.eth as:",addressFromENS)
@@ -449,14 +411,14 @@ function App(props) {
               YourCollectibles
             </Link>
           </Menu.Item>
-          <Menu.Item key="/contractCollectibles">
+          <Menu.Item key="/mint">
             <Link
               onClick={() => {
-                setRoute("/contractCollectibles");
+                setRoute("/mint");
               }}
-              to="/contractCollectibles"
+              to="/mint"
             >
-              Contract Collectibles
+              Mint
             </Link>
           </Menu.Item>
           <Menu.Item key="/rarible">
@@ -597,85 +559,15 @@ function App(props) {
               />
             </div>
           </Route>
-          <Route exact path="/contractCollectibles">
-            {/*
-                🎛 this scaffolding is full of commonly used components
-                this <Contract/> component will automatically parse your ABI
-                and give you a form to interact with it locally
-            */}
-
-            <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
-              <List
-                bordered
-                dataSource={contractCollectibles}
-                renderItem={item => {
-                  const id = item.id.toNumber();
-                  return (
-                    <List.Item key={id + "_" + item.uri + "_" + item.owner}>
-                      <Card
-                        title={
-                          <div>
-                            <span style={{ fontSize: 16, marginRight: 8 }}>#{id}</span> {item.name}
-                          </div>
-                        }
-                      >
-                        <div>
-                          <img src={item.image} style={{ maxWidth: 150 }} />
-                        </div>
-                        <div>{item.description}</div>
-                      </Card>
-
-                      <div>
-                        owner:{" "}
-                        <Address
-                          address={item.owner}
-                          ensProvider={mainnetProvider}
-                          blockExplorer={blockExplorer}
-                          fontSize={16}
-                        />
-                        <AddressInput
-                          ensProvider={mainnetProvider}
-                          placeholder="approve address"
-                          value={approveAddresses[id]}
-                          onChange={newValue => {
-                            const update = {};
-                            update[id] = newValue;
-                            setApproveAddresses({ ...approveAddresses, ...update });
-                          }}
-                        />
-                        <Button
-                          onClick={() => {
-                            console.log("writeContracts", writeContracts);
-                            console.log(
-                                approveAddresses[id],
-                                writeContracts.YourCollectible.address,
-                                id,
-
-                            )
-                            tx(
-                              writeContracts.NFTHolder.approve(
-                                approveAddresses[id],
-                                writeContracts.YourCollectible.address,
-                                id,
-                              ),
-                            );
-                          }}
-                        >
-                          Approve as contract
-                        </Button>
-                        <SellAsContract
+          <Route path="/mint">
+            <div style={{ paddingTop: 32, width: 740, margin: "auto" }}>
+                        <Mint
+                      ensProvider={mainnetProvider}
                           provider={userProvider}
-                          accountAddress={address}
-                          ERC721Address={writeContracts.YourCollectible.address}
-                          tokenId={id}
                           writeContracts={writeContracts}
-                        ></SellAsContract>
-                      </div>
-                    </List.Item>
-                  );
-                }}
-              />
+                        ></Mint>
             </div>
+
           </Route>
 
           <Route path="/rarible">
@@ -850,7 +742,7 @@ function App(props) {
             </div>
             <Button
               style={{ margin: 8 }}
-              loading={sending}
+              loading={downloading}
               size="large"
               shape="round"
               type="primary"

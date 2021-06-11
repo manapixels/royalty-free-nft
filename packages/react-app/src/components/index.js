@@ -17,4 +17,4 @@ export { default as Timeline } from "./Timeline";
 export { default as TokenBalance } from "./TokenBalance";
 export { default as Wallet } from "./Wallet";
 export { default as Sell } from "./Sell";
-export { default as SellAsContract } from "./SellAsContract";
+export { default as Mint } from "./Mint";
