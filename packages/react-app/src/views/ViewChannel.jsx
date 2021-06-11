@@ -159,6 +159,7 @@ const TeacherView = ({ readContracts, writeContracts, session, id, timeLeft, use
 
 const ViewChannel = props => {
   const { tx, writeContracts, readContracts, mainnetProvider, address } = props;
+  const [bestSig, setBestSig] = useState(null);
 
   const { id } = useParams();
   const [session, setSession] = useState(null);
@@ -167,6 +168,10 @@ const ViewChannel = props => {
   usePoller(async () => {
     if (readContracts) {
       const currentSession = await readContracts.MVPC.getSession(id);
+      const { data } = await axios.get("http://127.0.0.1:8001/sig/" + id);
+      if (data && (!bestSig || bestSig.value < data.value)) {
+        setBestSig(data);
+      }
       setSession(currentSession);
     }
   }, 1337);
@@ -177,7 +182,7 @@ const ViewChannel = props => {
 
   const withdrawRemainder = () => {
     if (writeContracts) {
-      tx(writeContracts.MVPC.withdraw(address, parseEther(remainder.toString()), "0x0000000000000000000000000000000000000000000000000000000000000000"));
+      tx(writeContracts.MVPC.withdraw(address, bestSig.id));
     }
   };
 
@@ -199,7 +204,7 @@ const ViewChannel = props => {
             <>
               <b>Remainder: </b>
               {remainder}
-              <Button style={{ marginTop: 7 }} onClick={withdrawRemainder} disabled={session.status != 2}>
+              <Button style={{ marginTop: 7 }} onClick={withdrawRemainder} disabled={session.status == 2 }>
                Withdraw
               </Button>
             </>

@@ -95,6 +95,7 @@ contract MVPC {
       remainder[sessions[id].owner] += smallestValue - value;
       smallestValue = value;
     }
+    sessions[optionalId].stake -= smallestValue;
     //send the smallestValue to the destination
     sessions[id].destination.transfer(smallestValue);
     //emit event to let the frontend know
@@ -117,7 +118,7 @@ contract MVPC {
   }
 
   //let the signer withdraw remainders (and optionally close timed out sessions)
-  function withdraw(address payable toAddress,uint256 amount,bytes32 optionalId) public {
+  function withdraw(address payable toAddress,bytes32 optionalId) public {
     //if there is an open session at optionalId past the timeout, close it
     if(optionalId!=0){
       //session must still be open
@@ -131,14 +132,10 @@ contract MVPC {
       //add any remainder for the owner if they have it and have requested it
       remainder[sessions[optionalId].owner] += sessions[optionalId].stake;
     }
-    //make sure they have this much
-    require(amount<=remainder[msg.sender],"MVPC::withdraw: not enough remainder");
-    //subtract amount first
-    remainder[msg.sender]-=amount;
     //then send amount totoAddress
-    toAddress.transfer(amount);
+    toAddress.transfer(remainder[sessions[optionalId].owner]);
     //emit event to let the frontend know
-    emit Withdraw(toAddress,amount,optionalId);
+    emit Withdraw(toAddress,remainder[sessions[optionalId].owner],optionalId);
   }
   event Withdraw(address toAddress,uint256 amount,bytes32 optionalId);
 
