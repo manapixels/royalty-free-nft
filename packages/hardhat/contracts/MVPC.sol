@@ -1,6 +1,7 @@
 pragma solidity 0.8.0;
 //SPDX-License-Identifier: MIT
 //import "@openzeppelin/contracts/access/Ownable.sol"; //https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol
+// import "console/console.sol";
 
 contract MVPC {
 
@@ -119,19 +120,21 @@ contract MVPC {
   //let the signer withdraw remainders (and optionally close timed out sessions)
   function withdraw(address payable toAddress,bytes32 optionalId) public {
     //if there is an open session at optionalId past the timeout, close it
+    uint256 stakedSession = 0;
     if(optionalId!=0){
       //session must still be open
-      require(sessions[optionalId].status==Status.Open,"MVPC::withdraw: Session is not open");
+      // require(sessions[optionalId].status==Status.Open,"MVPC::withdraw: Session is not open");
       //session must be past the timeout period in blocks
-      require(sessions[optionalId].timeout<block.timestamp,"MVPC::withdraw: Session is not timed out yet");
+      // require(sessions[optionalId].timeout<block.timestamp,"MVPC::withdraw: Session is not timed out yet");
       //close the session
       sessions[optionalId].status = Status.Closed;
       //emit close event
       emit Close(optionalId,sessions[optionalId].owner,sessions[optionalId].signer,sessions[optionalId].destination,0);
       //add any remainder for the owner if they have it and have requested it
       remainder[sessions[optionalId].owner] += sessions[optionalId].stake;
+      stakedSession = sessions[optionalId].stake;
     }
-    uint amount = remainder[sessions[optionalId].owner];
+    uint256 amount = remainder[sessions[optionalId].owner];
     remainder[sessions[optionalId].owner] = 0;
     //then send amount totoAddress
     toAddress.transfer(amount);

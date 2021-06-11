@@ -11,7 +11,7 @@ import { usePoller } from "../hooks";
 
 const SEND_SIG_EVERY = 15;
 
-const StudentView = ({ readContracts, id, userProvider, address, deadlinePassed, session }) => {
+const StudentView = ({ tx, writeContracts, readContracts, id, userProvider, address, deadlinePassed, session }) => {
   const [ownerMode, setOwnerMode] = useState(0);
   const [rate, setRate] = useState(null);
   const lastMessage = useRef(null);
@@ -71,6 +71,10 @@ const StudentView = ({ readContracts, id, userProvider, address, deadlinePassed,
     return () => {};
   }, [ownerMode, deadlinePassed, fetched]);
 
+  const withdrawAndClose = async () => {
+    tx(writeContracts.MVPC.withdraw(address, id));
+  };
+
   if (!fetched) {
     return <>Fetching..</>;
   }
@@ -89,9 +93,12 @@ const StudentView = ({ readContracts, id, userProvider, address, deadlinePassed,
               Sending {((rate * SEND_SIG_EVERY) / 60).toFixed(2)} ETH each {SEND_SIG_EVERY} seconds.
               <br />
               Meanwhile, your teacher can claim {lastMessage.current ? lastMessage.current.value.toFixed(2) : 0} ETH.
+              <br />
             </>
           ) : (
-            <>Deadline is passed. Your teacher can no longet close the channel and claim is no longer increased.</>
+            <div>
+              <p>Deadline is passed. Your teacher can no longer close the channel and claim is no longer increased.</p>
+            </div>
           )}
         </div>
       ) : (
@@ -109,6 +116,9 @@ const StudentView = ({ readContracts, id, userProvider, address, deadlinePassed,
           )}
         </div>
       )}
+      <Button style={{ marginTop: 10 }} onClick={withdrawAndClose}>
+        Withdraw remainder {session.status === 1 ? " and close channel" : ""}
+      </Button>
     </div>
   );
 };
@@ -158,12 +168,11 @@ const TeacherView = ({ readContracts, writeContracts, session, id, timeLeft, use
 };
 
 const ViewChannel = props => {
-  const { tx, writeContracts, readContracts, mainnetProvider, address } = props;
+  const { readContracts, mainnetProvider, address } = props;
   const [bestSig, setBestSig] = useState(null);
 
   const { id } = useParams();
   const [session, setSession] = useState(null);
-  const [remainder, setRemainder] = useState(0.0);
 
   usePoller(async () => {
     if (readContracts) {
@@ -180,36 +189,9 @@ const ViewChannel = props => {
     return session ? Math.max(session.timeout - Date.now() / 1000, 0).toFixed(2) : 0;
   }, [session]);
 
-  const withdrawRemainder = () => {
-    if (writeContracts) {
-      tx(writeContracts.MVPC.withdraw(address, bestSig.id));
-    }
-  };
-
-  useEffect(() => {
-    const fetchRemainder = async () => {
-      if (readContracts) {
-        const rem = await readContracts.MVPC.getRemainder(address);
-        setRemainder(formatEther(rem));
-      }
-    };
-    if (session && address === session.owner) fetchRemainder();
-  }, [timeLeft]);
-
   return session ? (
     <div>
       <Card>
-        <div>
-          {address === session.owner ? (
-            <>
-              <b>Remainder: </b>
-              {remainder}
-              <Button style={{ marginTop: 7 }} onClick={withdrawRemainder} disabled={session.status == 2 }>
-               Withdraw
-              </Button>
-            </>
-          ) : (<p></p>)}
-        </div>
         <p>
           <b>Channel status: </b>
           {session.status === 1 ? "Opened" : "Closed"}
