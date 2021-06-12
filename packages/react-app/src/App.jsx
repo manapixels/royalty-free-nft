@@ -21,6 +21,7 @@ import {
   ThemeSwitch,
   Sell,
   Mint,
+  RaribleItemIndexer,
 } from "./components";
 import { DAI_ABI, DAI_ADDRESS, INFURA_ID, NETWORK, NETWORKS, RINKEBY_NFT_HOLDER_ADDRESS } from "./constants";
 import { Transactor } from "./helpers";
@@ -421,6 +422,16 @@ function App(props) {
               Mint
             </Link>
           </Menu.Item>
+          <Menu.Item key="/raribleItemIndexer">
+            <Link
+              onClick={() => {
+                setRoute("/raribleItemIndexer");
+              }}
+              to="/raribleItemIndexer"
+            >
+              Rarible Item Indexer
+            </Link>
+          </Menu.Item>
           <Menu.Item key="/rarible">
             <Link
               onClick={() => {
@@ -566,6 +577,17 @@ function App(props) {
                           provider={userProvider}
                           writeContracts={writeContracts}
                         ></Mint>
+            </div>
+
+          </Route>
+
+          <Route path="/raribleItemIndexer">
+            <div style={{ paddingTop: 32, width: 740, margin: "auto" }}>
+                        <RaribleItemIndexer
+                      ensProvider={mainnetProvider}
+                          provider={userProvider}
+                          writeContracts={writeContracts}
+                        ></RaribleItemIndexer>
             </div>
 
           </Route>
