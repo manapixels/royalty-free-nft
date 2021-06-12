@@ -1,7 +1,7 @@
 pragma solidity 0.8.0;
 //SPDX-License-Identifier: MIT
 //import "@openzeppelin/contracts/access/Ownable.sol"; //https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol
-// import "console/console.sol";
+import "hardhat/console.sol";
 
 contract MVPC {
 
@@ -30,11 +30,6 @@ contract MVPC {
     return sessions[id].status;
   }
   //keep track of leftover funds
-  mapping (address => uint256) public remainder;
-
-  function getRemainder(address signer) public view returns (uint256) {
-    return remainder[signer];
-  }
 
   function getSession(bytes32 id) public view returns (Session memory) {
     Session memory session = sessions[id];
@@ -42,18 +37,13 @@ contract MVPC {
   }
 
   //signer can open a session by sending some ETH
-  function open(address signer, address payable destination, uint256 timeout, uint256 addRemainder) public payable {
+  function open(address signer, address payable destination, uint256 timeout) public payable {
     //generate a unique id for the stake
-    bytes32 id = keccak256(abi.encodePacked(address(this),signer,destination,timeout,addRemainder,nonce[signer]++));
+    bytes32 id = keccak256(abi.encodePacked(address(this),signer,destination,timeout,nonce[signer]++));
     //make sure this stake doesn't already exist
     require(sessions[id].status==Status.Null,"MVPC::open: Session already exists");
     //you can use remainder funds from previous sessions
     uint256 value = msg.value;
-    if(addRemainder>0){
-      require(addRemainder<=remainder[msg.sender],"MVPC::open: not enough remainder");
-      remainder[msg.sender]-=addRemainder;
-      value+=addRemainder;
-    }
     //create session and open it
     sessions[id] = Session({
       status: Status.Open,
@@ -64,9 +54,9 @@ contract MVPC {
       stake: value
     });
     //emit event to let the frontend know
-    emit Open(id,msg.sender,signer,destination,timeout,addRemainder,value);
+    emit Open(id,msg.sender,signer,destination,timeout,value);
   }
-  event Open(bytes32 id, address indexed owner, address indexed signer, address payable indexed destination, uint256 timeout, uint256 addRemainder, uint256 amount);
+  event Open(bytes32 id, address indexed owner, address indexed signer, address payable indexed destination, uint256 timeout, uint256 amount);
 
   //offchain function to get the hash to make less work in the frontend
   function getHash(bytes32 id, uint256 value) public view returns (bytes32) {
@@ -91,13 +81,8 @@ contract MVPC {
     sessions[id].status = Status.Closed;
     //never send more than the max amount entered
     uint256 smallestValue = sessions[id].stake;
-    //add any remainder for the owner if they have it and have requested it
-    if(smallestValue>value){
-      remainder[sessions[id].owner] += smallestValue - value;
-      smallestValue = value;
-    }
-    //send the smallestValue to the destination
-    sessions[id].destination.transfer(smallestValue);
+    sessions[id].destination.transfer(value);
+    payable(sessions[id].owner).transfer(smallestValue - value);
     //emit event to let the frontend know
     emit Close(id,sessions[id].owner,sessions[id].signer,sessions[id].destination,smallestValue);
   }
@@ -118,30 +103,17 @@ contract MVPC {
   }
 
   //let the signer withdraw remainders (and optionally close timed out sessions)
-  function withdraw(address payable toAddress,bytes32 optionalId) public {
-    //if there is an open session at optionalId past the timeout, close it
-    uint256 stakedSession = 0;
-    if(optionalId!=0){
-      //session must still be open
-      // require(sessions[optionalId].status==Status.Open,"MVPC::withdraw: Session is not open");
-      //session must be past the timeout period in blocks
-      // require(sessions[optionalId].timeout<block.timestamp,"MVPC::withdraw: Session is not timed out yet");
-      //close the session
-      sessions[optionalId].status = Status.Closed;
-      //emit close event
-      emit Close(optionalId,sessions[optionalId].owner,sessions[optionalId].signer,sessions[optionalId].destination,0);
-      //add any remainder for the owner if they have it and have requested it
-      remainder[sessions[optionalId].owner] += sessions[optionalId].stake;
-      stakedSession = sessions[optionalId].stake;
-    }
-    uint256 amount = remainder[sessions[optionalId].owner];
-    remainder[sessions[optionalId].owner] = 0;
+  function withdraw(bytes32 optionalId) public {
+    require(sessions[optionalId].status == Status.Open, "Session is closed already");
+    require(msg.sender == sessions[optionalId].owner, "Only owner can withdraw");
+    sessions[optionalId].status = Status.Closed;
+    emit Close(optionalId,sessions[optionalId].owner,sessions[optionalId].signer,sessions[optionalId].destination,0);
     //then send amount totoAddress
-    toAddress.transfer(amount);
+    payable(msg.sender).transfer(sessions[optionalId].stake);
     //emit event to let the frontend know
-    emit Withdraw(toAddress,amount,optionalId);
+    emit Withdraw(sessions[optionalId].stake,optionalId);
   }
-  event Withdraw(address toAddress,uint256 amount,bytes32 optionalId);
+  event Withdraw(uint256 amount,bytes32 optionalId);
 
 
   function getSigner(bytes32 _hash, bytes memory _signature) internal pure returns (address){

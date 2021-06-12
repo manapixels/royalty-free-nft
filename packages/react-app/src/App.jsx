@@ -246,15 +246,13 @@ function App(props) {
   const [teacher, setTeacher] = useState("");
   const [duration, setDuration] = useState(null);
 
-  const remainder = useContractReader(readContracts, "MVPC", "getRemainder", [address]);
-
   const [channels, setChannels] = useState(null);
   const openEvents = useEventListener(readContracts, "MVPC", "Open", localProvider, 1);
   const closeEvents = useEventListener(readContracts, "MVPC", "Close", localProvider, 1);
 
   const createChannel = async () => {
     tx(
-      writeContracts.MVPC.open(address, teacher, duration, remainder, {
+      writeContracts.MVPC.open(address, teacher, duration, {
         value: parseEther(payment.toString()),
       }),
     );

@@ -72,7 +72,7 @@ const StudentView = ({ tx, writeContracts, readContracts, id, userProvider, addr
   }, [ownerMode, deadlinePassed, fetched]);
 
   const withdrawAndClose = async () => {
-    tx(writeContracts.MVPC.withdraw(address, id));
+    tx(writeContracts.MVPC.withdraw(id));
   };
 
   if (!fetched) {
@@ -116,9 +116,11 @@ const StudentView = ({ tx, writeContracts, readContracts, id, userProvider, addr
           )}
         </div>
       )}
-      <Button style={{ marginTop: 10 }} onClick={withdrawAndClose}>
-        Withdraw remainder {session.status === 1 ? " and close channel" : ""}
-      </Button>
+      {session.status === 1 && (
+        <Button style={{ marginTop: 10 }} onClick={withdrawAndClose}>
+          Withdraw stake and close channel
+        </Button>
+      )}
     </div>
   );
 };
@@ -186,6 +188,7 @@ const ViewChannel = props => {
   }, 1337);
 
   const timeLeft = useMemo(() => {
+    if (session && session.status === 0) return 0;
     return session ? Math.max(session.timeout - Date.now() / 1000, 0).toFixed(2) : 0;
   }, [session]);
 
