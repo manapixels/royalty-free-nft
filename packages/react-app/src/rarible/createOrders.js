@@ -14,7 +14,7 @@ async function prepareOrderMessage(form) {
   });
   const resJson = await res.json();
   console.log({ resJson });
-  return resJson;
+  return resJson.signMessage;
 }
 
 function createERC721ForEthOrder(maker, contract, tokenId, price, salt) {
@@ -73,6 +73,7 @@ function createEthForERC721Order(maker, contract, tokenId, price, salt) {
 export const createSellOrder = async (type, provider, params) => {
   let order;
   let signature;
+  console.log({params})
   switch (type) {
     case "MAKE_ERC721_TAKE_ETH":
       order = createERC721ForEthOrder(
@@ -84,7 +85,8 @@ export const createSellOrder = async (type, provider, params) => {
       );
       console.log({ order });
       const preparedOrder = await prepareOrderMessage(order);
-      signature = await sign(provider, preparedOrder, params.accountAddress, params.exchangeContract);
+      console.log({preparedOrder})
+      signature = await sign(provider, preparedOrder, params.accountAddress);
 
       break;
 
@@ -129,7 +131,7 @@ export const createSellOrderAsContract = async (type, provider, params, writeCon
       );
       console.log({ order });
       const preparedOrder = await prepareOrderMessage(order);
-      msgHash = await getMessageHash(provider, preparedOrder, params.accountAddress, params.exchangeContract);
+      msgHash = await getMessageHash(preparedOrder);
       console.log({ msgHash });
 
       break;
