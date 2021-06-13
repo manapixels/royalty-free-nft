@@ -681,8 +681,8 @@ function App(props) {
                           const msgValue = parseEther("1.1")
                           console.log({msgValue})
 
-                          // await writeContracts.ExchangeV2.matchOrders(preparedOrder, "0x00", preparedSellOrder, item.signature, {value: msgValue}).catch(console.log)
-                          await writeContracts.ExchangeV2.matchOrders(preparedOrder.struct, "0x00", preparedSellOrder.struct, item.signature).catch(console.log)
+                          await writeContracts.ExchangeV2.matchOrders(preparedOrder.struct, "0x00", preparedSellOrder.struct, item.signature, {value: msgValue}).catch(console.log)
+                          // await writeContracts.ExchangeV2.matchOrders(preparedOrder.struct, "0x00", preparedSellOrder.struct, item.signature).catch(console.log)
 
                         }
                         }
