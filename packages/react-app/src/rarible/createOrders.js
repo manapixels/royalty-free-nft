@@ -200,4 +200,23 @@ export const matchSellOrder = async (sellOrder, params) => {
   return {preparedOrder, preparedSellOrder};
 };
 
+export async function prepareMatchingOrder(sellOrder, accountAddress) {
+  const rariblePrepareTxUrl = `https://api-dev.rarible.com/protocol/v0.1/ethereum/order/orders/${sellOrder.hash}/prepareTx`
+  const res = await fetch(rariblePrepareTxUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      maker: accountAddress,
+      amount: 1,
+      payouts: [],
+      originFees: []
+    }),
+  });
+  const resJson = await res.json();
+  console.log({ resJson });
+  return resJson;
+}
+
 export const matchOrder = async (provider, order) => {};

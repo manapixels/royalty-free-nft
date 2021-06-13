@@ -37,7 +37,7 @@ import {
   useOnBlock,
   useUserProvider,
 } from "./hooks";
-import { matchSellOrder } from "./rarible/createOrders";
+import { matchSellOrder, prepareMatchingOrder } from "./rarible/createOrders";
 
 const { BufferList } = require("bl");
 // https://www.npmjs.com/package/ipfs-http-client
@@ -697,18 +697,25 @@ function App(props) {
                       </div>
                       <Button
                         onClick={async () =>{
-                          const {preparedOrder, preparedSellOrder} = await matchSellOrder(item, {
-                            accountAddress: address
-                          })
-                          console.log({preparedOrder})
-                          console.log({preparedSellOrder})
-                          console.log({item})
-                          const msgValue = parseEther("1.5")
-                          // const msgValue = preparedOrder.struct.makeAsset.value
-                          console.log({msgValue})
+                          // const {preparedOrder, preparedSellOrder} = await matchSellOrder(item, {
+                          //   accountAddress: address
+                          // })
+                          // console.log({preparedOrder})
+                          // console.log({preparedSellOrder})
+                          // console.log({item})
+                          // const msgValue = parseEther("1.5")
+                          // // const msgValue = preparedOrder.struct.makeAsset.value
+                          // console.log({msgValue})
 
-                          await writeContracts.ExchangeV2.matchOrders(preparedOrder.struct, "0x00", preparedSellOrder.struct, item.signature, {value: msgValue}).catch(console.log)
-                          // await writeContracts.ExchangeV2.matchOrders(preparedOrder.struct, "0x00", preparedSellOrder.struct, item.signature).catch(console.log)
+                          // await writeContracts.ExchangeV2.matchOrders(preparedOrder.struct, "0x00", preparedSellOrder.struct, item.signature, {value: msgValue}).catch(console.log)
+                          // // await writeContracts.ExchangeV2.matchOrders(preparedOrder.struct, "0x00", preparedSellOrder.struct, item.signature).catch(console.log)
+                          
+                          const preparedTransaction = await prepareMatchingOrder(item, address)
+                          console.log({preparedTransaction})
+                          // tx(userProvider.sendTransaction({to: preparedTransaction.transaction.to, data: preparedTransaction.transaction.data, value: msgValue}))
+                          // tx(userProvider.sendTransaction({to: preparedTransaction.transaction.to, data: preparedTransaction.transaction.data}))
+                          const signer = userProvider.getSigner()
+                          tx(signer.sendTransaction({to: preparedTransaction.transaction.to, from: address, data: preparedTransaction.transaction.data, value: parseEther("1")}))
 
                         }
                         }
