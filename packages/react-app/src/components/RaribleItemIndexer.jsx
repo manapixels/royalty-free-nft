@@ -1,14 +1,16 @@
 import React from "react";
 import { Button, Input, List, Card } from "antd";
-import {AddressInput} from '.'
+import {AddressInput, Sell} from '.'
 
 export default function RaribleItemIndexer(props) {
   const [collectionContract, setCollectionContract] = React.useState();
+  const [approveAddress, setApproveAddress] = React.useState();
   const [tokenId, setTokenId] = React.useState();
   const [downloading, setDownloading] = React.useState();
   const [items, setItems] = React.useState();
   console.log({writeContracts: props.writeContracts})
   const writeContracts = props.writeContracts
+  const tx = props.tx
   return (
     <div>
             <div style={{ paddingTop: 32, width: 740, margin: "auto" }}>
@@ -75,6 +77,32 @@ export default function RaribleItemIndexer(props) {
                           <p>description: {item.description}</p>
                         </div>
                       </Card>
+                      <div>
+                        <AddressInput
+                          ensProvider={props.ensProvider}
+                          placeholder="approve address"
+                          value={approveAddress}
+                          onChange={newValue => {
+                            setApproveAddress(newValue);
+                          }}
+                        />
+                        <Button
+                          onClick={() => {
+                            console.log("writeContracts", writeContracts);
+                            const thisERC721Rarible = writeContracts.ERC721Rarible.attach(collectionContract)
+                            tx(thisERC721Rarible.setApprovalForAll(approveAddress, true));
+                          }}
+                        >
+                          Approve
+                        </Button>
+
+                        <Sell
+                          provider={props.provider}
+                          accountAddress={props.accountAddress}
+                          ERC721Address={collectionContract}
+                          tokenId={tokenId}
+                        ></Sell>
+                      </div>
                     </List.Item>
                   );
                 }}

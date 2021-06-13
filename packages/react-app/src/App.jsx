@@ -21,6 +21,7 @@ import {
   ThemeSwitch,
   Sell,
   Mint,
+  LazyMint,
   RaribleItemIndexer,
 } from "./components";
 import { DAI_ABI, DAI_ADDRESS, INFURA_ID, NETWORK, NETWORKS, RINKEBY_NFT_HOLDER_ADDRESS } from "./constants";
@@ -422,6 +423,16 @@ function App(props) {
               Mint
             </Link>
           </Menu.Item>
+          <Menu.Item key="/lazyMint">
+            <Link
+              onClick={() => {
+                setRoute("/lazyMint");
+              }}
+              to="/lazyMint"
+            >
+              Lazy Mint
+            </Link>
+          </Menu.Item>
           <Menu.Item key="/raribleItemIndexer">
             <Link
               onClick={() => {
@@ -580,13 +591,25 @@ function App(props) {
             </div>
 
           </Route>
+          <Route path="/lazyMint">
+            <div style={{ paddingTop: 32, width: 740, margin: "auto" }}>
+                        <LazyMint
+                          ensProvider={mainnetProvider}
+                          provider={userProvider}
+                          accountAddress={address}
+                        ></LazyMint>
+            </div>
+
+          </Route>
 
           <Route path="/raribleItemIndexer">
             <div style={{ paddingTop: 32, width: 740, margin: "auto" }}>
                         <RaribleItemIndexer
-                      ensProvider={mainnetProvider}
+                          ensProvider={mainnetProvider}
+                          tx={tx}
                           provider={userProvider}
                           writeContracts={writeContracts}
+                          accountAddress={address}
                         ></RaribleItemIndexer>
             </div>
 
@@ -678,7 +701,8 @@ function App(props) {
                           console.log({preparedOrder})
                           console.log({preparedSellOrder})
                           console.log({item})
-                          const msgValue = parseEther("1.1")
+                          const msgValue = parseEther("1.5")
+                          // const msgValue = preparedOrder.struct.makeAsset.value
                           console.log({msgValue})
 
                           await writeContracts.ExchangeV2.matchOrders(preparedOrder.struct, "0x00", preparedSellOrder.struct, item.signature, {value: msgValue}).catch(console.log)
