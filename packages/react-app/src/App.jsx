@@ -636,9 +636,15 @@ function App(props) {
               shape="round"
               type="primary"
               onClick={async () => {
-                const getSellOrdersByItemUrl = `https://api-staging.rarible.com/protocol/v0.1/ethereum/order/orders/sell/byItem?contract=${collectionContract}&tokenId=${tokenId}&sort=LAST_UPDATE`;
                 setDownloading(true);
-                const sellOrderResult = await fetch(getSellOrdersByItemUrl);
+                let sellOrderResult
+                if (tokenId) {
+                const getSellOrdersByItemUrl = `https://api-dev.rarible.com/protocol/v0.1/ethereum/order/orders/sell/byItem?contract=${collectionContract}&tokenId=${tokenId}&sort=LAST_UPDATE`;
+                sellOrderResult = await fetch(getSellOrdersByItemUrl);
+                } else {
+                const getSellOrderByCollectionUrl = `https://api-dev.rarible.com/protocol/v0.1/ethereum/order/orders/sell/byCollection?collection=${collectionContract}&sort=LAST_UPDATE`;
+                sellOrderResult = await fetch(getSellOrderByCollectionUrl);
+                }
                 const resultJson = await sellOrderResult.json();
                 if (resultJson && resultJson.orders) {
                   setSellOrderContent(resultJson.orders);
