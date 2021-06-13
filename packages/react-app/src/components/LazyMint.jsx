@@ -6,6 +6,7 @@ import { createLazyMint, putLazyMint } from "../rarible/createLazyMint";
 export default function LazyMint(props) {
   const [contractAddress, setContractAddress] = React.useState();
   const [ipfsHash, setIpfsHash] = React.useState();
+  const [tokenId, setTokenId] = React.useState();
   const [sending, setSending] = React.useState();
   console.log({writeContracts: props.writeContracts})
   return (
@@ -16,6 +17,13 @@ export default function LazyMint(props) {
         value={contractAddress}
         onChange={newValue => {
           setContractAddress(newValue);
+        }}
+      />
+      <Input
+        value={tokenId}
+        placeholder="Token ID"
+        onChange={e => {
+          setTokenId(e.target.value);
         }}
       />
       <Input
@@ -34,7 +42,7 @@ export default function LazyMint(props) {
         onClick={async () => {
           setSending(true);
           console.log("sending");
-          const form = await createLazyMint(props.provider, contractAddress, props.accountAddress, ipfsHash)
+          const form = await createLazyMint(tokenId, props.provider, contractAddress, props.accountAddress, ipfsHash)
           await putLazyMint(form)
           setSending(false);
         }}

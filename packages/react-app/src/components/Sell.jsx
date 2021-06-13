@@ -1,7 +1,6 @@
 import React from "react";
 import { Button, Input, Tooltip } from "antd";
 import { createSellOrder} from "../rarible/createOrders";
-import { RARIBLE_EXCHANGE_RINKEBY } from "../constants";
 const { utils } = require("ethers");
 
 function handleMenuClick(e) {
@@ -55,7 +54,6 @@ export default function Sell(props) {
             onClick={() =>
               createSellOrder("MAKE_ERC721_TAKE_ETH", props.provider, {
                 accountAddress: props.accountAddress,
-                exchangeContract: RARIBLE_EXCHANGE_RINKEBY,
                 makeERC721Address: props.ERC721Address,
                 makeERC721TokenId: props.tokenId,
                 ethAmt: sellForEthValue.toString(),

@@ -24,7 +24,7 @@ import {
   LazyMint,
   RaribleItemIndexer,
 } from "./components";
-import { DAI_ABI, DAI_ADDRESS, INFURA_ID, NETWORK, NETWORKS, RINKEBY_NFT_HOLDER_ADDRESS } from "./constants";
+import { DAI_ABI, DAI_ADDRESS, INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
 import {
   useBalance,
@@ -64,7 +64,7 @@ const ipfs = ipfsAPI({ host: "ipfs.infura.io", port: "5001", protocol: "https" }
 */
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS.rinkeby; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS.ropsten; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -201,10 +201,6 @@ function App(props) {
   // keep track of a variable from the contract in the local React state:
   const balance = useContractReader(readContracts, "YourCollectible", "balanceOf", [address]);
   console.log("🤗 balance:", balance);
-  const contractBalance = useContractReader(readContracts, "YourCollectible", "balanceOf", [
-    RINKEBY_NFT_HOLDER_ADDRESS,
-  ]);
-
   // 📟 Listen for broadcast events
   const transferEvents = useEventListener(readContracts, "YourCollectible", "Transfer", localProvider, 1);
   console.log("📟 Transfer events:", transferEvents);
@@ -450,7 +446,7 @@ function App(props) {
               }}
               to="/rarible"
             >
-              Rarible
+              Rarible Order Indexer
             </Link>
           </Menu.Item>
           <Menu.Item key="/transfers">
