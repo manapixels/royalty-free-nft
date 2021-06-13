@@ -25,6 +25,9 @@
 We will show you how a Minimal Viable Payment Channel can be built and also will demonstrate how you can spin it up locally as a playground.
 We take the case of a student and teacher/mentor just to simpilify things, so basically if a student is facing a issue related to code so he can consult a teacher for a time period and create a payment channel and steam eth in the form of micro payments throught the session by just sending in signatures and the teacher can at any time within the session withdraw and close it.
 
+## Speed Run
+[![ethdenvervideo](https://user-images.githubusercontent.com/28860442/121821835-6167a600-ccbd-11eb-8171-a0da0635827a.png)]https://youtu.be/hZDbrIICBQI)
+
 ## Getting Started
 
 
