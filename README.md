@@ -34,8 +34,6 @@
 
 ---
 
-TODO video
-
 [![tutorial](https://user-images.githubusercontent.com/4401444/121973242-d1703d80-cd4a-11eb-8a6a-96b103f25ef3.jpeg)](https://youtu.be/MBj3WIj5Wzc![thumbnail])
 
 
