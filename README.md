@@ -7,6 +7,17 @@
 
 #### [ 🏃‍♀️ Quick Start ](#quick-start)
 
+#### [🖼 Minting Your Collectibles](#mint-your-collectibles)
+
+#### [🗂 Rarible Item Indexer](#rarible-item-indexer)
+
+#### [📒 Rarible Order Book](#rarible-order-book)
+
+#### [🦥 Lazy Minting](#lazy-minting)
+
+#### [💵 Selling a lazy minted item](#selling-a-lazy-minted-item)
+
+
 #### [ Built with 🏗 scaffold-eth ](#built-with-scaffold-eth)
 - [ 🎨 Nifty.ink ](https://nifty.ink) ([code](https://github.com/austintgriffith/scaffold-eth/tree/nifty-ink-dev))
 - [ 🧑‍🎤PunkWallet.io ](https://punkwallet.io/) ([code](https://github.com/austintgriffith/scaffold-eth/tree/punk-wallet))
