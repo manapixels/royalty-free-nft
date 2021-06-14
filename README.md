@@ -1,4 +1,3 @@
-![Screen Shot 2021-06-14 at 3 45 30 PM](https://user-images.githubusercontent.com/4401444/121971693-55282b00-cd47-11eb-84ad-abe74acfc6d2.png)
 # 🏗 scaffold-eth - Rarible Starter App
 
 > start building an NFT application using the Rarible Protocol! 🚀 
@@ -84,8 +83,7 @@ yarn start
 
 > *After installing*, your dev environment should look like this:
 
-
-![image](https://user-images.githubusercontent.com/2653167/109870279-24ecce80-7c27-11eb-91f3-b2c4febac118.png)
+![Screen Shot 2021-06-14 at 3 45 30 PM](https://user-images.githubusercontent.com/4401444/121971693-55282b00-cd47-11eb-84ad-abe74acfc6d2.png)
 
 > React dev server, Ropsten network, deploy terminal, code IDE, and frontend browser.
 
