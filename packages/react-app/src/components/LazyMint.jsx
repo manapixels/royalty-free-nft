@@ -1,7 +1,7 @@
 import React from "react";
-import { Button, Input, Tooltip } from "antd";
+import { Button, Input, Card } from "antd";
 import {AddressInput} from './'
-import { createLazyMint, putLazyMint } from "../rarible/createLazyMint";
+import { createLazyMint, generateTokenId, putLazyMint } from "../rarible/createLazyMint";
 
 export default function LazyMint(props) {
   const [contractAddress, setContractAddress] = React.useState();
@@ -11,21 +11,6 @@ export default function LazyMint(props) {
   console.log({writeContracts: props.writeContracts})
   return (
     <div>
-      <AddressInput
-        ensProvider={props.ensProvider}
-        placeholder="Contract Address"
-        value={contractAddress}
-        onChange={newValue => {
-          setContractAddress(newValue);
-        }}
-      />
-      <Input
-        value={tokenId}
-        placeholder="Token ID"
-        onChange={e => {
-          setTokenId(e.target.value);
-        }}
-      />
       <Input
         value={ipfsHash}
         placeholder="IPFS Hash"
@@ -40,15 +25,33 @@ export default function LazyMint(props) {
         shape="round"
         type="primary"
         onClick={async () => {
+          if (!props.writeContracts) return
           setSending(true);
+          const newTokenId = await generateTokenId(props.writeContracts.ERC721Rarible.address, props.accountAddress)
+          setTokenId(newTokenId)
+          setContractAddress(props.writeContracts.ERC721Rarible.address)
           console.log("sending");
-          const form = await createLazyMint(tokenId, props.provider, contractAddress, props.accountAddress, ipfsHash)
+          const form = await createLazyMint(newTokenId, props.provider, props.writeContracts.ERC721Rarible.address, props.accountAddress, ipfsHash)
           await putLazyMint(form)
           setSending(false);
         }}
       >
         Mint
       </Button>
+                      <Card
+                        title={
+                          <div>
+                            <span style={{ fontSize: 16, marginRight: 8 }}>Token ID: {tokenId}</span>
+                          </div>
+                        }
+                      >
+                        {/* <div>
+                          <img src={item.image} style={{ maxWidth: 150 }} />
+                        </div> */}
+                        <div>
+                          <p>Contract: {contractAddress}</p>
+                        </div>
+                      </Card>
     </div>
   );
 }

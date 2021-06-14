@@ -73,6 +73,7 @@ function createEthForERC721Order(maker, contract, tokenId, price, salt) {
 export const createSellOrder = async (type, provider, params) => {
   let order;
   let signature;
+  const salt = random(1,1000)
   console.log({params})
   switch (type) {
     case "MAKE_ERC721_TAKE_ETH":
@@ -81,7 +82,7 @@ export const createSellOrder = async (type, provider, params) => {
         params.makeERC721Address,
         params.makeERC721TokenId,
         params.ethAmt,
-        params.salt,
+        salt
       );
       console.log({ order });
       const preparedOrder = await prepareOrderMessage(order);
@@ -103,75 +104,6 @@ export const createSellOrder = async (type, provider, params) => {
     body: JSON.stringify({
       ...order,
       signature,
-    }),
-  });
-  console.log({ raribleOrderResult });
-};
-
-/*
-  MAKE_ERC721_TAKE_ETH params
-  - accountAddress
-  - exchangeContract
-  - makeERC721Address
-  - makeERC721TokenId
-  - ethAmt
-*/
-export const createSellOrderAsContract = async (type, provider, params, writeContracts) => {
-  let order;
-  let msgHash;
-  const magicValue = "0x1626ba7e";
-  switch (type) {
-    case "MAKE_ERC721_TAKE_ETH":
-      order = createERC721ForEthOrder(
-        params.accountAddress,
-        params.makeERC721Address,
-        params.makeERC721TokenId,
-        params.ethAmt,
-        params.salt,
-      );
-      console.log({ order });
-      const preparedOrder = await prepareOrderMessage(order);
-      msgHash = await getMessageHash(preparedOrder);
-      console.log({ msgHash });
-
-      break;
-
-    default:
-      break;
-  }
-
-  console.log({ params });
-  const signatureHash = utils.solidityKeccak256(["bytes"], [params.signature]);
-
-  await writeContracts.NFTHolder.setFakeSignature(msgHash, signatureHash, magicValue, params.proposalId);
-};
-
-export const sendOrderToRarible = async (type, params) => {
-  let order;
-  switch (type) {
-    case "MAKE_ERC721_TAKE_ETH":
-      order = createERC721ForEthOrder(
-        params.accountAddress,
-        params.makeERC721Address,
-        params.makeERC721TokenId,
-        params.ethAmt,
-        params.salt,
-      );
-      console.log({ order });
-      break;
-
-    default:
-      break;
-  }
-  const raribleOrderUrl = "https://api-dev.rarible.com/protocol/v0.1/ethereum/order/orders";
-  const raribleOrderResult = await fetch(raribleOrderUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      ...order,
-      signature: params.signature,
     }),
   });
   console.log({ raribleOrderResult });

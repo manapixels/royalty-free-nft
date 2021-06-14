@@ -3,14 +3,9 @@ import { Button, Input, Tooltip } from "antd";
 import { createSellOrder} from "../rarible/createOrders";
 const { utils } = require("ethers");
 
-function handleMenuClick(e) {
-  console.log("click", e);
-}
-
 export default function Sell(props) {
   const [sellState, setSellState] = React.useState();
   const [sellForEthValue, setSellForEthValue] = React.useState();
-  const [salt, setSalt] = React.useState();
   const buttons = (
     <Tooltip placement="right" title="* 10 ** 18">
       <div
@@ -30,7 +25,6 @@ export default function Sell(props) {
   );
   return (
     <div>
-      <Button onClick={() => setSellState("YERC")}>Sell for YERC</Button>
       <Button onClick={() => setSellState("ETH")}>Sell for ETH</Button>
 
       {(sellState && sellState === "ETH" && (
@@ -43,13 +37,6 @@ export default function Sell(props) {
             }}
             suffix={buttons}
           />
-          <Input
-            value={salt}
-            placeholder="Salt... 0-10000"
-            onChange={e => {
-              setSalt(e.target.value);
-            }}
-          />
           <Button
             onClick={() =>
               createSellOrder("MAKE_ERC721_TAKE_ETH", props.provider, {
@@ -57,7 +44,6 @@ export default function Sell(props) {
                 makeERC721Address: props.ERC721Address,
                 makeERC721TokenId: props.tokenId,
                 ethAmt: sellForEthValue.toString(),
-                salt: salt.toString(),
               })
             }
           >

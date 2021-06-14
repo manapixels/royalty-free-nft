@@ -1,5 +1,6 @@
 import { StaticJsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import { formatEther, parseEther } from "@ethersproject/units";
+import { BigNumber } from "@ethersproject/bignumber";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { Alert, Button, Card, Col, Input, List, Menu, Row } from "antd";
 import "antd/dist/antd.css";
@@ -592,6 +593,9 @@ function App(props) {
                         <LazyMint
                           ensProvider={mainnetProvider}
                           provider={userProvider}
+                          // contractAddress={writeContracts.ERC721Rarible.address}
+                          // contractAddress={writeContracts.YourCollectible.address}
+                          writeContracts={writeContracts}
                           accountAddress={address}
                         ></LazyMint>
             </div>
@@ -669,7 +673,7 @@ function App(props) {
                       <Card
                         title={
                           <div>
-                            <span style={{ fontSize: 16, marginRight: 8 }}>#{id}</span>
+                            <span style={{ fontSize: 16, marginRight: 8 }}>{item.type}</span>
                           </div>
                         }
                       >
@@ -686,36 +690,16 @@ function App(props) {
                         </div>
                       </Card>
 
-                      <div>
-                        maker:{" "}
-                        <Address
-                          address={item.maker}
-                          ensProvider={mainnetProvider}
-                          blockExplorer={blockExplorer}
-                          fontSize={16}
-                        />
-                      </div>
                       <Button
                         onClick={async () =>{
-                          // const {preparedOrder, preparedSellOrder} = await matchSellOrder(item, {
-                          //   accountAddress: address
-                          // })
-                          // console.log({preparedOrder})
-                          // console.log({preparedSellOrder})
-                          // console.log({item})
-                          // const msgValue = parseEther("1.5")
-                          // // const msgValue = preparedOrder.struct.makeAsset.value
-                          // console.log({msgValue})
-
-                          // await writeContracts.ExchangeV2.matchOrders(preparedOrder.struct, "0x00", preparedSellOrder.struct, item.signature, {value: msgValue}).catch(console.log)
-                          // // await writeContracts.ExchangeV2.matchOrders(preparedOrder.struct, "0x00", preparedSellOrder.struct, item.signature).catch(console.log)
-                          
                           const preparedTransaction = await prepareMatchingOrder(item, address)
                           console.log({preparedTransaction})
-                          // tx(userProvider.sendTransaction({to: preparedTransaction.transaction.to, data: preparedTransaction.transaction.data, value: msgValue}))
-                          // tx(userProvider.sendTransaction({to: preparedTransaction.transaction.to, data: preparedTransaction.transaction.data}))
+                          const value = preparedTransaction.asset.value
+                          const valueBN = BigNumber.from(value)
+                          const safeValue = valueBN.add(100)
+                          console.log({safeValue})
                           const signer = userProvider.getSigner()
-                          tx(signer.sendTransaction({to: preparedTransaction.transaction.to, from: address, data: preparedTransaction.transaction.data, value: parseEther("1")}))
+                          tx(signer.sendTransaction({to: preparedTransaction.transaction.to, from: address, data: preparedTransaction.transaction.data, value: safeValue}))
 
                         }
                         }

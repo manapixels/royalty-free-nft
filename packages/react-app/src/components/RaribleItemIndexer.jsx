@@ -36,18 +36,12 @@ export default function RaribleItemIndexer(props) {
         shape="round"
         type="primary"
         onClick={async () => {
-                const getItemByIdUrl = `https://api-dev.rarible.com/protocol/v0.1/ethereum/nft/items/${collectionContract}:${tokenId}`;
                 const getItemMetaByIdUrl = `https://api-dev.rarible.com/protocol/v0.1/ethereum/nft/items/${collectionContract}:${tokenId}/meta`;
                 setDownloading(true);
-                const getItemResult = await fetch(getItemByIdUrl);
-                const resultJson = await getItemResult.json();
                 const getItemMetaResult = await fetch(getItemMetaByIdUrl);
                 const metaResultJson = await getItemMetaResult.json();
-                console.log({resultJson})
-                console.log({metaResultJson})
-                if (resultJson) {
-                  setItems([{id: `${collectionContract}:${tokenId}`, name: metaResultJson.name, description: metaResultJson.description}])
-                  // setItems([resultJson])
+                if (metaResultJson) {
+                  setItems([{id: `${collectionContract}:${tokenId}`, name: metaResultJson.name, description: metaResultJson.description, image: metaResultJson.image.url.ORIGINAL}])
                 }
                 setDownloading(false);
         }}
@@ -69,10 +63,13 @@ export default function RaribleItemIndexer(props) {
                       <Card
                         title={
                           <div>
-                            <span style={{ fontSize: 16, marginRight: 8 }}>#{item.name}</span>
+                            <span style={{ fontSize: 16, marginRight: 8 }}>{item.name}</span>
                           </div>
                         }
                       >
+                        <div>
+                          <img src={item.image} style={{ maxWidth: 150 }} />
+                        </div>
                         <div>
                           <p>description: {item.description}</p>
                         </div>
@@ -90,7 +87,7 @@ export default function RaribleItemIndexer(props) {
                           onClick={() => {
                             console.log("writeContracts", writeContracts);
                             const thisERC721Rarible = writeContracts.ERC721Rarible.attach(collectionContract)
-                            tx(thisERC721Rarible.setApprovalForAll(approveAddress, true));
+                            tx(thisERC721Rarible.approve(approveAddress, tokenId));
                           }}
                         >
                           Approve

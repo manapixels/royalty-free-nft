@@ -203,11 +203,6 @@ const main = async () => {
 
   await sleep(delayMS)
 
-  console.log("Transferring Ownership of YourCollectible to "+toAddress+"...")
-
-  await yourCollectible.transferOwnership(toAddress)
-
-  await sleep(delayMS)
 
   /*
 

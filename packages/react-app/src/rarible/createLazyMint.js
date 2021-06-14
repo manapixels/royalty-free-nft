@@ -1,7 +1,7 @@
 import { utils } from "ethers";
 import { sign } from "./lazyMint";
 
-async function generateTokenId(contract, minter) {
+export async function generateTokenId(contract, minter) {
 	console.log("generating tokenId for", contract, minter)
   const raribleTokenIdUrl = `https://api-dev.rarible.com/protocol/v0.1/ethereum/nft/collections/${contract}/generate_token_id?minter=${minter}`;
   const res = await fetch(raribleTokenIdUrl, {
