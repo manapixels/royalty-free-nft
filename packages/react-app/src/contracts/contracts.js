@@ -1,1 +1,1 @@
-module.exports = ["YourContract"];
+module.exports = ["AKITAERC20Token","BurnVendor"];

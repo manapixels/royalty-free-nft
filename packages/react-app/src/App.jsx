@@ -1,14 +1,14 @@
 import { StaticJsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import { formatEther, parseEther } from "@ethersproject/units";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import { Alert, Button, Col, Menu, Row } from "antd";
+import { Alert, Button, Col, Menu, Row, List } from "antd";
 import "antd/dist/antd.css";
 import { useUserAddress } from "eth-hooks";
 import React, { useCallback, useEffect, useState } from "react";
 import { BrowserRouter, Link, Route, Switch } from "react-router-dom";
 import Web3Modal from "web3modal";
 import "./App.css";
-import { Account, Contract, Faucet, GasGauge, Header, Ramp, ThemeSwitch } from "./components";
+import { Account, Contract, Faucet, GasGauge, Header, Ramp, ThemeSwitch, Balance, Address } from "./components";
 import { DAI_ABI, DAI_ADDRESS, INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
 import {
@@ -48,6 +48,18 @@ const targetNetwork = NETWORKS.localhost; // <------- select your target fronten
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
+
+
+const AKITA_ADDRESS = "0x3301ee63fb29f863f2333bd4466acb46cd8323e6";
+
+const AKITA_ABI = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"sender","type":"address"},{"name":"recipient","type":"address"},{"name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"value","type":"uint256"}],"name":"burn","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"account","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"recipient","type":"address"},{"name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"owner","type":"address"},{"name":"spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[{"name":"name","type":"string"},{"name":"symbol","type":"string"},{"name":"decimals","type":"uint8"},{"name":"totalSupply","type":"uint256"},{"name":"feeReceiver","type":"address"},{"name":"tokenOwnerAddress","type":"address"}],"payable":true,"stateMutability":"payable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"owner","type":"address"},{"indexed":true,"name":"spender","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Approval","type":"event"}]
+
+const GITCOIN_MULTISIG_ADDRESS = "0xde21F729137C5Af1b01d73aF1dC21eFfa2B8a0d6"
+
+const UNISWAP_AKITA_WETH_PAIR = "0xda3a20aad0c34fa742bd9813d45bbf67c787ae0b"
+
+const WETH_ADDRESS = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+
 
 // 🛰 providers
 if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
@@ -112,6 +124,17 @@ function App(props) {
 
   // For more hooks, check out 🔗eth-hooks at: https://www.npmjs.com/package/eth-hooks
 
+
+  const akitaContract = useExternalContractLoader(mainnetProvider, AKITA_ADDRESS, AKITA_ABI);
+
+  const wethContract = useExternalContractLoader(mainnetProvider, WETH_ADDRESS, AKITA_ABI);
+
+  const gitcoinAkitaBalance = useContractReader({ AKITA: akitaContract }, "AKITA", "balanceOf", [
+    GITCOIN_MULTISIG_ADDRESS,
+  ]);
+
+
+
   // The transactor wraps transactions and provides notificiations
   const tx = Transactor(userProvider, gasPrice);
 
@@ -145,11 +168,19 @@ function App(props) {
     "0x34aA3F359A9D614239015126635CE7732c18fDF3",
   ]);
 
+  const burnVendorAddress = readContracts && readContracts.BurnVendor.address
+
+  const burnVendorBalance = useBalance(localProvider, burnVendorAddress);
+
   // keep track of a variable from the contract in the local React state:
-  const purpose = useContractReader(readContracts, "YourContract", "purpose");
+  const yourAkitaBalance = useContractReader(readContracts, "AKITAERC20Token", "balanceOf", [ address ] );
+  const vendorAkitaBalance = useContractReader(readContracts, "AKITAERC20Token", "balanceOf", [ burnVendorAddress ] );
+
+
+  const akitaPerEthPriceInVendor = useContractReader(readContracts, "BurnVendor", "tokensPerEth");
 
   // 📟 Listen for broadcast events
-  const setPurposeEvents = useEventListener(readContracts, "YourContract", "SetPurpose", localProvider, 1);
+  const buyEvents = useEventListener(readContracts, "BurnVendor", "Buy", localProvider, 1);
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -285,6 +316,8 @@ function App(props) {
     );
   }
 
+  const [ buyAmount, setBuyAmount ] = useState();
+
   return (
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
@@ -299,47 +332,37 @@ function App(props) {
               }}
               to="/"
             >
-              YourContract
+              Introduction
             </Link>
           </Menu.Item>
-          <Menu.Item key="/hints">
+          <Menu.Item key="/buy">
             <Link
               onClick={() => {
-                setRoute("/hints");
+                setRoute("/buy");
               }}
-              to="/hints"
+              to="/buy"
             >
-              Hints
+              Buy
             </Link>
           </Menu.Item>
-          <Menu.Item key="/exampleui">
+          <Menu.Item key="/stats">
             <Link
               onClick={() => {
-                setRoute("/exampleui");
+                setRoute("/stats");
               }}
-              to="/exampleui"
+              to="/stats"
             >
-              ExampleUI
+              Stats
             </Link>
           </Menu.Item>
-          <Menu.Item key="/mainnetdai">
+          <Menu.Item key="/contract">
             <Link
               onClick={() => {
-                setRoute("/mainnetdai");
+                setRoute("/contract");
               }}
-              to="/mainnetdai"
+              to="/contract"
             >
-              Mainnet DAI
-            </Link>
-          </Menu.Item>
-          <Menu.Item key="/subgraph">
-            <Link
-              onClick={() => {
-                setRoute("/subgraph");
-              }}
-              to="/subgraph"
-            >
-              Subgraph
+              Contract
             </Link>
           </Menu.Item>
         </Menu>
@@ -352,13 +375,9 @@ function App(props) {
                 and give you a form to interact with it locally
             */}
 
-            <Contract
-              name="YourContract"
-              signer={userProvider.getSigner()}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-            />
+            <div style={{padding:32, width:400, margin:"auto"}}>
+              Intro text
+            </div>
 
             {/* uncomment for a second contract:
             <Contract
@@ -381,47 +400,62 @@ function App(props) {
             />
             */}
           </Route>
-          <Route path="/hints">
-            <Hints
-              address={address}
-              yourLocalBalance={yourLocalBalance}
-              mainnetProvider={mainnetProvider}
-              price={price}
-            />
+          <Route path="/buy">
+            <div style={{padding:32, width:720, margin:"auto"}}>
+              <List
+                bordered
+                dataSource={buyEvents}
+                renderItem={item => {
+                  console.log("EVENT",item)
+                  return (
+                    <List.Item key={item.blockNumber+formatEther(item.amount)+item.who+formatEther(item.burn)}>
+                      <Address value={item.who} fontSize={16}/>
+                      <div>
+                        🐕 <Balance value={item.amount.div(1000000)} fontSize={16}/>MM
+                      </div>
+                      <div>
+                        🔥 <Balance value={item.burn.div(1000000)} fontSize={16}/>MM
+                      </div>
+                    </List.Item>
+                  );
+                }}
+              />
+            </div>
           </Route>
-          <Route path="/exampleui">
-            <ExampleUI
-              address={address}
-              userProvider={userProvider}
-              mainnetProvider={mainnetProvider}
-              localProvider={localProvider}
-              yourLocalBalance={yourLocalBalance}
-              price={price}
-              tx={tx}
-              writeContracts={writeContracts}
-              readContracts={readContracts}
-              purpose={purpose}
-              setPurposeEvents={setPurposeEvents}
-            />
+          <Route path="/stats">
+            <div style={{padding:32, width:400, margin:"auto"}}>
+              <div>Vendor Akita Balance:</div>
+              <Balance value={vendorAkitaBalance && vendorAkitaBalance.div(1000000)} />MM
+              <div>Vendor ETH Balance:</div>
+              <Balance value={burnVendorBalance} />
+
+              <div>Gitcoin Akita Balance:</div>
+              <Balance value={gitcoinAkitaBalance} />
+
+              <div>akitaPerEthPriceInVendor:</div>
+              <Balance value={akitaPerEthPriceInVendor && akitaPerEthPriceInVendor.toNumber()} />
+
+
+
+            </div>
           </Route>
-          <Route path="/mainnetdai">
+          <Route path="/contract">
             <Contract
-              name="DAI"
-              customContract={mainnetDAIContract}
+              name="BurnVendor"
               signer={userProvider.getSigner()}
-              provider={mainnetProvider}
+              provider={localProvider}
               address={address}
-              blockExplorer="https://etherscan.io/"
+              blockExplorer={blockExplorer}
+            />
+            <Contract
+              name="AKITAERC20Token"
+              signer={userProvider.getSigner()}
+              provider={localProvider}
+              address={address}
+              blockExplorer={blockExplorer}
             />
           </Route>
-          <Route path="/subgraph">
-            <Subgraph
-              subgraphUri={props.subgraphUri}
-              tx={tx}
-              writeContracts={writeContracts}
-              mainnetProvider={mainnetProvider}
-            />
-          </Route>
+
         </Switch>
       </BrowserRouter>
 

@@ -9,7 +9,11 @@ const main = async () => {
 
   console.log("\n\n 📡 Deploying...\n");
 
-  const yourContract = await deploy("YourContract") // <-- add in constructor args like line 19 vvvv
+  const akita = await deploy("AKITAERC20Token",["Akita Inu", "AKITA", 18, utils.parseEther("99999999999999"), "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"])
+
+  const burnVendor = await deploy("BurnVendor", [ akita.address ])
+
+  const transferAkitaToVendor = await akita.transfer(burnVendor.address,utils.parseEther("49340000069420")) // 1/100th of all the AKITA Gitcoin owns
 
   //const yourContract = await ethers.getContractAt('YourContract', "0xaAC799eC2d00C013f1F11c37E654e59B0429DF6A") //<-- if you want to instantiate a version of a contract at a specific address!
   //const secondContract = await deploy("SecondContract")
