@@ -23,7 +23,7 @@ import {
   useUserProvider,
 } from "./hooks";
 // import Hints from "./Hints";
-import { ExampleUI, Hints, Subgraph } from "./views";
+import { ExampleUI, Hints, Subgraph, ContractCloneFactory } from "./views";
 /*
     Welcome to 🏗 scaffold-eth !
 
@@ -299,7 +299,7 @@ function App(props) {
               }}
               to="/"
             >
-              YourContract
+              ContractFactory
             </Link>
           </Menu.Item>
           <Menu.Item key="/hints">
@@ -346,40 +346,17 @@ function App(props) {
 
         <Switch>
           <Route exact path="/">
-            {/*
-                🎛 this scaffolding is full of commonly used components
-                this <Contract/> component will automatically parse your ABI
-                and give you a form to interact with it locally
-            */}
-
-            <Contract
-              name="YourContract"
-              signer={userProvider.getSigner()}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
+            <ContractCloneFactory
+            address={address}
+            readContracts={readContracts}
+            localProvider={localProvider}
+            userProvider={userProvider}
+            localProvider={localProvider}
+            mainnetProvider={mainnetProvider}
+            tx={tx}
+            writeContracts={writeContracts}
+            readContracts={readContracts}
             />
-
-            {/* uncomment for a second contract:
-            <Contract
-              name="SecondContract"
-              signer={userProvider.getSigner()}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-            />
-            */}
-
-            {/* Uncomment to display and interact with an external contract (DAI on mainnet):
-            <Contract
-              name="DAI"
-              customContract={mainnetDAIContract}
-              signer={userProvider.getSigner()}
-              provider={mainnetProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-            />
-            */}
           </Route>
           <Route path="/hints">
             <Hints
