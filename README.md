@@ -1,6 +1,6 @@
 # 🏗 scaffold-eth EIP-1167 Proxy Factory 
 
-This template show a simple example of how to create a Factory contract that uses EIP-1667 for reduced gas usage, using OpenZeppelin's implementation.
+This template show a simple example of how to create a Factory contract that uses EIP-1167 for reduced gas usage, using OpenZeppelin's implementation.
 
 ## 🏃‍♀️ Quick Start
 
