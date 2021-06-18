@@ -117,7 +117,7 @@ const StudentView = ({ tx, writeContracts, readContracts, id, userProvider, addr
         </div>
       )}
       {session.status === 1 && (
-        <Button style={{ marginTop: 10 }} onClick={withdrawAndClose}>
+        <Button style={{ marginTop: 10 }} disabled={session.status === 2} onClick={withdrawAndClose}>
           Withdraw stake and close channel
         </Button>
       )}
