@@ -7,8 +7,8 @@ export default function Header() {
   return (
     <a href="/" >
       <PageHeader
-        title="🔏 Sign in with Web3"
-        subTitle="Sign a message with your wallet to log in..."
+        title="👮 Token Gated Content"
+        subTitle="If you have ETH you can watch a video of @austingriffith chugging a beer!"
         style={{ cursor: "pointer" }}
       />
     </a>

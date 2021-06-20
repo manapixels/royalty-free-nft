@@ -15,6 +15,7 @@ import { formatEther, parseEther } from "@ethersproject/units";
 import { Hints, ExampleUI, Subgraph } from "./views"
 import { useThemeSwitcher } from "react-css-theme-switcher";
 import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS } from "./constants";
+import ReactMarkdown from 'react-markdown'
 const axios = require('axios');
 /*
     Welcome to 🏗 scaffold-eth !
@@ -217,19 +218,43 @@ function App(props) {
 
   let display = ""
   if(result){
-    let possibleTxId = result.substr(-66)
-    console.log("possibleTxId",possibleTxId)
-    let extraLink = ""
-    if(possibleTxId.indexOf("0x")==0){
-      extraLink = <a href={blockExplorer+"tx/"+possibleTxId} target="_blank">view transaction on etherscan</a>
+    //maybe you want to check of the backend supplied a transaction id to look up?
+    //let possibleTxId = result.substr(-66)
+    //console.log("possibleTxId",possibleTxId)
+    //let extraLink = ""
+    //if(possibleTxId.indexOf("0x")==0){
+    //  extraLink = <a href={blockExplorer+"tx/"+possibleTxId} target="_blank">view transaction on etherscan</a>
+    //}else{
+    //  possibleTxId=""
+    //}
+
+
+    //maybe you want to parse and display a youtube if the link is to a video?
+    if(result.indexOf("https://youtu.be/")==0){
+      display = (
+        <div style={{marginTop:32}}>
+          <div className="video-responsive">
+              <iframe
+                width="853"
+                height="480"
+                src={`https://www.youtube.com/embed/${result.replace("https://youtu.be/","")}`}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title="Embedded youtube"
+              />
+          </div>
+        </div>
+      )
     }else{
-      possibleTxId=""
+      display = (
+        <div style={{marginTop:32}}>
+          <ReactMarkdown>{result}</ReactMarkdown>
+        </div>
+      )
     }
-    display = (
-      <div style={{marginTop:32}}>
-        {result.replace(possibleTxId,"")} {extraLink}
-      </div>
-    )
+
+
 
   } else if(isSigner){
     display = (

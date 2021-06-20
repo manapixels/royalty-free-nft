@@ -1,15 +1,19 @@
-# 🏗 scaffold-eth - 🔏 sign in with web3 example
+# 🏗 scaffold-eth - 👮 Token Gated Content
 
-> Ask users to sign a message with their web3 wallet and recover it in a backend service
+> Private content is only exposed if a user signs a message to prove they own a token
+
+---
+
+⚠️ This branch extends the [sign in with web3 branch](https://github.com/austintgriffith/scaffold-eth/tree/sign-in-with-web3) (You should start there!)
 
 ---
 
 ```bash
-git clone https://github.com/austintgriffith/scaffold-eth.git sign-in-with-web3
+git clone https://github.com/austintgriffith/scaffold-eth.git token-gated-content
 
-cd sign-in-with-web3
+cd token-gated-content
 
-git checkout sign-in-with-web3
+git checkout token-gated-content
 ```
 
 ```bash
@@ -24,6 +28,11 @@ yarn start
 
 ```
 
+---
+
+☢️ WARNING you need to create `hiddenContent.txt` in `packages/backend` first!
+
+---
 > start the backend service that listens for and verifies signatures:
 
 ```bash
@@ -36,32 +45,35 @@ yarn backend
 
 📱 Open http://localhost:3000 to see the app
 
+---
+
+ 📝 Edit the `index.js` in `packages/backend` to control when to release the hidden content.
 
 ---
 
-> Connect a web3 wallet:
+Users connect their web3 wallet:
 
-![image](https://user-images.githubusercontent.com/2653167/116907182-794c0480-abfe-11eb-9b63-935d8848b613.png)
-
----
-
-> Sign a message to prove you own the address:
-
-![image](https://user-images.githubusercontent.com/2653167/116907431-c6c87180-abfe-11eb-9382-e885a39c0579.png)
-
-![image](https://user-images.githubusercontent.com/2653167/116907476-dc3d9b80-abfe-11eb-9fb6-f0c2af0f40a1.png)
+![image](https://user-images.githubusercontent.com/2653167/122679127-e6176000-d1a6-11eb-9d77-05b1797bef48.png)
 
 ---
 
-> A backend server verifies sigatures:
+Users sign a message:
 
-![image](https://user-images.githubusercontent.com/2653167/116907561-fb3c2d80-abfe-11eb-9b09-f1c81265040b.png)
+![image](https://user-images.githubusercontent.com/2653167/122679161-0ba46980-d1a7-11eb-8768-6d6926a56104.png)
 
 ---
 
-> The frontend can then react to the correct signature:
+The backend makes sure the signature is correct and serves the hidden content only if the user has eth, or some token, or something...
 
-![image](https://user-images.githubusercontent.com/2653167/116907586-02633b80-abff-11eb-9ab4-3c5a9a16d64d.png)
+![image](https://user-images.githubusercontent.com/2653167/122679251-5e7e2100-d1a7-11eb-9ed0-c997bdfaeaba.png)
+
+
+---
+
+If they have ETH, it displays a special video:
+
+![image](https://user-images.githubusercontent.com/2653167/122679199-2f67af80-d1a7-11eb-9689-9a79b48b35f5.png)
+
 
 ---
 
