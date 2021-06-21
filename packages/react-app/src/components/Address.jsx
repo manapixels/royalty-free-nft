@@ -71,7 +71,14 @@ export default function Address(props) {
   }
 
   let text;
-  if (props.onChange) {
+  if( props.noLink) {
+    text = (
+      <Text>
+        {displayAddress}
+      </Text>
+    );
+  }
+  else if (props.onChange) {
     text = (
       <Text editable={{ onChange: props.onChange }} copyable={{ text: address }}>
         <a style={{ color: currentTheme == "light" ? "#222222" : "#ddd" }} target={"_blank"} href={etherscanLink} rel="noopener noreferrer">

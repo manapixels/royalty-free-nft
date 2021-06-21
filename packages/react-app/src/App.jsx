@@ -3,12 +3,12 @@ import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
 import "antd/dist/antd.css";
 import {  StaticJsonRpcProvider, JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import "./App.css";
-import { message, Row, Col, Button, Menu, Alert, Switch as SwitchD } from "antd";
+import { message, Row, Col, Button, Menu, Alert, Switch as SwitchD, Input } from "antd";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { useUserAddress } from "eth-hooks";
 import { useExchangePrice, useGasPrice, useUserProvider, useContractLoader, useContractReader, useEventListener, useBalance, useExternalContractLoader, useOnBlock } from "./hooks";
-import { Header, Account, Faucet, Ramp, Contract, GasGauge, ThemeSwitch } from "./components";
+import { Header, Account, Faucet, Ramp, Contract, GasGauge, ThemeSwitch, Address } from "./components";
 import { Transactor } from "./helpers";
 import { formatEther, parseEther } from "@ethersproject/units";
 //import Hints from "./Hints";
@@ -37,7 +37,7 @@ const axios = require('axios');
 */
 
 //const serverUrl = "https://backend.ether.delivery:49832/"
-const serverUrl = "http://localhost:49832/"
+const serverUrl = "http://localhost:49834/"
 
 /// 📡 What chain are your contracts deployed to?
 const targetNetwork = NETWORKS['mainnet']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
@@ -45,6 +45,8 @@ const targetNetwork = NETWORKS['mainnet']; // <------- select your target fronte
 // 😬 Sorry for all the console logging
 const DEBUG = true
 
+
+window.localStorage.setItem("theme","dark");
 
 // 🛰 providers
 if(DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
@@ -216,6 +218,8 @@ function App(props) {
 
   const [ result, setResult ] = useState()
 
+  const [email, setEmail] = useState();
+
   let display = ""
   if(result){
     //maybe you want to check of the backend supplied a transaction id to look up?
@@ -258,44 +262,58 @@ function App(props) {
 
   } else if(isSigner){
     display = (
-      <Button loading={loading} style={{marginTop:32}} type="primary" onClick={async ()=>{
+      <div>
 
-        setLoading(true)
-        try{
-          const msgToSign = await axios.get(serverUrl)
-          console.log("msgToSign",msgToSign)
-          if(msgToSign.data && msgToSign.data.length > 32){//<--- traffic escape hatch?
-            let currentLoader = setTimeout(()=>{setLoading(false)},4000)
-            let message = msgToSign.data.replace("**ADDRESS**",address)
-            let sig = await userProvider.send("personal_sign", [ message, address ]);
-            clearTimeout(currentLoader)
-            currentLoader = setTimeout(()=>{setLoading(false)},4000)
-            console.log("sig",sig)
-            const res = await axios.post(serverUrl, {
-              address: address,
-              message: message,
-              signature: sig,
-            })
-            clearTimeout(currentLoader)
-            setLoading(false)
-            console.log("RESULT:",res)
-            if(res.data){
-              setResult(res.data)
+        <div style={{width:400,margin:"auto",marginTop:32}}>
+          <div>
+            Enter your email to receive updates:
+          </div>
+          <Input
+            placeholder={"your@email.com"}
+            value={email}
+            onChange={(e)=>{setEmail(e.target.value)}}
+          />
+        </div>
+        <Button disabled={!email} loading={loading} style={{marginTop:32}} type="primary" onClick={async ()=>{
+
+          setLoading(true)
+          try{
+            const msgToSign = await axios.get(serverUrl)
+            console.log("msgToSign",msgToSign)
+            if(msgToSign.data && msgToSign.data.length > 32){//<--- traffic escape hatch?
+              let currentLoader = setTimeout(()=>{setLoading(false)},4000)
+              let message = msgToSign.data.replace("**EMAIL**",email)
+              let sig = await userProvider.send("personal_sign", [ message, address ]);
+              clearTimeout(currentLoader)
+              currentLoader = setTimeout(()=>{setLoading(false)},4000)
+              console.log("sig",sig)
+              const res = await axios.post(serverUrl, {
+                email: email,
+                address: address,
+                message: message,
+                signature: sig,
+              })
+              clearTimeout(currentLoader)
+              setLoading(false)
+              console.log("RESULT:",res)
+              if(res.data){
+                setResult(res.data)
+              }
+            }else{
+              setLoading(false)
+              setResult("😅 Sorry, the server is overloaded. ⏳ Maybe just email austin@ethereum.org and I'll add you to the list manually 😅")
             }
-          }else{
-            setLoading(false)
-            setResult("😅 Sorry, the server is overloaded. Please try again later. ⏳")
+          }catch(e){
+            message.error(' Sorry, the server is overloaded. 🧯🚒🔥');
+            console.log("FAILED TO GET...")
           }
-        }catch(e){
-          message.error(' Sorry, the server is overloaded. 🧯🚒🔥');
-          console.log("FAILED TO GET...")
-        }
 
 
 
-      }}>
-        <span style={{marginRight:8}}>🔏</span>  sign a message with your ethereum wallet
-      </Button>
+        }}>
+          <span style={{marginRight:8}}>🔏</span> <span style={{marginRight:8}}>sign as </span><Address noLink={true} style={{zIndex:-1}} value={address} fontSize={16} ensProvider={mainnetProvider} />
+        </Button>
+      </div>
     )
   }
 
@@ -370,13 +388,38 @@ function App(props) {
 
       </BrowserRouter>
       */}
-      <ThemeSwitch />
 
+      {/*
+      <ThemeSwitch />
+      */}
 
       {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
-      <div style={{textAlign: "center", padding: 10 }}>
+
+
+      <div style={{width:500, margin:"auto", marginTop:32}}>
+
+        <img src="./moonshot.gif" style={{minWidth:524}} />
+
+        <div style={{marginTop:16}}>
+        For the first time ever it's possible to program our values into our money.  We value coordination, so why not use programmable money to create better coordination tools?
+</div>
+      <div style={{marginTop:16}}>
+The moonshot collective is a group of builders & web3 community members who are looking to prototype experiments in coordination (whether thats public goods, private goods, governance tools).
+      </div>
+      <div style={{marginTop:16}}>
+Got dev skills + want to help build the future?  Get Involved:
+        </div>
+
+
+
+      </div>
+
+      <div style={{textAlign: "center", padding: 10 , marginTop: 32}}>
          <Account
-            connectText={"Connect Ethereum Wallet"}
+            connectText={(<div>
+              <img src="./rocket_3.svg" style={{position:"absolute",left:-54,top:-4,maxHeight:48}}/>
+              Connect Ethereum Wallet
+              </div>)}
            onlyShowButton={!isSigner}
            address={address}
            localProvider={localProvider}
@@ -390,6 +433,7 @@ function App(props) {
          />
          {faucetHint}
       </div>
+
 
       {display}
 
