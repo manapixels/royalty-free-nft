@@ -28,11 +28,7 @@ contract Ballot {
 
     Proposal[] public proposals;
 
-    /** 
-     * @dev Create a new ballot to choose one of 'proposalNames'.
-     * @param proposalNames names of proposals
-     */
-    constructor(bytes32[] memory proposalNames) {
+    function createProposal(bytes32[] memory proposalNames)  external {
         chairperson = msg.sender;
         voters[chairperson].weight = 1;
 
