@@ -1,4 +1,4 @@
-# 🏗 scaffold-eth - 🚀 MoonshotCollective.space
+# 🚀 MoonshotCollective.space
 
 > TLDR: Ethereum builders focused on creating generic components and prototypes for coordination experiements and funding public goods
 
