@@ -5,10 +5,17 @@ const directoryName = "build";
 
 const BUCKETNAME = "moonshotcollective.space"; // <<---- SET YOUR BUCKET NAME AND CREATE aws.json ** see below vvvvvvvvvv
 
+// optional cloudfront invalidation rule
+const invalidation = {
+  awsDistributionId: "E1NE7NOE846I23",
+  awsInvalidationPath: "/*"
+}
+
 if (!BUCKETNAME) {
   console.log("☢️   Enter a bucket name in packages/react-app/scripts/s3.js ");
   process.exit(1);
 }
+
 
 let credentials = {};
 try {

@@ -14,7 +14,9 @@ export default function Header() {
            <a href="https://gov.gitcoin.co/t/proposal-gr10-matching-pool-use-gitcoin-to-build-gitcoindao/6372/22" target="_blank">Announcement</a>
           </span>
           <span style={{marginLeft:16, fontSize: 14}}>
-           Gitcoin Grant (coming soon)
+            <a href="https://gitcoin.co/grants/3004/moonshot-collective" target="_blank">
+              Gitcoin Grant
+            </a>
           </span>
           <span style={{marginLeft:16, fontSize: 14}}>
            Trello (coming soon)

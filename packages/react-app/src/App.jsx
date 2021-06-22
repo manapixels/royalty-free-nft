@@ -36,8 +36,8 @@ const axios = require('axios');
     (and then use the `useExternalContractLoader()` hook!)
 */
 
-//const serverUrl = "https://backend.ether.delivery:49832/"
-const serverUrl = "http://localhost:49834/"
+const serverUrl = "https://backend.moonshotcollective.space:49834/"
+//const serverUrl = "http://localhost:49834/"
 
 /// 📡 What chain are your contracts deployed to?
 const targetNetwork = NETWORKS['mainnet']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
@@ -398,6 +398,8 @@ function App(props) {
 
       <div style={{width:500, margin:"auto", marginTop:32}}>
 
+
+
         <img src="./moonshot.gif" style={{minWidth:524}} />
 
         <div style={{marginTop:16}}>
@@ -436,6 +438,20 @@ Got dev skills + want to help build the future?  Get Involved:
 
 
       {display}
+
+      <div style={{paddingTop:64}}>
+      <h1>First Meeting: Monday, July 19!!!</h1>
+      </div>
+      <div>
+      Please support the:
+      <a href="https://gitcoin.co/grants/3004/moonshot-collective" target="_blank">
+        Gitcoin Grant
+      </a>
+
+      </div>
+
+
+
 
       {/* 🗺 Extra UI like gas price, eth price, faucet, and support:
        <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>

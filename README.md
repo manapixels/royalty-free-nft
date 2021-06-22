@@ -1,6 +1,6 @@
 # 🚀 MoonshotCollective.space
 
-> TLDR: Ethereum builders focused on creating generic components and prototypes for coordination experiements and funding public goods
+> TLDR: Ethereum builders focused on creating generic components and prototypes for coordination experiments and funding public goods
 
 ---
 
