@@ -11,7 +11,7 @@ export default function Header() {
           <img src="./rocket_2.svg" style={{maxWidth:48,marginRight:8}}/>
           MoonshotCollective.space
           <span style={{marginLeft:16, fontSize: 14}}>
-           <a href="https://gov.gitcoin.co/t/proposal-gr10-matching-pool-use-gitcoin-to-build-gitcoindao/6372/22" target="_blank">Announcement</a>
+           <a href="https://gov.gitcoin.co/t/workstream-suggestion-public-goods-prototyping/130" target="_blank">Announcement</a>
           </span>
           <span style={{marginLeft:16, fontSize: 14}}>
             <a href="https://gitcoin.co/grants/3004/moonshot-collective" target="_blank">
