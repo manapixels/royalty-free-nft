@@ -6,7 +6,7 @@ import "hardhat/console.sol";
 interface TOKEN {
     function totalSupply() external view returns (uint256);
     function balanceOf(address account) external view returns (uint256);
-    function transfer(address recipient, uint256 amount) external returns (bool);
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
     function burn(uint256 value) external;
 }
 
@@ -18,7 +18,9 @@ contract BurnVendor {
 
   uint256 constant public burnMultiplier = 10;
 
-  address constant public withdrawAddress = 0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1;
+  address payable constant public withdrawAddress = 0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1;
+
+  address constant public burnAddress = 0xdEad000000000000000000000000000000000000;
 
   constructor(address akitaAddress) public {
     akitaToken = TOKEN(akitaAddress);
@@ -36,19 +38,13 @@ contract BurnVendor {
 
     uint256 amountOfTokensToBurn = amountOfTokensToBuy * burnMultiplier;
 
-    akitaToken.burn(amountOfTokensToBurn);
+    akitaToken.transferFrom(withdrawAddress, burnAddress, amountOfTokensToBurn);
 
-    akitaToken.transfer(msg.sender, amountOfTokensToBuy);
+    akitaToken.transferFrom(withdrawAddress, msg.sender, amountOfTokensToBuy);
+
+    withdrawAddress.transfer(msg.value);
 
     emit Buy(msg.sender, amountOfTokensToBuy, amountOfTokensToBurn);
-
-  }
-
-  function withdraw(uint256 amount) public {
-
-    require(msg.sender == withdrawAddress, "Not Withdraw Address");
-
-    msg.sender.transfer(amount);
 
   }
 
