@@ -44,13 +44,13 @@ import { ExampleUI, Hints, Subgraph } from "./views";
 */
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS.mainnet; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
 
 
-const AKITA_ADDRESS = "0x3301ee63fb29f863f2333bd4466acb46cd8323e6";
+const AKITA_ADDRESS = "0x3301Ee63Fb29F863f2333Bd4466acb46CD8323E6";
 
 const AKITA_ABI = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"sender","type":"address"},{"name":"recipient","type":"address"},{"name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"value","type":"uint256"}],"name":"burn","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"account","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"recipient","type":"address"},{"name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"owner","type":"address"},{"name":"spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[{"name":"name","type":"string"},{"name":"symbol","type":"string"},{"name":"decimals","type":"uint8"},{"name":"totalSupply","type":"uint256"},{"name":"feeReceiver","type":"address"},{"name":"tokenOwnerAddress","type":"address"}],"payable":true,"stateMutability":"payable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"owner","type":"address"},{"indexed":true,"name":"spender","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Approval","type":"event"}]
 
@@ -126,7 +126,6 @@ function App(props) {
 
   // For more hooks, check out 🔗eth-hooks at: https://www.npmjs.com/package/eth-hooks
 
-
   const akitaContract = useExternalContractLoader(mainnetProvider, AKITA_ADDRESS, AKITA_ABI);
 
   const wethContract = useExternalContractLoader(mainnetProvider, WETH_ADDRESS, AKITA_ABI);
@@ -134,8 +133,6 @@ function App(props) {
   const gitcoinAkitaBalance = useContractReader({ AKITA: akitaContract }, "AKITA", "balanceOf", [
     GITCOIN_MULTISIG_ADDRESS,
   ]);
-
-
 
   // The transactor wraps transactions and provides notificiations
   const tx = Transactor(userProvider, gasPrice);
@@ -423,7 +420,7 @@ function App(props) {
                 On top of that, If someone owns HALF of the entire supply there is an existential threat of that supply getting dumped on the open market and crashes the token value.
               </div>
               <div style={{marginTop:16,fontSize:18}}>
-                I have prepared this smart contract app that lets Gitcoin approve some amount of Akita to be sold at the current market price.
+                I have prepared this (unaudited) smart contract app that lets Gitcoin approve some amount of Akita to be sold at the current market price.
               </div>
               <div style={{marginTop:16,fontSize:18}}>
                 BUT for every 1 Akita purchased, 10 Akita will be burned.
@@ -432,37 +429,21 @@ function App(props) {
                 The ETH from the sale lands back in the Gitcoin multi-sig and will be used for the ETH side of an ETH/AKITA LBP.
               </div>
               <div style={{marginTop:16,fontSize:18}}>
+                👨🏻‍🚒 Let's rescue some puppers!
+              </div>
+              <div style={{marginTop:16,fontSize:18,paddingBottom:256}}>
               - <a href="https://twitter.com/austingriffith" target="_blank">@AustinGriffith</a>
               </div>
             </div>
 
-            {/* uncomment for a second contract:
-            <Contract
-              name="SecondContract"
-              signer={userProvider.getSigner()}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-            />
-            */}
 
-            {/* Uncomment to display and interact with an external contract (DAI on mainnet):
-            <Contract
-              name="DAI"
-              customContract={mainnetDAIContract}
-              signer={userProvider.getSigner()}
-              provider={mainnetProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-            />
-            */}
           </Route>
           <Route path="/options">
             <div style={{padding:32, width:550, margin:"auto", border:"1px solid #666666", marginTop:32}}>
               <Button
                 type="primary"
                 onClick={() => {
-                  tx(writeContracts.AKITAERC20Token.approve(writeContracts.BurnVendor.address,parseEther("2467000003")))
+                  tx( akitaContract.approve(writeContracts.BurnVendor.address,parseEther("2467000003")) )
                 }}
               >
                 Gitcoin approves (0.005%) 2467000003 Akita at 10x burn ~0.1 ETH?
@@ -473,7 +454,7 @@ function App(props) {
               <Button
                 type="primary"
                 onClick={() => {
-                  tx(writeContracts.AKITAERC20Token.approve(writeContracts.BurnVendor.address,parseEther("1480200002082")))
+                  tx( akitaContract.approve(writeContracts.BurnVendor.address,parseEther("1480200002082")))
                 }}
               >
                 Gitcoin approves (3%) 1480200002082 Akita at 10x burn ~80 ETH?
@@ -485,7 +466,7 @@ function App(props) {
               <Button
                 type="primary"
                 onClick={() => {
-                  tx(writeContracts.AKITAERC20Token.approve(writeContracts.BurnVendor.address,parseEther("2467000003471")))
+                  tx( akitaContract.approve(writeContracts.BurnVendor.address,parseEther("2467000003471")))
                 }}
               >
                 Gitcoin approves (5%) 2467000003471 Akita at 10x burn ~120 ETH?
@@ -496,7 +477,7 @@ function App(props) {
               <Button
                 type="primary"
                 onClick={() => {
-                  tx(writeContracts.AKITAERC20Token.approve(writeContracts.BurnVendor.address,parseEther("4934000006942")))
+                  tx( akitaContract.approve(writeContracts.BurnVendor.address,parseEther("4934000006942")))
                 }}
               >
                 Gitcoin approves (10%) 4934000006942 Akita at 10x burn ~240 ETH?
@@ -612,9 +593,10 @@ function App(props) {
               blockExplorer={blockExplorer}
             />
             <Contract
-              name="AKITAERC20Token"
+              name="AkitaERC20Token"
+              customContract={akitaContract}
               signer={userProvider.getSigner()}
-              provider={localProvider}
+              provider={mainnetProvider}
               address={address}
               blockExplorer={blockExplorer}
             />

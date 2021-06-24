@@ -1,8 +1,26 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.4;
 //SPDX-License-Identifier: MIT
 
-//import "hardhat/console.sol";
-//import "@openzeppelin/contracts/access/Ownable.sol"; //https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol
+/*
+     _    _    _ _        ____                                _
+    / \  | | _(_) |_ __ _|  _ \ ___  ___  ___ _   _  ___   __| | ___   __ _
+   / _ \ | |/ / | __/ _` | |_) / _ \/ __|/ __| | | |/ _ \ / _` |/ _ \ / _` |
+  / ___ \|   <| | || (_| |  _ <  __/\__ \ (__| |_| |  __/| (_| | (_) | (_| |
+ /_/   \_\_|\_\_|\__\__,_|_| \_\___||___/\___|\__,_|\___(_)__,_|\___/ \__, |
+                                                                      |___/
+
+ 🐕 AkitaRescue.dog
+
+ 🏗 scaffold-eth
+
+ 🖨 https://github.com/austintgriffith/scaffold-eth/tree/akita-rescue-dog
+
+ ⚠️ Warning: not formally audited!
+
+ 👨🏻‍🔬 @austingriffith
+
+*/
+
 interface TOKEN {
     function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
 }
@@ -11,19 +29,19 @@ contract BurnVendor {
 
   TOKEN public akitaToken;
 
-  uint256 constant public tokensPerEth = 2056020000;
+  uint256 constant public tokensPerEth = 2037060000;
 
   uint256 constant public burnMultiplier = 10;
 
-  address payable constant public gitcoinAddress = 0xde21F729137C5Af1b01d73aF1dC21eFfa2B8a0d6;
+  address payable constant public gitcoinAddress = payable(0xde21F729137C5Af1b01d73aF1dC21eFfa2B8a0d6);
 
   address constant public burnAddress = 0xDead000000000000000000000000000000000d06;
 
-  constructor(address akitaAddress) public {
+  constructor(address akitaAddress) {
     akitaToken = TOKEN(akitaAddress);
   }
 
-  function() external payable {
+  receive() external payable {
     buy();
   }
 

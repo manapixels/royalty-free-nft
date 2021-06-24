@@ -21,7 +21,7 @@ const { isAddress, getAddress, formatUnits, parseUnits } = utils;
 //
 // Select the network you want to deploy to here:
 //
-const defaultNetwork = "localhost";
+const defaultNetwork = "mainnet";
 
 function mnemonic() {
   try {
@@ -67,6 +67,7 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       },
+      gasPrice: 19000000000,
     },
     ropsten: {
       url: "https://ropsten.infura.io/v3/460f40a260564ac4a4f4b3fffb032dad", //<---- YOUR INFURA ID! (or it won't work)
@@ -97,6 +98,15 @@ module.exports = {
   },
   solidity: {
     compilers: [
+      {
+        version: "0.8.4",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200
+          }
+        }
+      },
       {
         version: "0.7.6",
         settings: {

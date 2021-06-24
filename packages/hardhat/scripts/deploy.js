@@ -9,14 +9,20 @@ const main = async () => {
 
   console.log("\n\n 📡 Deploying...\n");
 
-  const gitcoinAddress = "0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1"
+  //const gitcoinAddress = "0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1"
 
-  const akita = await deploy("AKITAERC20Token",["Akita Inu", "AKITA", 18, utils.parseEther("99999999999999"), "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"])
+  //const akita = await deploy("AKITAERC20Token",["Akita Inu", "AKITA", 18, utils.parseEther("99999999999999"), "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"])
 
-  const burnVendor = await deploy("BurnVendor", [ akita.address ])
+
+
+  const burnVendor = await deploy("BurnVendor", [ "0x3301Ee63Fb29F863f2333Bd4466acb46CD8323E6" ])
+
+
+
+
 
   //gitcoin has 49 billion AKITA?
-  const transferAkitaToVendor = await akita.transfer(gitcoinAddress,utils.parseEther("49340000069420")) //to simulate gitcoins address, send their balance here
+  //const transferAkitaToVendor = await akita.transfer(gitcoinAddress,utils.parseEther("49340000069420")) //to simulate gitcoins address, send their balance here
 
   // JUST FOR EASY COPY/PASTA:
   //  1% is 493400000694.2

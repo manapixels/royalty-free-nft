@@ -7,7 +7,7 @@ const BUCKETNAME = "akitarescue.dog"; // <<---- SET YOUR BUCKET NAME AND CREATE 
 
 // optional cloudfront invalidation rule
 const invalidation = {
-  awsDistributionId: "E1NE7NOE846I23",
+  awsDistributionId: "E379S6ASCS3BLB",
   awsInvalidationPath: "/*"
 }
 
