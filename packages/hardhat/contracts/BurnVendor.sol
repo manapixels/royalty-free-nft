@@ -1,26 +1,23 @@
 pragma solidity ^0.5.0;
 //SPDX-License-Identifier: MIT
 
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 //import "@openzeppelin/contracts/access/Ownable.sol"; //https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol
 interface TOKEN {
-    function totalSupply() external view returns (uint256);
-    function balanceOf(address account) external view returns (uint256);
     function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
-    function burn(uint256 value) external;
 }
 
 contract BurnVendor {
 
   TOKEN public akitaToken;
 
-  uint256 constant public tokensPerEth = 1495540000;
+  uint256 constant public tokensPerEth = 2056020000;
 
   uint256 constant public burnMultiplier = 10;
 
-  address payable constant public withdrawAddress = 0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1;
+  address payable constant public gitcoinAddress = 0xde21F729137C5Af1b01d73aF1dC21eFfa2B8a0d6;
 
-  address constant public burnAddress = 0xdEad000000000000000000000000000000000000;
+  address constant public burnAddress = 0xDead000000000000000000000000000000000d06;
 
   constructor(address akitaAddress) public {
     akitaToken = TOKEN(akitaAddress);
@@ -30,7 +27,7 @@ contract BurnVendor {
     buy();
   }
 
-  event Buy(address who, uint256 amount, uint256 burn);
+  event Buy(address who, uint256 value, uint256 amount, uint256 burn);
 
   function buy() public payable {
 
@@ -38,13 +35,13 @@ contract BurnVendor {
 
     uint256 amountOfTokensToBurn = amountOfTokensToBuy * burnMultiplier;
 
-    akitaToken.transferFrom(withdrawAddress, burnAddress, amountOfTokensToBurn);
+    akitaToken.transferFrom(gitcoinAddress, burnAddress, amountOfTokensToBurn);
 
-    akitaToken.transferFrom(withdrawAddress, msg.sender, amountOfTokensToBuy);
+    akitaToken.transferFrom(gitcoinAddress, msg.sender, amountOfTokensToBuy);
 
-    withdrawAddress.transfer(msg.value);
+    gitcoinAddress.transfer(msg.value);
 
-    emit Buy(msg.sender, amountOfTokensToBuy, amountOfTokensToBurn);
+    emit Buy(msg.sender, msg.value, amountOfTokensToBuy, amountOfTokensToBurn);
 
   }
 

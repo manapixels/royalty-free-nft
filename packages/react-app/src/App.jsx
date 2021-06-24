@@ -8,7 +8,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { BrowserRouter, Link, Route, Switch } from "react-router-dom";
 import Web3Modal from "web3modal";
 import "./App.css";
-import { Account, Contract, Faucet, GasGauge, Header, Ramp, ThemeSwitch, Balance, Address } from "./components";
+import { Account, Contract, Faucet, GasGauge, Header, Ramp, ThemeSwitch, Balance, Address, EtherInput } from "./components";
 import { DAI_ABI, DAI_ADDRESS, INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
 import {
@@ -55,6 +55,8 @@ const AKITA_ADDRESS = "0x3301ee63fb29f863f2333bd4466acb46cd8323e6";
 const AKITA_ABI = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"sender","type":"address"},{"name":"recipient","type":"address"},{"name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"value","type":"uint256"}],"name":"burn","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"account","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"recipient","type":"address"},{"name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"owner","type":"address"},{"name":"spender","type":"address"}],"name":"allowance","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[{"name":"name","type":"string"},{"name":"symbol","type":"string"},{"name":"decimals","type":"uint8"},{"name":"totalSupply","type":"uint256"},{"name":"feeReceiver","type":"address"},{"name":"tokenOwnerAddress","type":"address"}],"payable":true,"stateMutability":"payable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"owner","type":"address"},{"indexed":true,"name":"spender","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Approval","type":"event"}]
 
 const GITCOIN_MULTISIG_ADDRESS = "0xde21F729137C5Af1b01d73aF1dC21eFfa2B8a0d6"
+
+const TEMP_GITCOIN_LOCAL_ADDRESS = "0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1"
 
 const UNISWAP_AKITA_WETH_PAIR = "0xda3a20aad0c34fa742bd9813d45bbf67c787ae0b"
 
@@ -164,9 +166,9 @@ function App(props) {
   });
 
   // Then read your DAI balance like:
-  const myMainnetDAIBalance = useContractReader({ DAI: mainnetDAIContract }, "DAI", "balanceOf", [
-    "0x34aA3F359A9D614239015126635CE7732c18fDF3",
-  ]);
+  //const myMainnetDAIBalance = useContractReader({ DAI: mainnetDAIContract }, "DAI", "balanceOf", [
+  //  "0x34aA3F359A9D614239015126635CE7732c18fDF3",
+  //]);
 
   const burnVendorAddress = readContracts && readContracts.BurnVendor.address
 
@@ -174,13 +176,21 @@ function App(props) {
 
   // keep track of a variable from the contract in the local React state:
   const yourAkitaBalance = useContractReader(readContracts, "AKITAERC20Token", "balanceOf", [ address ] );
-  const vendorAkitaBalance = useContractReader(readContracts, "AKITAERC20Token", "balanceOf", [ burnVendorAddress ] );
+  //const vendorAkitaBalance = useContractReader(readContracts, "AKITAERC20Token", "balanceOf", [ burnVendorAddress ] );
+
+  const vendorAkitaAllowance = useContractReader(readContracts, "AKITAERC20Token", "allowance", [ TEMP_GITCOIN_LOCAL_ADDRESS, burnVendorAddress ] );
 
 
   const akitaPerEthPriceInVendor = useContractReader(readContracts, "BurnVendor", "tokensPerEth");
+  const burnMultiplier = useContractReader(readContracts, "BurnVendor", "burnMultiplier");
 
   // 📟 Listen for broadcast events
   const buyEvents = useEventListener(readContracts, "BurnVendor", "Buy", localProvider, 1);
+
+  const shouldSellAkita = burnMultiplier && vendorAkitaAllowance && vendorAkitaAllowance.div(burnMultiplier.add(1))
+
+  const shouldEarnEth = akitaPerEthPriceInVendor && shouldSellAkita && shouldSellAkita.div(akitaPerEthPriceInVendor)
+
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -210,7 +220,7 @@ function App(props) {
       console.log("💵 yourLocalBalance", yourLocalBalance ? formatEther(yourLocalBalance) : "...");
       console.log("💵 yourMainnetBalance", yourMainnetBalance ? formatEther(yourMainnetBalance) : "...");
       console.log("📝 readContracts", readContracts);
-      console.log("🌍 DAI contract on mainnet:", mainnetDAIContract);
+      //console.log("🌍 DAI contract on mainnet:", mainnetDAIContract);
       console.log("🔐 writeContracts", writeContracts);
     }
   }, [
@@ -316,12 +326,22 @@ function App(props) {
     );
   }
 
-  const [ buyAmount, setBuyAmount ] = useState();
+  const [ etherIn, setEtherIn ] = useState();
+
+  let amountOut
+  let amountToBurn
+  try{
+    amountOut= akitaPerEthPriceInVendor && etherIn && akitaPerEthPriceInVendor.mul(parseEther(""+etherIn))
+
+    amountToBurn = amountOut && amountOut.mul(burnMultiplier)
+  }catch(e){}
+
+  console.log("etherIn",etherIn)
 
   return (
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
-      <Header />
+      <Header burnMultiplier={burnMultiplier}/>
       {networkDisplay}
       <BrowserRouter>
         <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
@@ -333,6 +353,26 @@ function App(props) {
               to="/"
             >
               Introduction
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="/contract">
+            <Link
+              onClick={() => {
+                setRoute("/contract");
+              }}
+              to="/contract"
+            >
+              Contract
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="/options">
+            <Link
+              onClick={() => {
+                setRoute("/options");
+              }}
+              to="/options"
+            >
+              Options
             </Link>
           </Menu.Item>
           <Menu.Item key="/buy">
@@ -355,16 +395,7 @@ function App(props) {
               Stats
             </Link>
           </Menu.Item>
-          <Menu.Item key="/contract">
-            <Link
-              onClick={() => {
-                setRoute("/contract");
-              }}
-              to="/contract"
-            >
-              Contract
-            </Link>
-          </Menu.Item>
+
         </Menu>
 
         <Switch>
@@ -375,8 +406,34 @@ function App(props) {
                 and give you a form to interact with it locally
             */}
 
-            <div style={{padding:32, width:400, margin:"auto"}}>
-              Intro text
+            <div style={{padding:32, width:620, margin:"auto"}}>
+              <div style={{marginTop:16,fontSize:18, fontWeight:"bold"}}>
+                Too many hours have gone into the Akita/Gitcoin debate, but I think it’s important that we get as much value as we can…
+              </div>
+              <div style={{marginTop:16,fontSize:18, fontStyle:"italic"}}>
+                I know how hard it is to get funding for public goods in Ethereum.
+              </div>
+              <div style={{marginTop:16,fontSize:18}}>
+                So when I first heard about the Akita tokens in the Gitcoin multi-sig, my gut reaction was, “They should start selling that immediately and use the proceeds to fund public goods on Ethereum!”
+              </div>
+              <div style={{marginTop:16,fontSize:18}}>
+                BUT you can’t just “market sell” these. You would crush the liquidity and end up with hardly anything in terms of value.
+              </div>
+              <div style={{marginTop:16,fontSize:18}}>
+                On top of that, If someone owns HALF of the entire supply there is an existential threat of that supply getting dumped on the open market and crashes the token value.
+              </div>
+              <div style={{marginTop:16,fontSize:18}}>
+                I have prepared this smart contract app that lets Gitcoin approve some amount of Akita to be sold at the current market price.
+              </div>
+              <div style={{marginTop:16,fontSize:18}}>
+                BUT for every 1 Akita purchased, 10 Akita will be burned.
+              </div>
+              <div style={{marginTop:16,fontSize:18}}>
+                The ETH from the sale lands back in the Gitcoin multi-sig and will be used for the ETH side of an ETH/AKITA LBP.
+              </div>
+              <div style={{marginTop:16,fontSize:18}}>
+              - <a href="https://twitter.com/austingriffith" target="_blank">@AustinGriffith</a>
+              </div>
             </div>
 
             {/* uncomment for a second contract:
@@ -400,8 +457,100 @@ function App(props) {
             />
             */}
           </Route>
+          <Route path="/options">
+            <div style={{padding:32, width:550, margin:"auto", border:"1px solid #666666", marginTop:32}}>
+              <Button
+                type="primary"
+                onClick={() => {
+                  tx(writeContracts.AKITAERC20Token.approve(writeContracts.BurnVendor.address,parseEther("2467000003")))
+                }}
+              >
+                Gitcoin approves (0.005%) 2467000003 Akita at 10x burn ~0.1 ETH?
+              </Button>
+            </div>
+
+            <div style={{padding:32, width:550, margin:"auto", border:"1px solid #666666"}}>
+              <Button
+                type="primary"
+                onClick={() => {
+                  tx(writeContracts.AKITAERC20Token.approve(writeContracts.BurnVendor.address,parseEther("1480200002082")))
+                }}
+              >
+                Gitcoin approves (3%) 1480200002082 Akita at 10x burn ~80 ETH?
+              </Button>
+            </div>
+
+
+            <div style={{padding:32, width:550, margin:"auto", border:"1px solid #666666"}}>
+              <Button
+                type="primary"
+                onClick={() => {
+                  tx(writeContracts.AKITAERC20Token.approve(writeContracts.BurnVendor.address,parseEther("2467000003471")))
+                }}
+              >
+                Gitcoin approves (5%) 2467000003471 Akita at 10x burn ~120 ETH?
+              </Button>
+            </div>
+
+            <div style={{padding:32, width:550, margin:"auto", border:"1px solid #666666"}}>
+              <Button
+                type="primary"
+                onClick={() => {
+                  tx(writeContracts.AKITAERC20Token.approve(writeContracts.BurnVendor.address,parseEther("4934000006942")))
+                }}
+              >
+                Gitcoin approves (10%) 4934000006942 Akita at 10x burn ~240 ETH?
+              </Button>
+            </div>
+
+          </Route>
+
+
           <Route path="/buy">
-            <div style={{padding:32, width:720, margin:"auto"}}>
+            <div style={{padding:32, width:640, margin:"auto", fontSize:18}}>
+
+              Send in <EtherInput value={etherIn} onChange={setEtherIn} style={{width:150,fontSize:18}}/> ETH
+
+            </div>
+            <div style={{width:640, margin:"auto"}}>
+              <div>To Rescue</div>
+            </div>
+
+            <div style={{padding:32, width:640, margin:"auto"}}>
+
+              🐕 <Balance value={amountOut && amountOut.div(1000000)} fontSize={18}/>MM Akita
+
+            </div>
+            <div>And Burn</div>
+
+            <div style={{padding:32, width:640, margin:"auto"}}>
+
+              🔥 <Balance value={amountToBurn && amountToBurn.div(1000000)} fontSize={18}/>MM Akita
+
+            </div>
+
+            <div style={{padding:32, width:640, margin:"auto"}}>
+              <Button
+                onClick={() => {
+                  tx( writeContracts.BurnVendor.buy({value: parseEther(etherIn)}),(update)=>{
+                    console.log("TX UPDATE:",update)
+                  })
+
+                }}
+                size="large"
+                shape="round"
+                type={"primary"}
+                disabled={!etherIn}
+              >
+                <span style={{ marginRight: 8 }} role="img" >
+                  🚑
+                </span>
+                Send it!
+              </Button>
+            </div>
+
+
+            <div style={{padding:32, width:820, margin:"auto"}}>
               <List
                 bordered
                 dataSource={buyEvents}
@@ -410,6 +559,9 @@ function App(props) {
                   return (
                     <List.Item key={item.blockNumber+formatEther(item.amount)+item.who+formatEther(item.burn)}>
                       <Address value={item.who} fontSize={16}/>
+                      <div>
+                        Ξ<Balance value={item.value} fontSize={16}/>
+                      </div>
                       <div>
                         🐕 <Balance value={item.amount.div(1000000)} fontSize={16}/>MM
                       </div>
@@ -424,22 +576,34 @@ function App(props) {
           </Route>
           <Route path="/stats">
             <div style={{padding:32, width:400, margin:"auto"}}>
-              <div>Vendor Akita Balance:</div>
-              <Balance value={vendorAkitaBalance && vendorAkitaBalance.div(1000000)} />MM
-              <div>Vendor ETH Balance:</div>
-              <Balance value={burnVendorBalance} />
 
               <div>Gitcoin Akita Balance:</div>
-              <Balance value={gitcoinAkitaBalance} />
+              <Balance value={gitcoinAkitaBalance && gitcoinAkitaBalance.div(1000000)} />MM
 
-              <div>akitaPerEthPriceInVendor:</div>
-              <Balance value={akitaPerEthPriceInVendor && akitaPerEthPriceInVendor.toNumber()} />
+              <div>Vendor Akita Allowance from Gitcoin:</div>
+              <Balance value={vendorAkitaAllowance && vendorAkitaAllowance.div(1000000)} />MM
 
+              <div>Akita per ETH price:</div>
+              { akitaPerEthPriceInVendor && akitaPerEthPriceInVendor.toNumber()/1000000 }MM
 
+              <div>Burn Multiplier:</div>
+              { burnMultiplier && burnMultiplier.toNumber() }
+
+              <div>Akita For Sale:</div>
+              <Balance value={ shouldSellAkita && shouldSellAkita.div(1000000) } />MM
+
+              <div>Should earn ETH:</div>
+              <Balance value={ shouldEarnEth } />(<Balance value={ shouldEarnEth && shouldEarnEth.div(1000000) } price={price}/>MM)
 
             </div>
           </Route>
           <Route path="/contract">
+
+            <div style={{padding:32, width:820, margin:"auto"}}>
+              The smart contract is deployed to {targetNetwork.name} at <Address value={readContracts && readContracts.BurnVendor.address} />
+            </div>
+
+
             <Contract
               name="BurnVendor"
               signer={userProvider.getSigner()}

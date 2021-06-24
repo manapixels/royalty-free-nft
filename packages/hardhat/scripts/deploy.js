@@ -9,11 +9,21 @@ const main = async () => {
 
   console.log("\n\n 📡 Deploying...\n");
 
+  const gitcoinAddress = "0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1"
+
   const akita = await deploy("AKITAERC20Token",["Akita Inu", "AKITA", 18, utils.parseEther("99999999999999"), "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"])
 
   const burnVendor = await deploy("BurnVendor", [ akita.address ])
 
-  const transferAkitaToVendor = await akita.transfer(burnVendor.address,utils.parseEther("49340000069420")) // 1/100th of all the AKITA Gitcoin owns
+  //gitcoin has 49 billion AKITA?
+  const transferAkitaToVendor = await akita.transfer(gitcoinAddress,utils.parseEther("49340000069420")) //to simulate gitcoins address, send their balance here
+
+  // JUST FOR EASY COPY/PASTA:
+  //  1% is 493400000694.2
+  //  10% is 4934000006942
+
+  // 5% of the supply 2,467,000,003,471
+  // 2467000003471 * 10**18 !
 
   //const yourContract = await ethers.getContractAt('YourContract', "0xaAC799eC2d00C013f1F11c37E654e59B0429DF6A") //<-- if you want to instantiate a version of a contract at a specific address!
   //const secondContract = await deploy("SecondContract")

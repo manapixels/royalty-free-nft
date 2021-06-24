@@ -3,12 +3,12 @@ import React from "react";
 
 // displays a page header
 
-export default function Header() {
+export default function Header(props) {
   return (
-    <a href="https://github.com/austintgriffith/scaffold-eth" target="_blank" rel="noopener noreferrer">
+    <a href="/">
       <PageHeader
-        title="🐕 AKITA: 🔥 BurnVendor"
-        subTitle="You buy 1 AKITA and we burn 10 AKITA."
+        title="🏥  AkitaRescue.dog 🐕"
+        subTitle={props.burnMultiplier?"You buy 1 AKITA and it burns "+props.burnMultiplier+" AKITA from Gitcoin.":"loading..."}
         style={{ cursor: "pointer" }}
       />
     </a>
