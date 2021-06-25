@@ -352,16 +352,7 @@ function App(props) {
               Introduction
             </Link>
           </Menu.Item>
-          <Menu.Item key="/contract">
-            <Link
-              onClick={() => {
-                setRoute("/contract");
-              }}
-              to="/contract"
-            >
-              Contract
-            </Link>
-          </Menu.Item>
+
           <Menu.Item key="/options">
             <Link
               onClick={() => {
@@ -392,6 +383,16 @@ function App(props) {
               Stats
             </Link>
           </Menu.Item>
+          <Menu.Item key="/contract">
+            <Link
+              onClick={() => {
+                setRoute("/contract");
+              }}
+              to="/contract"
+            >
+              Contract
+            </Link>
+          </Menu.Item>
 
         </Menu>
 
@@ -405,7 +406,7 @@ function App(props) {
 
             <div style={{padding:32, width:620, margin:"auto"}}>
               <div style={{marginTop:16,fontSize:18, fontWeight:"bold"}}>
-                Too many hours have gone into the Akita/Gitcoin debate, but I think it’s important that we get as much value as we can…
+                Many hours have gone into the Akita/Gitcoin debate, but I think it’s important that we get as much value as we can…
               </div>
               <div style={{marginTop:16,fontSize:18, fontStyle:"italic"}}>
                 I know how hard it is to get funding for public goods in Ethereum.
@@ -414,7 +415,7 @@ function App(props) {
                 So when I first heard about the Akita tokens in the Gitcoin multi-sig, my gut reaction was, “They should start selling that immediately and use the proceeds to fund public goods on Ethereum!”
               </div>
               <div style={{marginTop:16,fontSize:18}}>
-                BUT you can’t just “market sell” these. You would crush the liquidity and end up with hardly anything in terms of value.
+                BUT you can’t just sell these... You would crush the liquidity and end up with hardly anything in terms of value.
               </div>
               <div style={{marginTop:16,fontSize:18}}>
                 On top of that, If someone owns HALF of the entire supply there is an existential threat of that supply getting dumped on the open market and crashes the token value.
