@@ -4,8 +4,8 @@ import { SyncOutlined } from "@ant-design/icons";
 import { formatEther, parseEther } from "@ethersproject/units";
 import { Button, Card, DatePicker, Divider, Input, List, Progress, Slider, Spin, Switch } from "antd";
 import React, { useState } from "react";
+import { ContractFactory, ethers } from "ethers";
 import { Address, Balance } from "../components";
-import { ContractFactory, ethers } from 'ethers';
 
 export default function ExampleUI({
   purpose,
@@ -20,38 +20,35 @@ export default function ExampleUI({
   writeContracts,
 }) {
   const signer = localProvider.getSigner();
-  const zeroAddress = '0x0000000000000000000000000000000000000000'
+  const zeroAddress = "0x0000000000000000000000000000000000000000";
   const [abiFile, setAbiFile] = useState("loading...");
   const [facet, setFacet] = useState("loading...");
 
-  let fileReader
-  function handleFileRead (e) {
+  let fileReader;
+  function handleFileRead(e) {
     const content = fileReader.result;
     setAbiFile(JSON.parse(content));
-
-  };
+  }
   function onFileChange(event) {
-
-    fileReader = new FileReader()
+    fileReader = new FileReader();
     fileReader.onloadend = handleFileRead;
-    fileReader.readAsText(event.target.files[0])    
-  
-  };
+    fileReader.readAsText(event.target.files[0]);
+  }
 
-  const getSelector = (artifacts) => {
+  const getSelector = artifacts => {
     const facetSelectorHash = [];
     for (const selector of artifacts.abi) {
       let selectorHash;
-      if (selector.type === 'function') {
+      if (selector.type === "function") {
         if (selector.inputs.length === 0) {
-          selectorHash = ethers.utils.id(selector.name + '()').slice(0, 10);
+          selectorHash = ethers.utils.id(selector.name + "()").slice(0, 10);
         } else {
-          selectorHash = selector.name + '(';
+          selectorHash = selector.name + "(";
           for (const input of selector.inputs) {
             if (input === selector.inputs[selector.inputs.length - 1]) {
-              selectorHash += input.type + ')';
+              selectorHash += input.type + ")";
             } else {
-              selectorHash += input.type + ',';
+              selectorHash += input.type + ",";
             }
           }
           selectorHash = ethers.utils.id(selectorHash).slice(0, 10);
@@ -83,8 +80,8 @@ export default function ExampleUI({
             onClick={async () => {
               const factory = new ContractFactory(abiFile.abi, abiFile.bytecode, localProvider.getSigner());
               const contract = await factory.deploy();
-              await contract.deployed()
-              console.log('deployed facet', contract.address);
+              await contract.deployed();
+              console.log("deployed facet", contract.address);
               setFacet(contract.address);
             }}
           >
@@ -93,12 +90,16 @@ export default function ExampleUI({
           <Button
             style={{ marginTop: 8 }}
             onClick={async () => {
-              const facetSelector = await getSelector(abiFile)
-              const data = writeContracts.DiamondCutFacet.interface.encodeFunctionData("diamondCut", [[[zeroAddress, 2, facetSelector]], zeroAddress, '0x']);
+              const facetSelector = await getSelector(abiFile);
+              const data = writeContracts.DiamondCutFacet.interface.encodeFunctionData("diamondCut", [
+                [[zeroAddress, 2, facetSelector]],
+                zeroAddress,
+                "0x",
+              ]);
               tx(
                 signer.sendTransaction({
                   to: writeContracts.Diamond.address,
-                  data: data,
+                  data,
                   value: parseEther("0"),
                 }),
               );

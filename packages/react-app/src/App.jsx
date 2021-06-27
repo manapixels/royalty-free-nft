@@ -23,7 +23,7 @@ import {
   useUserProvider,
 } from "./hooks";
 // import Hints from "./Hints";
-import { ExampleUI, Hints, Subgraph } from "./views";
+import { ExampleUI, Hints, Subgraph, DiamondUpgrade } from "./views";
 /*
     Welcome to 🏗 scaffold-eth !
 
@@ -299,10 +299,10 @@ function App(props) {
               }}
               to="/"
             >
-              YourContract
+              Diamond upgrade
             </Link>
           </Menu.Item>
-          <Menu.Item key="/hints">
+          {/* <Menu.Item key="/hints">
             <Link
               onClick={() => {
                 setRoute("/hints");
@@ -341,11 +341,11 @@ function App(props) {
             >
               Subgraph
             </Link>
-          </Menu.Item>
+          </Menu.Item> */}
         </Menu>
 
         <Switch>
-          <Route exact path="/">
+          <Route exact path="/your">
             {/*
                 🎛 this scaffolding is full of commonly used components
                 this <Contract/> component will automatically parse your ABI
@@ -389,8 +389,8 @@ function App(props) {
               price={price}
             />
           </Route>
-          <Route path="/exampleui">
-            <ExampleUI
+          <Route path="/">
+            <DiamondUpgrade
               address={address}
               userProvider={userProvider}
               mainnetProvider={mainnetProvider}
