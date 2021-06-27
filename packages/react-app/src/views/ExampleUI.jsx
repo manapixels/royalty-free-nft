@@ -5,6 +5,7 @@ import { formatEther, parseEther } from "@ethersproject/units";
 import { Button, Card, DatePicker, Divider, Input, List, Progress, Slider, Spin, Switch } from "antd";
 import React, { useState } from "react";
 import { Address, Balance } from "../components";
+import { ContractFactory, ethers } from 'ethers';
 
 export default function ExampleUI({
   purpose,
@@ -18,7 +19,48 @@ export default function ExampleUI({
   readContracts,
   writeContracts,
 }) {
-  const [newPurpose, setNewPurpose] = useState("loading...");
+  const signer = localProvider.getSigner();
+  const zeroAddress = '0x0000000000000000000000000000000000000000'
+  const [abiFile, setAbiFile] = useState("loading...");
+  const [facet, setFacet] = useState("loading...");
+
+  let fileReader
+  function handleFileRead (e) {
+    const content = fileReader.result;
+    setAbiFile(JSON.parse(content));
+
+  };
+  function onFileChange(event) {
+
+    fileReader = new FileReader()
+    fileReader.onloadend = handleFileRead;
+    fileReader.readAsText(event.target.files[0])    
+  
+  };
+
+  const getSelector = (artifacts) => {
+    const facetSelectorHash = [];
+    for (const selector of artifacts.abi) {
+      let selectorHash;
+      if (selector.type === 'function') {
+        if (selector.inputs.length === 0) {
+          selectorHash = ethers.utils.id(selector.name + '()').slice(0, 10);
+        } else {
+          selectorHash = selector.name + '(';
+          for (const input of selector.inputs) {
+            if (input === selector.inputs[selector.inputs.length - 1]) {
+              selectorHash += input.type + ')';
+            } else {
+              selectorHash += input.type + ',';
+            }
+          }
+          selectorHash = ethers.utils.id(selectorHash).slice(0, 10);
+        }
+        facetSelectorHash.push(selectorHash);
+      }
+    }
+    return facetSelectorHash;
+  };
 
   return (
     <div>
@@ -26,40 +68,62 @@ export default function ExampleUI({
         ⚙️ Here is an example UI that displays and sets the purpose in your smart contract:
       */}
       <div style={{ border: "1px solid #cccccc", padding: 16, width: 400, margin: "auto", marginTop: 64 }}>
-        <h2>Example UI:</h2>
-        <h4>purpose: {purpose}</h4>
+        <h2>Diamond Starter</h2>
         <Divider />
         <div style={{ margin: 8 }}>
-          <Input
+          {/* <Input
             onChange={e => {
               setNewPurpose(e.target.value);
             }}
-          />
+          /> */}
+          <input type="file" onChange={onFileChange} />
+
           <Button
             style={{ marginTop: 8 }}
             onClick={async () => {
-              /* look how you call setPurpose on your contract: */
-              /* notice how you pass a call back for tx updates too */
-              const result = tx(writeContracts.YourContract.setPurpose(newPurpose), update => {
-                console.log("📡 Transaction Update:", update);
-                if (update && (update.status === "confirmed" || update.status === 1)) {
-                  console.log(" 🍾 Transaction " + update.hash + " finished!");
-                  console.log(
-                    " ⛽️ " +
-                      update.gasUsed +
-                      "/" +
-                      (update.gasLimit || update.gas) +
-                      " @ " +
-                      parseFloat(update.gasPrice) / 1000000000 +
-                      " gwei",
-                  );
-                }
-              });
-              console.log("awaiting metamask/web3 confirm result...", result);
-              console.log(await result);
+              const factory = new ContractFactory(abiFile.abi, abiFile.bytecode, localProvider.getSigner());
+              const contract = await factory.deploy();
+              await contract.deployed()
+              console.log('deployed facet', contract.address);
+              setFacet(contract.address);
             }}
           >
-            Set Purpose!
+            Deploy Facet
+          </Button>
+          <Button
+            style={{ marginTop: 8 }}
+            onClick={async () => {
+              const facetSelector = await getSelector(abiFile)
+              const data = writeContracts.DiamondCutFacet.interface.encodeFunctionData("diamondCut", [[[zeroAddress, 2, facetSelector]], zeroAddress, '0x']);
+              tx(
+                signer.sendTransaction({
+                  to: writeContracts.Diamond.address,
+                  data: data,
+                  value: parseEther("0"),
+                }),
+              );
+              /* look how you call setPurpose on your contract: */
+              /* notice how you pass a call back for tx updates too */
+              // const result = tx(writeContracts.YourContract.setPurpose(newPurpose), update => {
+              //   console.log("📡 Transaction Update:", update);
+              //   if (update && (update.status === "confirmed" || update.status === 1)) {
+              //     console.log(" 🍾 Transaction " + update.hash + " finished!");
+              //     console.log(
+              //       " ⛽️ " +
+              //         update.gasUsed +
+              //         "/" +
+              //         (update.gasLimit || update.gas) +
+              //         " @ " +
+              //         parseFloat(update.gasPrice) / 1000000000 +
+              //         " gwei",
+              //     );
+              //   }
+              // });
+              // console.log("awaiting metamask/web3 confirm result...", result);
+              // console.log(await result);
+            }}
+          >
+            Upgrade Diamond
           </Button>
         </div>
         <Divider />

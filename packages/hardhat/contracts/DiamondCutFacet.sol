@@ -6,8 +6,8 @@ pragma experimental ABIEncoderV2;
 * Author: Nick Mudge <nick@perfectabstractions.com> (https://twitter.com/mudgen)
 /******************************************************************************/
 
-import "../interfaces/IDiamondCut.sol";
-import "../libraries/LibDiamond.sol";
+import "./interfaces/IDiamondCut.sol";
+import "./libraries/LibDiamond.sol";
 
 contract DiamondCutFacet is IDiamondCut {
     // Standard diamondCut external function

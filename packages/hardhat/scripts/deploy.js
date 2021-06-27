@@ -4,36 +4,47 @@ const chalk = require('chalk');
 const {config, ethers, tenderly, run, artifacts} = require('hardhat');
 const {utils} = require('ethers');
 const R = require('ramda');
-const facet1Artifact = require('../artifacts/contracts/facets/Ballot.sol/Ballot.json');
-const facet2Artifact = require('../artifacts/contracts/facets/Storage.sol/Storage.json');
-const diamondCutArtifact = require('../artifacts/contracts/facets/DiamondCutFacet.sol/DiamondCutFacet.json');
+// const facet1Artifact = require('../artifacts/contracts/facets/Ballot.sol/Ballot.json');
+// const facet2Artifact = require('../artifacts/contracts/facets/Storage.sol/Storage.json');
+// const diamondCutArtifact = require('../artifacts/contracts/DiamondCutFacet.sol/DiamondCutFacet.json');
 
 const main = async () => {
   console.log('\n\n 📡 Deploying...\n');
 
-  const getSelector = (artifacts) => {
-    const facetSelectorHash = [];
-    for (const selector of artifacts.abi) {
-      let selectorHash;
-      if (selector.type === 'function') {
-        if (selector.inputs.length === 0) {
-          selectorHash = ethers.utils.id(selector.name + '()').slice(0, 10);
-        } else {
-          selectorHash = selector.name + '(';
-          for (const input of selector.inputs) {
-            if (input === selector.inputs[selector.inputs.length - 1]) {
-              selectorHash += input.type + ')';
-            } else {
-              selectorHash += input.type + ',';
-            }
-          }
-          selectorHash = ethers.utils.id(selectorHash).slice(0, 10);
-        }
-        facetSelectorHash.push(selectorHash);
+  // const getSelector = (artifacts) => {
+  //   const facetSelectorHash = [];
+  //   for (const selector of artifacts.abi) {
+  //     let selectorHash;
+  //     if (selector.type === 'function') {
+  //       if (selector.inputs.length === 0) {
+  //         selectorHash = ethers.utils.id(selector.name + '()').slice(0, 10);
+  //       } else {
+  //         selectorHash = selector.name + '(';
+  //         for (const input of selector.inputs) {
+  //           if (input === selector.inputs[selector.inputs.length - 1]) {
+  //             selectorHash += input.type + ')';
+  //           } else {
+  //             selectorHash += input.type + ',';
+  //           }
+  //         }
+  //         selectorHash = ethers.utils.id(selectorHash).slice(0, 10);
+  //       }
+  //       facetSelectorHash.push(selectorHash);
+  //     }
+  //   }
+  //   return facetSelectorHash;
+  // };
+
+  function getSelectors (contract) {
+    const signatures = Object.keys(contract.interface.functions)
+    const selectors = signatures.reduce((acc, val) => {
+      if (val !== 'init(bytes)') {
+        acc.push(contract.interface.getSighash(val))
       }
-    }
-    return facetSelectorHash;
-  };
+      return acc
+    }, [])
+    return selectors
+  }
 
   const FacetCutAction = {
     Add: 0,
@@ -51,9 +62,9 @@ const main = async () => {
   // 1.2 we will call diamond facet functions with arguments similar to diamondCutParams below
   // 2. UI page to interact with the 2 sample facet functions via the diamond contract
   const diamondCutParams = [
-    [facet1.address, FacetCutAction.Add, await getSelector(facet1Artifact)],
-    [facet2.address, FacetCutAction.Add, await getSelector(facet2Artifact)],
-    [diamondCut.address, FacetCutAction.Add, await getSelector(diamondCutArtifact)]
+    [facet1.address, FacetCutAction.Add, await getSelectors(facet1)],
+    [facet2.address, FacetCutAction.Add, await getSelectors(facet2)],
+    [diamondCut.address, FacetCutAction.Add, await getSelectors(diamondCut)]
   ];
   const deployedDiamond = await deploy("Diamond", [diamondCutParams])
 
