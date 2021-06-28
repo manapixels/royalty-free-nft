@@ -140,6 +140,7 @@ export default function DiamondUpgrade({
       message.error("Only JSON files are allowed");
     }
     onFileChange(file)
+    message.success("New ABI Uploaded");
     setCurrent(2);
   };
 
@@ -204,6 +205,7 @@ export default function DiamondUpgrade({
             <Button type="primary" style={{ marginTop: 15 }} disabled={action === 2} onClick={deployContract}>
               Deploy Updated Facet
             </Button>
+            <br/>
             <br/>
             { (action === 0 || action === 2) &&
             <Input  placeHolder={"Function Selector like sum(uint, uint)"} onChange={(e)=>{ getsingleSelector(e.target.value) }} />}
