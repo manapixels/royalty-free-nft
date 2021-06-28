@@ -1,1 +1,1 @@
-module.exports = ["BoomboxIRLMarket","BoomboxIRLNFT"];
+module.exports = ["ABCNotationNFT"];

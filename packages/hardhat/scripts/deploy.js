@@ -23,10 +23,12 @@ const main = async () => {
   console.log(" \n")
   */
 
-  // deploy the contract with all the artworks forSale
-  const yourCollectible = await deploy("BoomboxIRLNFT",[ "0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1" ]) // <-- add in constructor args like line 19 vvvv
+  const artist = "0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1"
 
-  const yourMarket = await deploy("BoomboxIRLMarket",[ "0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1", yourCollectible.address ]) // <-- add in constructor args like line 19 vvvv
+  // deploy the contract with all the artworks forSale
+  const yourCollectible = await deploy("ABCNotationNFT",[ artist ]) // <-- add in constructor args like line 19 vvvv
+
+  //const yourMarket = await deploy("BoomboxIRLMarket",[ "0x34aA3F359A9D614239015126635CE7732c18fDF3", yourCollectible.address ]) // <-- add in constructor args like line 19 vvvv
 
 
 

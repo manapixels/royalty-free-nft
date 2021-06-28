@@ -2,7 +2,8 @@ import { LinkOutlined } from "@ant-design/icons";
 import { StaticJsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import { formatEther, parseEther } from "@ethersproject/units";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import { Alert, Button, Card, Col, Input, List, Menu, Row } from "antd";
+import { Alert, Button, Card, Col, Input, List, Menu, Row, Upload, message, Spin, Typography } from "antd";
+import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import "antd/dist/antd.css";
 import { useUserAddress } from "eth-hooks";
 import { utils } from "ethers";
@@ -14,7 +15,7 @@ import Web3Modal from "web3modal";
 import "./App.css";
 import assets from "./assets.js";
 import { EtherInput, Account, Address, AddressInput, Contract, Faucet, GasGauge, Header, Ramp, ThemeSwitch } from "./components";
-import { DAI_ABI, DAI_ADDRESS, INFURA_ID, NETWORK, NETWORKS } from "./constants";
+import { DAI_ABI, DAI_ADDRESS, INFURA_ID, NETWORK, NETWORKS, SONGDATA } from "./constants";
 import { Transactor } from "./helpers";
 import {
   useBalance,
@@ -27,6 +28,8 @@ import {
   useOnBlock,
   useUserProvider,
 } from "./hooks";
+const { TextArea } = Input;
+const { Paragraph } = Typography;
 const axios = require('axios');
 
 //const serverUrl = "https://backend.ether.delivery:49832/"
@@ -196,14 +199,14 @@ function App(props) {
   ]);
 
   // keep track of a variable from the contract in the local React state:
-  const balance = useContractReader(readContracts, "BoomboxIRLNFT", "balanceOf", [ address ]);
+  const balance = useContractReader(readContracts, "ABCNotationNFT", "balanceOf", [ address ]);
   console.log("🤗 balance:", balance);
 
-  const artist = useContractReader(readContracts, "BoomboxIRLNFT", "artist");
+  const artist = useContractReader(readContracts, "ABCNotationNFT", "artist");
   console.log("👨‍🎨 artist:", artist);
 
   // 📟 Listen for broadcast events
-  const transferEvents = useEventListener(readContracts, "BoomboxIRLNFT", "Transfer", localProvider, 1);
+  const transferEvents = useEventListener(readContracts, "ABCNotationNFT", "Transfer", localProvider, 1);
   console.log("📟 Transfer events:", transferEvents);
 
   //
@@ -218,9 +221,9 @@ function App(props) {
       for (let tokenIndex = 0; tokenIndex < balance; tokenIndex++) {
         try {
           console.log("GEtting token index", tokenIndex);
-          const tokenId = await readContracts.BoomboxIRLNFT.tokenOfOwnerByIndex(address, tokenIndex);
+          const tokenId = await readContracts.ABCNotationNFT.tokenOfOwnerByIndex(address, tokenIndex);
           console.log("tokenId", tokenId);
-          const tokenURI = await readContracts.BoomboxIRLNFT.tokenURI(tokenId);
+          const tokenURI = await readContracts.ABCNotationNFT.tokenURI(tokenId);
           console.log("tokenURI", tokenURI);
           const ipfsHash = tokenURI.replace("https://ipfs.io/ipfs/", "");
           console.log("ipfsHash", ipfsHash);
@@ -377,8 +380,154 @@ function App(props) {
     );
   }
 
+  ////====================  ////====================  ////====================  ////====================  ////====================
+
+
+
+  const [ uploading, setUploading ] = useState()
+  const [ imageInIpfs, setImageInIpfs ] = useState()
+
+  const uploadArea = (
+    <Upload
+      name="image"
+      listType="picture-card"
+      className="avatar-uploader"
+      showUploadList={false}
+      customRequest={async (a)=>{
+        console.log("CUSTOM REQUIEST",a)
+        setUploading(true)
+        const result = await ipfs.add(a.file);
+        console.log("UPLOADED",result)
+        setImageInIpfs(result.path)
+        setUploading(false)
+      }}
+      onChange={(a)=>{console.log("CHANGE",a)}}
+    >
+      {imageInIpfs ? <img src={"https://ipfs.io/ipfs/"+imageInIpfs} style={{ maxWidth: 90, maxHeight:90 }} /> : "image"}
+    </Upload>
+  )
+
+  const imageUploadAndDisplay = uploading ? <Spin style={{margin:32}}/> : uploadArea
+
+  const [ nftName, setNFTName ] = useState()
+  const [ nftDesc, setNFTDesc ] = useState()
+  const [ nftUrl, setNFTUrl ] = useState()
+
+  const textFormDisplay = (
+    <div style={{ maxWidth: 320, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
+      <Input placeHolder="name" onChange={(e)=>{setNFTName(e.target.value)}} value={nftName} style={{marginTop:16}} />
+
+      <TextArea placeHolder="description" rows={4} style={{marginTop:16}} onChange={(e)=>{setNFTDesc(e.target.value)}} value={nftDesc}  />
+
+      <Input placeHolder="external url" onChange={(e)=>{setNFTUrl(e.target.value)}} value={nftUrl} style={{marginTop:16}} />
+    </div>
+  )
+
+  const [ notation, setNotation ] = useState()
+
+  const notationFormDisplay = (
+    <div style={{ maxWidth: 520, margin: "auto", paddingBottom: 32 }}>
+      <TextArea placeHolder="notation" rows={16} style={{marginTop:16}} onChange={(e)=>{setNotation(e.target.value)}} value={notation} />
+    </div>
+  )
+
+  const [ manifestInIPFS, setManifestInIPFS ] = useState()
+
+  const [ sending, setSending ] = useState();
+
+  const uploadButton = (
+    <div style={{padding:16}}>
+      <Button
+        style={{ margin: 8 }}
+        loading={sending}
+        size="large"
+        shape="round"
+        type="primary"
+        disabled={ !notation || !nftName || !nftDesc || !imageInIpfs }
+        onClick={async () => {
+          console.log(notation,nftName,nftDesc,imageInIpfs)
+          console.log("UPLOADING...", yourJSON);
+
+
+          const manifest = {
+            description: nftDesc,
+            external_url: nftUrl,
+            image: "https://ipfs.io/ipfs/"+imageInIpfs,
+            name: nftName,
+            notation: notation,
+            /*
+
+            skipping this for now, but eventually you could add:
+
+            attributes: [
+              {
+                trait_type: "BackgroundColor",
+                value: "green",
+              },
+              {
+                trait_type: "Eyes",
+                value: "googly",
+              },
+            ],*/
+          }
+
+          setSending(true);
+          setIpfsHash();
+          const result = await ipfs.add(JSON.stringify(manifest)); // addToIPFS(JSON.stringify(yourJSON))
+          setManifestInIPFS(result.path)
+          setSending(false);
+          console.log("RESULT:", result);
+        }}
+      >
+      Upload Manifest
+    </Button>
+  </div>
+)
+
+const [ minting, setMinting ] = useState();
+
+const [ resultDisplay, setResultDisplay ] = useState("");
+
+
+const mintButton = (
+  <Button
+    style={{ margin: 8 }}
+    loading={minting}
+    size="large"
+    shape="round"
+    type="primary"
+    disabled={ !notation || !manifestInIPFS }
+    onClick={async () => {
+      console.log("MINTING...", manifestInIPFS, notation);
+
+      setMinting(true);
+
+      const mintResult = await tx( writeContracts.ABCNotationNFT.mintItem(manifestInIPFS, notation) )
+
+      setMinting(false);
+
+      console.log("mintResult",mintResult)
+      setResultDisplay(
+        <div style={{marginTop:32,paddingBottom:256}}>
+          <Link  onClick={()=>{setRoute("/yourcollectibles")}} to="/yourcollectibles">
+          🎉 🍾 🎊 Success!!! 🏷 Click here to view the {nftName} NotationNFT!
+          </Link>
+        </div>
+      )
+
+    }}
+  >
+    Mint NFT
+  </Button>
+)
+
+  ////====================  ////====================  ////====================  ////====================  ////====================  ////====================  ////====================
+
+
+
+
   const [yourJSON, setYourJSON] = useState(STARTING_JSON);
-  const [sending, setSending] = useState();
+
   const [ipfsHash, setIpfsHash] = useState();
   const [ipfsDownHash, setIpfsDownHash] = useState();
 
@@ -397,8 +546,8 @@ function App(props) {
       const assetUpdate = [];
       for (const a in assets) {
         try {
-          const tokenId = await readContracts.BoomboxIRLNFT.uriToTokenId(utils.id(a));
-          const owner = await readContracts.BoomboxIRLNFT.ownerOf(tokenId);
+          const tokenId = await readContracts.ABCNotationNFT.uriToTokenId(utils.id(a));
+          const owner = await readContracts.ABCNotationNFT.ownerOf(tokenId);
           assetUpdate.push({ id: a, tokenId: tokenId, ...assets[a], owner });
         } catch (e) {
           console.log(e);
@@ -409,169 +558,11 @@ function App(props) {
       }
       setLoadedAssets(assetUpdate);
     };
-    if (readContracts && readContracts.BoomboxIRLNFT) updateYourCollectibles();
+    if (readContracts && readContracts.ABCNotationNFT) updateYourCollectibles();
   }, [assets, readContracts, transferEvents]);
 
-  const galleryList = [];
-  for (const a in loadedAssets) {
-    console.log("loadedAssets", a, loadedAssets[a]);
-
-    const cardActions = [];
-    if (loadedAssets[a].owner) {
-
-      let artistApprover = ""
-      if(loadedAssets[a].owner==readContracts.BoomboxIRLMarket.address){
-        artistApprover = (
-          <div>
-          <Button
-            onClick={() => {
-              console.log("artistApprover,", a,loadedAssets[a]);
-              tx(writeContracts.BoomboxIRLMarket.buy(
-                loadedAssets[a].tokenId,
-                { gasPrice, value:parseEther("0.5") }));
-            }}
-          >
-            Buy for Ξ0.5
-          </Button>
-          </div>
-        )
-      } else if(loadedAssets[a].owner==address && address==artist){
-        artistApprover = (
-          <div>
-          <Button
-            onClick={() => {
-              console.log("artistApprover,", a,loadedAssets[a]);
-              tx(writeContracts.BoomboxIRLNFT.approve(
-                readContracts.BoomboxIRLMarket.address,
-                loadedAssets[a].tokenId,
-                { gasPrice }));
-            }}
-          >
-            Approve Market
-          </Button>
-          <Button
-            onClick={() => {
-              console.log("artistApprover,", a,loadedAssets[a]);
-              tx(writeContracts.BoomboxIRLMarket.sell(
-                loadedAssets[a].tokenId,
-                parseEther("0.5"),
-                { gasPrice }));
-            }}
-          >
-            Sell For Ξ0.5
-          </Button>
-          </div>
-        )
-      } else if(loadedAssets[a].owner==address && address!=artist){
-        if(emailSent){
-          artistApprover = (
-            <div>
-              {email} sent...
-            </div>
-          )
-        }else{
-          artistApprover = (
-            <div>
-              Contact for shipping:
-              <div>
-                <Input
-                  placeholder = {"enter email address"}
-                  value={email}
-                  onChange={(e)=>{setEmail(e.target.value)}}
-                />
-              </div>
-              <Button
-                disabled={!email}
-                onClick={async() => {
-                  let message = "BoomboxIRLNFT, my contact info is: "+email
-                  console.log("message",message,address)
-                  let sig = await userProvider.send("personal_sign", [ message, address ]);
-                  console.log("sig",sig)
-                  const res = await axios.post(serverUrl, {
-                    address: address,
-                    message: message,
-                    signature: sig,
-                  })
-                  setEmailSent(true)
-                }}
-              >
-                Save
-              </Button>
-              <div>(this will be kept very private)</div>
-
-            </div>
-          )
-        }
-
-      }
 
 
-
-      cardActions.push(
-        <div>
-          owned by:{" "}
-          <Address
-            address={loadedAssets[a].owner}
-            ensProvider={mainnetProvider}
-            blockExplorer={blockExplorer}
-            minimized
-          />
-          <div>
-            {artistApprover}
-          </div>
-        </div>,
-      );
-    } else {
-      if( address && artist && address==artist ){
-        cardActions.push(
-          <div>
-
-            <Button
-              onClick={() => {
-                tx(writeContracts.BoomboxIRLNFT.mintItem(
-                  loadedAssets[a].id,
-                  "X:1;T:A la santé de Noe;A:Valle d'Aosta;B:;C:trad.;O:Italia;Z:Gian Mario Navillod;Q:1/4=120;M:2/4;L:1/16;K:G;G2B2 |d2d2 e2e2 |d2 z2 G2A2 |B2B2 A4 |G2 z2 G2B2 |d2d2 e2e2 |d2 z2 G2A2 |B2B2 A4 |G4 g2g2 |f2f2 e2e2 |d2 z2 e2e2 |d2d2 c2c2 |B2 z2 G2B2 |d2d2 d2 z2 |G2B2 d2d2 |d2 z2 G2B2 |d2 z2 G2B2 |d2 z2 G2B2 |d2d2 e4 |;d2 z2 A2B2 |c2B2 A4 |G2 z2 |]",
-                  { gasPrice }));
-              }}
-            >
-              Mint
-            </Button>
-          </div>,
-        );
-      }else{
-        cardActions.push(
-          <div>
-            ( Not minted yet )
-          </div>,
-        );
-      }
-
-    }
-
-    galleryList.push(
-      <Card
-        style={{ width: 200 }}
-        key={loadedAssets[a].name}
-        actions={cardActions}
-        title={
-          <div>
-            {loadedAssets[a].name}{" "}
-            <a
-              style={{ cursor: "pointer", opacity: 0.33 }}
-              href={loadedAssets[a].external_url}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <LinkOutlined />
-            </a>
-          </div>
-        }
-      >
-        <img style={{ maxWidth: 130 }} src={loadedAssets[a].image} alt="" />
-        <div style={{ opacity: 0.77 }}>{loadedAssets[a].description}</div>
-      </Card>,
-    );
-  }
 
   return (
     <div className="App">
@@ -588,9 +579,10 @@ function App(props) {
               }}
               to="/"
             >
-              Gallery
+              Mint
             </Link>
           </Menu.Item>
+
           <Menu.Item key="/yourcollectibles">
             <Link
               onClick={() => {
@@ -652,11 +644,30 @@ function App(props) {
             */}
 
             <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 256 }}>
-              <StackGrid columnWidth={200} gutterWidth={16} gutterHeight={16}>
-                {galleryList}
-              </StackGrid>
+
+
+
+
+              {textFormDisplay}
+
+              {imageUploadAndDisplay}
+
+              {imageInIpfs?<div style={{padding:16}}><Paragraph copyable>{imageInIpfs}</Paragraph></div>:<div style={{padding:16}}></div>}
+
+              {notationFormDisplay}
+
+              {uploadButton}
+
+              {manifestInIPFS?<div style={{padding:16}}><Paragraph copyable>{manifestInIPFS}</Paragraph></div>:<div style={{padding:16}}></div>}
+
+              {mintButton}
+
+              {resultDisplay}
+
             </div>
           </Route>
+
+
 
           <Route path="/yourcollectibles">
             <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
@@ -701,7 +712,7 @@ function App(props) {
                         <Button
                           onClick={() => {
                             console.log("writeContracts", writeContracts);
-                            tx(writeContracts.BoomboxIRLNFT.transferFrom(address, transferToAddresses[id], id));
+                            tx(writeContracts.ABCNotationNFT.transferFrom(address, transferToAddresses[id], id));
                           }}
                         >
                           Transfer
@@ -808,7 +819,7 @@ function App(props) {
           </Route>
           <Route path="/debugcontracts">
             <Contract
-              name="BoomboxIRLNFT"
+              name="ABCNotationNFT"
               signer={userProvider.getSigner()}
               provider={localProvider}
               address={address}
