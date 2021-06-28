@@ -56,7 +56,7 @@ const AKITA_ABI = [{"constant":true,"inputs":[],"name":"name","outputs":[{"name"
 
 const GITCOIN_MULTISIG_ADDRESS = "0xde21F729137C5Af1b01d73aF1dC21eFfa2B8a0d6"
 
-const TEMP_GITCOIN_LOCAL_ADDRESS = "0xD75b0609ed51307E13bae0F9394b5f63A7f8b6A1"
+const TEMP_GITCOIN_LOCAL_ADDRESS = "0xde21F729137C5Af1b01d73aF1dC21eFfa2B8a0d6"
 
 const UNISWAP_AKITA_WETH_PAIR = "0xda3a20aad0c34fa742bd9813d45bbf67c787ae0b"
 
@@ -126,7 +126,7 @@ function App(props) {
 
   // For more hooks, check out 🔗eth-hooks at: https://www.npmjs.com/package/eth-hooks
 
-  const akitaContract = useExternalContractLoader(mainnetProvider, AKITA_ADDRESS, AKITA_ABI);
+  const akitaContract = useExternalContractLoader(userProvider, AKITA_ADDRESS, AKITA_ABI);
 
   const wethContract = useExternalContractLoader(mainnetProvider, WETH_ADDRESS, AKITA_ABI);
 
@@ -175,8 +175,9 @@ function App(props) {
   const yourAkitaBalance = useContractReader(readContracts, "AKITAERC20Token", "balanceOf", [ address ] );
   //const vendorAkitaBalance = useContractReader(readContracts, "AKITAERC20Token", "balanceOf", [ burnVendorAddress ] );
 
-  const vendorAkitaAllowance = useContractReader(readContracts, "AKITAERC20Token", "allowance", [ TEMP_GITCOIN_LOCAL_ADDRESS, burnVendorAddress ] );
+  const vendorAkitaAllowance = useContractReader({"AKITAERC20Token":akitaContract}, "AKITAERC20Token", "allowance", [ TEMP_GITCOIN_LOCAL_ADDRESS, burnVendorAddress ] );
 
+  console.log("vendorAkitaAllowance",vendorAkitaAllowance,TEMP_GITCOIN_LOCAL_ADDRESS, burnVendorAddress)
 
   const akitaPerEthPriceInVendor = useContractReader(readContracts, "BurnVendor", "tokensPerEth");
   const burnMultiplier = useContractReader(readContracts, "BurnVendor", "burnMultiplier");
@@ -440,16 +441,19 @@ function App(props) {
 
           </Route>
           <Route path="/options">
+
             <div style={{padding:32, width:550, margin:"auto", border:"1px solid #666666", marginTop:32}}>
+              <h2>PUSH THIS BUTTON KEVIN:</h2>
               <Button
                 type="primary"
                 onClick={() => {
-                  tx( akitaContract.approve(writeContracts.BurnVendor.address,parseEther("2467000003")) )
+                  tx( akitaContract.approve(writeContracts.BurnVendor.address,parseEther("49340000069")) )
                 }}
               >
-                Gitcoin approves (0.005%) 2467000003 Akita at 10x burn ~0.1 ETH?
+                Gitcoin approves (0.1%) 49340000069 Akita at 10x burn
               </Button>
             </div>
+
 
             <div style={{padding:32, width:550, margin:"auto", border:"1px solid #666666"}}>
               <Button
@@ -514,9 +518,25 @@ function App(props) {
             <div style={{padding:32, width:640, margin:"auto"}}>
               <Button
                 onClick={() => {
-                  tx( writeContracts.BurnVendor.buy({value: parseEther(etherIn)}),(update)=>{
+                  const value = parseEther(etherIn)
+                  //console.log("value:",value)
+                  const override = {value: value}
+                  console.log("override",override)
+                  // WTF IS THIS ERROR ETHERS ?!?
+                  console.log("contract address:",writeContracts.BurnVendor.address,)
+                  tx( writeContracts.BurnVendor.buy(override),(update)=>{
                     console.log("TX UPDATE:",update)
                   })
+
+                  /*const buyTx = {
+                    to: writeContracts.BurnVendor.address,
+                    value: value,
+                    gasLimit: 75000
+                  }
+                  console.log("buyTx",buyTx)
+                  tx(
+                    buyTx
+                  )*/
 
                 }}
                 size="large"
