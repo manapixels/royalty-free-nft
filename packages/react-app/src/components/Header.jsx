@@ -7,7 +7,7 @@ export default function Header(props) {
   return (
     <a href="/">
       <PageHeader
-        title="👨🏻‍🔬  AkitaRescue.surge.sh (STAGE)"
+        title="🏥  AkitaRescue.dog 🐕"
         subTitle={props.burnMultiplier?"You buy 1 AKITA and it burns "+props.burnMultiplier+" AKITA from Gitcoin.":"loading..."}
         style={{ cursor: "pointer" }}
       />
