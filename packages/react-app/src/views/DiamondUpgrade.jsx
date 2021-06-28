@@ -45,6 +45,7 @@ export default function DiamondUpgrade({
   const [abiFile, setAbiFile] = useState("loading...");
   const [facet, setFacet] = useState("loading...");
   const [current, setCurrent] = useState(0);
+  const [ singleSelctor, setSingleSelector ] = useState()
 
   let fileReader;
   function handleFileRead(e) {
@@ -54,7 +55,7 @@ export default function DiamondUpgrade({
   function onFileChange(event) {
     fileReader = new FileReader();
     fileReader.onloadend = handleFileRead;
-    fileReader.readAsText(event.target.files[0]);
+    fileReader.readAsText(event);
   }
 
   const getSelector = artifacts => {
@@ -89,14 +90,32 @@ export default function DiamondUpgrade({
     setFacet(contract.address);
   };
 
+  const getsingleSelector = async(e) => {
+    const signature = ethers.utils.id(e).slice(0,10);
+    setSingleSelector(signature);
+  }
+
   const upgradeDiamond = async () => {
-    const facetSelector = await getSelector(abiFile);
+    let facetSelector;
+    if (action === 1) {
+      facetSelector = await getSelector(abiFile);
+    } else {
+      facetSelector = [singleSelctor];
+    }
+    let facetAddress;
+    if (action === 2) {
+      facetAddress = zeroAddress;
+    } else {
+      facetAddress = facet;
+    }
     const data = writeContracts.DiamondCutFacet.interface.encodeFunctionData("diamondCut", [
-      [[zeroAddress, 2, facetSelector]],
+      [[facetAddress, action, facetSelector]],
       zeroAddress,
       "0x",
     ]);
+
     tx(
+      // writeContracts.DiamondCutFacet.diamondCut( [[facetAddress, action, facetSelector]], zeroAddress, "0x")
       signer.sendTransaction({
         to: writeContracts.Diamond.address,
         data,
@@ -120,8 +139,8 @@ export default function DiamondUpgrade({
     if (file.type !== "application/json") {
       message.error("Only JSON files are allowed");
     }
-    console.log("file", file);
-    setAbi(file);
+    onFileChange(file)
+    setCurrent(2);
   };
 
   const dummyRequest = ({ onSuccess }) => {
@@ -148,9 +167,9 @@ export default function DiamondUpgrade({
             <h3 style={{ marginBottom: 20 }}>What you want to do with your diamond?</h3>
             <Radio.Group onChange={onActionChange} value={action}>
               <Space direction="vertical">
-                <Radio value={0}>Add selectors</Radio>
+                <Radio value={0}>Add selector</Radio>
                 <Radio value={1}>Replace selectors</Radio>
-                <Radio value={2}>Remove selectors</Radio>
+                <Radio value={2}>Remove selector</Radio>
               </Space>
             </Radio.Group>
             <br />
@@ -177,6 +196,21 @@ export default function DiamondUpgrade({
                 Please provide ABI of a contract with function selectors you are interested in
               </p>
             </Upload.Dragger>
+          </div>
+        )}
+        {current === 2 && (
+          <div style={{ textAlign: "left" }}>
+            {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+            <Button type="primary" style={{ marginTop: 15 }} disabled={action === 2} onClick={deployContract}>
+              Deploy Updated Facet
+            </Button>
+            <br/>
+            { (action === 0 || action === 2) &&
+            <Input  placeHolder={"Function Selector like sum(uint, uint)"} onChange={(e)=>{ getsingleSelector(e.target.value) }} />}
+            <br/>
+            <Button type="primary" style={{ marginTop: 15 }} onClick={upgradeDiamond}>
+              Upgrade Diamond
+            </Button>
           </div>
         )}
       </div>
