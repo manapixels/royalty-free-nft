@@ -23,10 +23,7 @@ contract ABCNotationNFT is ERC721 {
     artist = _artist;
   }
 
-  mapping (bytes32 => string) public notation;
-
-  //this lets you look up a token by the uri (assuming there is only one of each uri for now)
-  mapping (bytes32 => uint256) public uriToTokenId;
+  mapping (uint256 => string) public notation;
 
   function mintItem(string memory tokenURI, string memory _notation)
       public
@@ -42,9 +39,7 @@ contract ABCNotationNFT is ERC721 {
       _mint(msg.sender, id);
       _setTokenURI(id, tokenURI);
 
-      uriToTokenId[uriHash] = id;
-
-      notation[uriHash] = _notation;
+      notation[id] = _notation;
 
       return id;
   }

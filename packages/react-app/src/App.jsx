@@ -64,7 +64,7 @@ console.log("📦 Assets: ", assets);
 */
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS.mainnet; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = false;
@@ -225,6 +225,10 @@ function App(props) {
           console.log("tokenId", tokenId);
           const tokenURI = await readContracts.ABCNotationNFT.tokenURI(tokenId);
           console.log("tokenURI", tokenURI);
+
+          const notation = await readContracts.ABCNotationNFT.notation(tokenId);
+          console.log("notation", notation);
+
           const ipfsHash = tokenURI.replace("https://ipfs.io/ipfs/", "");
           console.log("ipfsHash", ipfsHash);
           const jsonManifestBuffer = await getFromIPFS(ipfsHash);
@@ -232,7 +236,7 @@ function App(props) {
           try {
             const jsonManifest = JSON.parse(jsonManifestBuffer.toString());
             console.log("jsonManifest", jsonManifest);
-            collectibleUpdate.push({ id: tokenId, index: tokenIndex, uri: tokenURI, owner: address, ...jsonManifest });
+            collectibleUpdate.push({ id: tokenId, notation:notation, index: tokenIndex, uri: tokenURI, owner: address, ...jsonManifest });
           } catch (e) {
             console.log(e);
           }
@@ -412,6 +416,8 @@ function App(props) {
   const [ nftName, setNFTName ] = useState()
   const [ nftDesc, setNFTDesc ] = useState()
   const [ nftUrl, setNFTUrl ] = useState()
+  const [ animationUrl, setAnimationUrl ] = useState()
+  const [ youtubeUrl, setYoutubeUrl ] = useState()
 
   const textFormDisplay = (
     <div style={{ maxWidth: 320, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
@@ -420,6 +426,10 @@ function App(props) {
       <TextArea placeHolder="description" rows={4} style={{marginTop:16}} onChange={(e)=>{setNFTDesc(e.target.value)}} value={nftDesc}  />
 
       <Input placeHolder="external url" onChange={(e)=>{setNFTUrl(e.target.value)}} value={nftUrl} style={{marginTop:16}} />
+
+      <Input placeHolder="animation url" onChange={(e)=>{setAnimationUrl(e.target.value)}} value={animationUrl} style={{marginTop:16}} />
+
+      <Input placeHolder="youtube url" onChange={(e)=>{setYoutubeUrl(e.target.value)}} value={youtubeUrl} style={{marginTop:16}} />
     </div>
   )
 
@@ -449,11 +459,10 @@ function App(props) {
           console.log("UPLOADING...", yourJSON);
 
 
-          const manifest = {
-            description: nftDesc,
-            external_url: nftUrl,
-            image: "https://ipfs.io/ipfs/"+imageInIpfs,
+          let manifest = {
             name: nftName,
+            description: nftDesc,
+            image: "https://ipfs.io/ipfs/"+imageInIpfs,
             notation: notation,
             /*
 
@@ -470,6 +479,17 @@ function App(props) {
               },
             ],*/
           }
+          if(nftUrl){
+            manifest.external_url = nftUrl
+          }
+          if(animationUrl){
+            manifest.animation_url = animationUrl
+          }
+          if(youtubeUrl){
+            manifest.youtube_url = youtubeUrl
+          }
+
+          //console.log("manifest",manifest)
 
           setSending(true);
           setIpfsHash();
@@ -717,6 +737,9 @@ const mintButton = (
                         >
                           Transfer
                         </Button>
+                      </div>
+                      <div style={{position:"absolute", fontSize: 7,left:220,top:250, }}>
+                        {item.notation}
                       </div>
                     </List.Item>
                   );
