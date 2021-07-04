@@ -23,6 +23,9 @@ import {
 import React, { useState } from "react";
 import { ContractFactory, ethers } from "ethers";
 import { Address, Balance } from "../components";
+import { useContractReader } from "../hooks";
+
+const DiamondLoupeFacetAbi = require("../contracts/DiamondLoupeFacet.abi");
 
 const { Step } = Steps;
 
@@ -45,7 +48,7 @@ export default function DiamondUpgrade({
   const [abiFile, setAbiFile] = useState("loading...");
   const [facet, setFacet] = useState("loading...");
   const [current, setCurrent] = useState(0);
-  const [ singleSelctor, setSingleSelector ] = useState()
+  const [singleSelctor, setSingleSelector] = useState();
 
   let fileReader;
   function handleFileRead(e) {
@@ -90,10 +93,10 @@ export default function DiamondUpgrade({
     setFacet(contract.address);
   };
 
-  const getsingleSelector = async(e) => {
-    const signature = ethers.utils.id(e).slice(0,10);
+  const getsingleSelector = async e => {
+    const signature = ethers.utils.id(e).slice(0, 10);
     setSingleSelector(signature);
-  }
+  };
 
   const upgradeDiamond = async () => {
     let facetSelector;
@@ -139,7 +142,7 @@ export default function DiamondUpgrade({
     if (file.type !== "application/json") {
       message.error("Only JSON files are allowed");
     }
-    onFileChange(file)
+    onFileChange(file);
     message.success("New ABI Uploaded");
     setCurrent(2);
   };
@@ -149,6 +152,29 @@ export default function DiamondUpgrade({
       onSuccess("ok");
     }, 0);
   };
+
+  React.useEffect(() => {
+    if (!readContracts) return;
+
+    console.log("ABI:", DiamondLoupeFacetAbi);
+
+    const diamondLoupeFacetContract = new ethers.Contract(
+      readContracts.Diamond.address,
+      DiamondLoupeFacetAbi,
+      localProvider,
+    );
+
+    async function getAddresses(contract) {
+      const addresses = await contract.facetAddresses();
+      console.log("Addresses:", addresses);
+      const facets = await contract.facets();
+      console.log("facets:", facets);
+    }
+
+    getAddresses(diamondLoupeFacetContract);
+
+    console.log("Loupe contract", diamondLoupeFacetContract);
+  }, [readContracts]);
 
   return (
     <div>
@@ -205,11 +231,17 @@ export default function DiamondUpgrade({
             <Button type="primary" style={{ marginTop: 15 }} disabled={action === 2} onClick={deployContract}>
               Deploy Updated Facet
             </Button>
-            <br/>
-            <br/>
-            { (action === 0 || action === 2) &&
-            <Input  placeHolder={"Function Selector like sum(uint, uint)"} onChange={(e)=>{ getsingleSelector(e.target.value) }} />}
-            <br/>
+            <br />
+            <br />
+            {(action === 0 || action === 2) && (
+              <Input
+                placeHolder="Function Selector like sum(uint, uint)"
+                onChange={e => {
+                  getsingleSelector(e.target.value);
+                }}
+              />
+            )}
+            <br />
             <Button type="primary" style={{ marginTop: 15 }} onClick={upgradeDiamond}>
               Upgrade Diamond
             </Button>

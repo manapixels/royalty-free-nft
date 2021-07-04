@@ -1,1 +1,1 @@
-module.exports = ["Diamond","DiamondCutFacet","YourContract"];
+module.exports = ["Diamond","DiamondCutFacet","DiamondLoupeFacet","YourContract"];

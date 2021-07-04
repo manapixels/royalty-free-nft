@@ -1,15 +1,15 @@
 /* eslint no-use-before-define: "warn" */
-const fs = require('fs');
-const chalk = require('chalk');
-const {config, ethers, tenderly, run, artifacts} = require('hardhat');
-const {utils} = require('ethers');
-const R = require('ramda');
+const fs = require("fs");
+const chalk = require("chalk");
+const { config, ethers, tenderly, run, artifacts } = require("hardhat");
+const { utils } = require("ethers");
+const R = require("ramda");
 // const facet1Artifact = require('../artifacts/contracts/facets/Ballot.sol/Ballot.json');
 // const facet2Artifact = require('../artifacts/contracts/facets/Storage.sol/Storage.json');
 // const diamondCutArtifact = require('../artifacts/contracts/DiamondCutFacet.sol/DiamondCutFacet.json');
 
 const main = async () => {
-  console.log('\n\n 📡 Deploying...\n');
+  console.log("\n\n 📡 Deploying...\n");
 
   // const getSelector = (artifacts) => {
   //   const facetSelectorHash = [];
@@ -35,27 +35,34 @@ const main = async () => {
   //   return facetSelectorHash;
   // };
 
-  function getSelectors (contract) {
-    const signatures = Object.keys(contract.interface.functions)
+  function getSelectors(contract) {
+    const signatures = Object.keys(contract.interface.functions);
     const selectors = signatures.reduce((acc, val) => {
-      if (val !== 'init(bytes)') {
-        acc.push(contract.interface.getSighash(val))
+      if (val !== "init(bytes)") {
+        acc.push(contract.interface.getSighash(val));
+        console.log(
+          "deploying val=",
+          val,
+          " sigHash=",
+          contract.interface.getSighash(val)
+        );
       }
-      return acc
-    }, [])
-    return selectors
+      return acc;
+    }, []);
+    return selectors;
   }
 
   const FacetCutAction = {
     Add: 0,
     Replace: 1,
-    Remove: 2
-  }
+    Remove: 2,
+  };
   // const yourContract = await deploy("YourContract") // <-- add in constructor args like line 19 vvvv
 
-  const facet1 = await deploy("Ballot")
-  const facet2 = await deploy("Storage")
-  const diamondCut = await deploy("DiamondCutFacet")
+  const facet1 = await deploy("Ballot");
+  const facet2 = await deploy("Storage");
+  const diamondCut = await deploy("DiamondCutFacet");
+  const diamondLoupe = await deploy("DiamondLoupeFacet");
   // NOTE -> So basically in the UI we will showcase two things
   // 1. upgrade diamond facets i.e add/remove/replace selectors in facets the flow will be like this
   // 1.1 we will deploy the updated facet contract from the ui with contract factory in ethers
@@ -64,12 +71,17 @@ const main = async () => {
   const diamondCutParams = [
     [facet1.address, FacetCutAction.Add, await getSelectors(facet1)],
     [facet2.address, FacetCutAction.Add, await getSelectors(facet2)],
-    [diamondCut.address, FacetCutAction.Add, await getSelectors(diamondCut)]
+    [diamondCut.address, FacetCutAction.Add, await getSelectors(diamondCut)],
+    [
+      diamondLoupe.address,
+      FacetCutAction.Add,
+      await getSelectors(diamondLoupe),
+    ],
   ];
-  const deployedDiamond = await deploy("Diamond", [diamondCutParams])
+  const deployedDiamond = await deploy("Diamond", [diamondCutParams]);
 
-  //const yourContract = await ethers.getContractAt('YourContract', "0xaAC799eC2d00C013f1F11c37E654e59B0429DF6A") //<-- if you want to instantiate a version of a contract at a specific address!
-  //const secondContract = await deploy("SecondContract")
+  // const yourContract = await ethers.getContractAt('YourContract', "0xaAC799eC2d00C013f1F11c37E654e59B0429DF6A") //<-- if you want to instantiate a version of a contract at a specific address!
+  // const secondContract = await deploy("SecondContract")
 
   // const exampleToken = await deploy("ExampleToken")
   // const examplePriceOracle = await deploy("ExamplePriceOracle")
@@ -99,7 +111,7 @@ const main = async () => {
   });
   */
 
-  //If you want to verify your contract on tenderly.co (see setup details in the scaffold-eth README!)
+  // If you want to verify your contract on tenderly.co (see setup details in the scaffold-eth README!)
   /*
   await tenderlyVerify(
     {contractName: "YourContract",
@@ -118,9 +130,9 @@ const main = async () => {
   */
 
   console.log(
-    ' 💾  Artifacts (address, abi, and args) saved to: ',
-    chalk.blue('packages/hardhat/artifacts/'),
-    '\n\n'
+    " 💾  Artifacts (address, abi, and args) saved to: ",
+    chalk.blue("packages/hardhat/artifacts/"),
+    "\n\n"
   );
 };
 
@@ -134,13 +146,13 @@ const deploy = async (
 
   const contractArgs = _args || [];
   const contractArtifacts = await ethers.getContractFactory(contractName, {
-    libraries: libraries,
+    libraries,
   });
   const deployed = await contractArtifacts.deploy(...contractArgs, overrides);
   const encoded = abiEncodeArgs(deployed, contractArgs);
   fs.writeFileSync(`artifacts/${contractName}.address`, deployed.address);
 
-  let extraGasInfo = '';
+  let extraGasInfo = "";
   if (deployed && deployed.deployTransaction) {
     const gasUsed = deployed.deployTransaction.gasLimit.mul(
       deployed.deployTransaction.gasPrice
@@ -151,12 +163,12 @@ const deploy = async (
   }
 
   console.log(
-    ' 📄',
+    " 📄",
     chalk.cyan(contractName),
-    'deployed to:',
+    "deployed to:",
     chalk.magenta(deployed.address)
   );
-  console.log(' ⛽', chalk.grey(extraGasInfo));
+  console.log(" ⛽", chalk.grey(extraGasInfo));
 
   await tenderly.persistArtifacts({
     name: contractName,
@@ -179,9 +191,9 @@ const abiEncodeArgs = (deployed, contractArgs) => {
   if (
     !contractArgs ||
     !deployed ||
-    !R.hasPath(['interface', 'deploy'], deployed)
+    !R.hasPath(["interface", "deploy"], deployed)
   ) {
-    return '';
+    return "";
   }
   const encoded = utils.defaultAbiCoder.encode(
     deployed.interface.deploy.inputs,
@@ -192,9 +204,9 @@ const abiEncodeArgs = (deployed, contractArgs) => {
 
 // checks if it is a Solidity file
 const isSolidity = (fileName) =>
-  fileName.indexOf('.sol') >= 0 &&
-  fileName.indexOf('.swp') < 0 &&
-  fileName.indexOf('.swap') < 0;
+  fileName.indexOf(".sol") >= 0 &&
+  fileName.indexOf(".swp") < 0 &&
+  fileName.indexOf(".swap") < 0;
 
 const readArgsFile = (contractName) => {
   let args = [];
@@ -213,19 +225,19 @@ function sleep(ms) {
 }
 
 // If you want to verify on https://tenderly.co/
-const tenderlyVerify = async ({contractName, contractAddress}) => {
-  let tenderlyNetworks = [
-    'kovan',
-    'goerli',
-    'mainnet',
-    'rinkeby',
-    'ropsten',
-    'matic',
-    'mumbai',
-    'xDai',
-    'POA',
+const tenderlyVerify = async ({ contractName, contractAddress }) => {
+  const tenderlyNetworks = [
+    "kovan",
+    "goerli",
+    "mainnet",
+    "rinkeby",
+    "ropsten",
+    "matic",
+    "mumbai",
+    "xDai",
+    "POA",
   ];
-  let targetNetwork = process.env.HARDHAT_NETWORK || config.defaultNetwork;
+  const targetNetwork = process.env.HARDHAT_NETWORK || config.defaultNetwork;
 
   if (tenderlyNetworks.includes(targetNetwork)) {
     console.log(
@@ -239,18 +251,17 @@ const tenderlyVerify = async ({contractName, contractAddress}) => {
       address: contractAddress,
     });
 
-    let verification = await tenderly.verify({
+    const verification = await tenderly.verify({
       name: contractName,
       address: contractAddress,
       network: targetNetwork,
     });
 
     return verification;
-  } else {
-    console.log(
-      chalk.grey(` 🧐 Contract verification not supported on ${targetNetwork}`)
-    );
   }
+  console.log(
+    chalk.grey(` 🧐 Contract verification not supported on ${targetNetwork}`)
+  );
 };
 
 main()
