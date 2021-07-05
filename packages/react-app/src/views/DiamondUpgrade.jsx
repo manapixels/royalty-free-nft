@@ -25,6 +25,8 @@ import React, { useState } from "react";
 import { ContractFactory, ethers } from "ethers";
 import { Address, Balance } from "../components";
 import { useContractReader } from "../hooks";
+import LocaleProvider from "antd/lib/locale-provider";
+import { local } from "web3modal";
 
 const DiamondLoupeFacetAbi = require("../contracts/DiamondLoupeFacet.abi");
 
@@ -50,8 +52,7 @@ export default function DiamondUpgrade({
   const [facet, setFacet] = useState("loading...");
   const [current, setCurrent] = useState(0);
   const [singleSelctor, setSingleSelector] = useState();
-  const [beforeUpgradeSelectors, setbeforeUpgradeSelectors] =  useState();
-  const [afterUpgradeSelectors, setafterUpgradeSelectors] =  useState();
+  const [selectors, setSelectors] =  useState();
 
   let fileReader;
   function handleFileRead(e) {
@@ -109,30 +110,6 @@ export default function DiamondUpgrade({
       return '';
     }
   }
-
-  async function getAfterUpgradeSelectors(contract) {
-    const facetsPayload = [];
-    const addresses = await contract.facetAddresses();
-    console.log("Addresses:", addresses);
-    const facets = await contract.facets();
-    console.log("facets:", facets);
-    for(const facetSelector of facets) {
-      const facetDetails = {};
-      facetDetails[facetSelector[0]] = [];
-      for (const signature of facetSelector[1]) {
-        const fragment = await getFragment(signature);
-        if (fragment !== '') {
-          facetDetails[facetSelector[0]].push(fragment);
-        }
-      } 
-        if (facetDetails[facetSelector[0]].length > 0) {
-          facetsPayload.push(facetDetails);
-        }
-    }
-    //after - selectors
-    setafterUpgradeSelectors(facetsPayload)
-  }
-
   const upgradeDiamond = async () => {
     let facetSelector;
     if (action === 1) {
@@ -153,22 +130,19 @@ export default function DiamondUpgrade({
     ]);
 
     tx(
-      // writeContracts.DiamondCutFacet.diamondCut( [[facetAddress, action, facetSelector]], zeroAddress, "0x")
       signer.sendTransaction({
         to: writeContracts.Diamond.address,
         data,
         value: parseEther("0"),
       }),
     );
-    await tx.wait()
-
     const diamondLoupeFacetContract = new ethers.Contract(
       readContracts.Diamond.address,
       DiamondLoupeFacetAbi,
       localProvider,
     );
-
-    await getAfterUpgradeSelectors(diamondLoupeFacetContract);
+    
+    await getSelectors(diamondLoupeFacetContract);
   };
 
   const confirmAction = () => {
@@ -197,6 +171,30 @@ export default function DiamondUpgrade({
     }, 0);
   };
 
+  async function getSelectors(contract) {
+    const facetsPayload = [];
+    const addresses = await contract.facetAddresses();
+    console.log("Addresses:", addresses);
+    const facets = await contract.facets();
+    console.log("facets:", facets);
+    for(const facetSelector of facets) {
+      const facetDetails = {};
+      facetDetails[facetSelector[0]] = [];
+      for (const signature of facetSelector[1]) {
+        const fragment = await getFragment(signature);
+        if (fragment !== '') {
+          facetDetails[facetSelector[0]].push(fragment);
+        }
+      } 
+        if (facetDetails[facetSelector[0]].length > 0) {
+          facetsPayload.push(facetDetails);
+        }
+    }
+    console.log("facets111:", facetsPayload);
+    //before - selectors
+    setSelectors(facetsPayload)
+  }
+
   React.useEffect(() => {
     if (!readContracts) return;
 
@@ -206,30 +204,7 @@ export default function DiamondUpgrade({
       localProvider,
     );
 
-    async function getBeforeUpgradeSelectors(contract) {
-      const facetsPayload = [];
-      const addresses = await contract.facetAddresses();
-      console.log("Addresses:", addresses);
-      const facets = await contract.facets();
-      console.log("facets:", facets);
-      for(const facetSelector of facets) {
-        const facetDetails = {};
-        facetDetails[facetSelector[0]] = [];
-        for (const signature of facetSelector[1]) {
-          const fragment = await getFragment(signature);
-          if (fragment !== '') {
-            facetDetails[facetSelector[0]].push(fragment);
-          }
-        } 
-          if (facetDetails[facetSelector[0]].length > 0) {
-            facetsPayload.push(facetDetails);
-          }
-      }
-      //before - selectors
-      setbeforeUpgradeSelectors(facetsPayload)
-    }
-
-    getBeforeUpgradeSelectors(diamondLoupeFacetContract);
+    getSelectors(diamondLoupeFacetContract);
 
     console.log("Loupe contract", diamondLoupeFacetContract);
   }, [readContracts]);
