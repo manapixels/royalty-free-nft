@@ -2,6 +2,7 @@
 
 import { SyncOutlined, InboxOutlined } from "@ant-design/icons";
 import { formatEther, parseEther } from "@ethersproject/units";
+import axios from "axios";
 
 import {
   Space,
@@ -49,6 +50,8 @@ export default function DiamondUpgrade({
   const [facet, setFacet] = useState("loading...");
   const [current, setCurrent] = useState(0);
   const [singleSelctor, setSingleSelector] = useState();
+  const [beforeUpgradeSelectors, setbeforeUpgradeSelectors] =  useState();
+  const [afterUpgradeSelectors, setafterUpgradeSelectors] =  useState();
 
   let fileReader;
   function handleFileRead(e) {
@@ -98,6 +101,38 @@ export default function DiamondUpgrade({
     setSingleSelector(signature);
   };
 
+  const getFragment = async (hash) => {
+    const result = await axios.get(`https://www.4byte.directory/api/v1/signatures/?hex_signature=${hash}`);
+    if (result.data.results[0] && result.data.results.length > 0) {
+      return result.data.results[0].text_signature;
+    } else {
+      return '';
+    }
+  }
+
+  async function getAfterUpgradeSelectors(contract) {
+    const facetsPayload = [];
+    const addresses = await contract.facetAddresses();
+    console.log("Addresses:", addresses);
+    const facets = await contract.facets();
+    console.log("facets:", facets);
+    for(const facetSelector of facets) {
+      const facetDetails = {};
+      facetDetails[facetSelector[0]] = [];
+      for (const signature of facetSelector[1]) {
+        const fragment = await getFragment(signature);
+        if (fragment !== '') {
+          facetDetails[facetSelector[0]].push(fragment);
+        }
+      } 
+        if (facetDetails[facetSelector[0]].length > 0) {
+          facetsPayload.push(facetDetails);
+        }
+    }
+    //after - selectors
+    setafterUpgradeSelectors(facetsPayload)
+  }
+
   const upgradeDiamond = async () => {
     let facetSelector;
     if (action === 1) {
@@ -125,6 +160,15 @@ export default function DiamondUpgrade({
         value: parseEther("0"),
       }),
     );
+    await tx.wait()
+
+    const diamondLoupeFacetContract = new ethers.Contract(
+      readContracts.Diamond.address,
+      DiamondLoupeFacetAbi,
+      localProvider,
+    );
+
+    await getAfterUpgradeSelectors(diamondLoupeFacetContract);
   };
 
   const confirmAction = () => {
@@ -156,22 +200,36 @@ export default function DiamondUpgrade({
   React.useEffect(() => {
     if (!readContracts) return;
 
-    console.log("ABI:", DiamondLoupeFacetAbi);
-
     const diamondLoupeFacetContract = new ethers.Contract(
       readContracts.Diamond.address,
       DiamondLoupeFacetAbi,
       localProvider,
     );
 
-    async function getAddresses(contract) {
+    async function getBeforeUpgradeSelectors(contract) {
+      const facetsPayload = [];
       const addresses = await contract.facetAddresses();
       console.log("Addresses:", addresses);
       const facets = await contract.facets();
       console.log("facets:", facets);
+      for(const facetSelector of facets) {
+        const facetDetails = {};
+        facetDetails[facetSelector[0]] = [];
+        for (const signature of facetSelector[1]) {
+          const fragment = await getFragment(signature);
+          if (fragment !== '') {
+            facetDetails[facetSelector[0]].push(fragment);
+          }
+        } 
+          if (facetDetails[facetSelector[0]].length > 0) {
+            facetsPayload.push(facetDetails);
+          }
+      }
+      //before - selectors
+      setbeforeUpgradeSelectors(facetsPayload)
     }
 
-    getAddresses(diamondLoupeFacetContract);
+    getBeforeUpgradeSelectors(diamondLoupeFacetContract);
 
     console.log("Loupe contract", diamondLoupeFacetContract);
   }, [readContracts]);
