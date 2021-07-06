@@ -23,10 +23,10 @@ import {
 } from "antd";
 import React, { useState } from "react";
 import { ContractFactory, ethers } from "ethers";
-import { Address, Balance } from "../components";
-import { useContractReader } from "../hooks";
 import LocaleProvider from "antd/lib/locale-provider";
 import { local } from "web3modal";
+import { Address, Balance } from "../components";
+import { useContractReader } from "../hooks";
 
 const DiamondLoupeFacetAbi = require("../contracts/DiamondLoupeFacet.abi");
 
@@ -52,7 +52,8 @@ export default function DiamondUpgrade({
   const [facet, setFacet] = useState("loading...");
   const [current, setCurrent] = useState(0);
   const [singleSelctor, setSingleSelector] = useState();
-  const [selectors, setSelectors] =  useState();
+  const [selectors, setSelectors] = useState([]);
+  const [diamondFacets, setDiamondFacets] = useState([]);
 
   let fileReader;
   function handleFileRead(e) {
@@ -102,14 +103,13 @@ export default function DiamondUpgrade({
     setSingleSelector(signature);
   };
 
-  const getFragment = async (hash) => {
+  const getFragment = async hash => {
     const result = await axios.get(`https://www.4byte.directory/api/v1/signatures/?hex_signature=${hash}`);
     if (result.data.results[0] && result.data.results.length > 0) {
       return result.data.results[0].text_signature;
-    } else {
-      return '';
     }
-  }
+    return "";
+  };
   const upgradeDiamond = async () => {
     let facetSelector;
     if (action === 1) {
@@ -141,7 +141,7 @@ export default function DiamondUpgrade({
       DiamondLoupeFacetAbi,
       localProvider,
     );
-    
+
     await getSelectors(diamondLoupeFacetContract);
   };
 
@@ -172,27 +172,29 @@ export default function DiamondUpgrade({
   };
 
   async function getSelectors(contract) {
+    setSelectors([]);
     const facetsPayload = [];
     const addresses = await contract.facetAddresses();
     console.log("Addresses:", addresses);
     const facets = await contract.facets();
     console.log("facets:", facets);
-    for(const facetSelector of facets) {
+    for (const facetSelector of facets) {
       const facetDetails = {};
       facetDetails[facetSelector[0]] = [];
       for (const signature of facetSelector[1]) {
         const fragment = await getFragment(signature);
-        if (fragment !== '') {
+        if (fragment !== "") {
           facetDetails[facetSelector[0]].push(fragment);
         }
-      } 
-        if (facetDetails[facetSelector[0]].length > 0) {
-          facetsPayload.push(facetDetails);
-        }
+      }
+      if (facetDetails[facetSelector[0]].length > 0) {
+        facetsPayload.push(facetDetails);
+      }
     }
     console.log("facets111:", facetsPayload);
-    //before - selectors
-    setSelectors(facetsPayload)
+    // before - selectors
+    setDiamondFacets(facets);
+    setSelectors(facetsPayload);
   }
 
   React.useEffect(() => {
@@ -280,6 +282,22 @@ export default function DiamondUpgrade({
             </Button>
           </div>
         )}
+      </div>
+      <div style={{ textAlign: "left", maxWidth: 850, margin: "0 auto" }}>
+        <h2 style={{ marginTop: "20px", marginBottom: "10px" }}>Available facets and its selectors</h2>
+        {selectors.length === 0 && <p>Fetching selectors..</p>}
+        {selectors.map(selector => {
+          const facetAddress = Object.keys(selector)[0];
+          const sels = selector[facetAddress];
+          return (
+            <div style={{ marginTop: "10px" }}>
+              <h3>{facetAddress}</h3>
+              {sels.map(sel => (
+                <p style={{ margin: 0, padding: 0 }}>{sel}</p>
+              ))}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
