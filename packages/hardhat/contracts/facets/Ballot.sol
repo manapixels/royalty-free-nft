@@ -122,13 +122,13 @@ contract Ballot {
         }
     }
 
-    // /** 
-    //  * @dev Calls winningProposal() function to get the index of the winner contained in the proposals array and then
-    //  * @return winnerName_ the name of the winner
-    //  */
-    // function winnerName() public view
-    //         returns (bytes32 winnerName_)
-    // {
-    //     winnerName_ = proposals[winningProposal()].name;
-    // }
+    /** 
+     * @dev Calls winningProposal() function to get the index of the winner contained in the proposals array and then
+     * @return winnerName_ the name of the winner
+     */
+    function winnerName() public view
+            returns (bytes32 winnerName_)
+    {
+        winnerName_ = proposals[winningProposal()].name;
+    }
 }

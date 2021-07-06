@@ -53,7 +53,7 @@ export default function DiamondUpgrade({
   const [current, setCurrent] = useState(0);
   const [singleSelctor, setSingleSelector] = useState();
   const [selectors, setSelectors] = useState([]);
-  const [diamondFacets, setDiamondFacets] = useState([]);
+  // const [diamondFacets, setDiamondFacets] = useState([]);
 
   let fileReader;
   function handleFileRead(e) {
@@ -94,7 +94,7 @@ export default function DiamondUpgrade({
     const factory = new ContractFactory(abiFile.abi, abiFile.bytecode, localProvider.getSigner());
     const contract = await factory.deploy();
     await contract.deployed();
-    console.log("deployed facet", contract.address);
+    alert("Facet Deployed");
     setFacet(contract.address);
   };
 
@@ -192,8 +192,7 @@ export default function DiamondUpgrade({
       }
     }
     console.log("facets111:", facetsPayload);
-    // before - selectors
-    setDiamondFacets(facets);
+    // setDiamondFacets(facets);
     setSelectors(facetsPayload);
   }
 
@@ -283,7 +282,7 @@ export default function DiamondUpgrade({
           </div>
         )}
       </div>
-      <div style={{ textAlign: "left", maxWidth: 850, margin: "0 auto" }}>
+      <div style={{ textAlign: "left", maxWidth: 800, margin: "0 auto" }}>
         <h2 style={{ marginTop: "20px", marginBottom: "10px" }}>Available facets and its selectors</h2>
         {selectors.length === 0 && <p>Fetching selectors..</p>}
         {selectors.map(selector => {
