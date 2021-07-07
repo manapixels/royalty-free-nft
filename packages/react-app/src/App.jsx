@@ -21,6 +21,7 @@ import {
 } from "./hooks";
 // import Hints from "./Hints";
 import { ExampleUI, Hints, Subgraph } from "./views";
+import Gamepad from 'react-gamepad'
 
 const { ethers } = require("ethers");
 /*
@@ -43,7 +44,7 @@ const { ethers } = require("ethers");
 */
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS.mainnet; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -341,7 +342,39 @@ function App(props) {
     );
   }
 
+  const connectHandler = (gamepadIndex) => {
+    console.log(`Gamepad ${gamepadIndex} connected !`)
+  }
+
+  const disconnectHandler = (gamepadIndex) => {
+    console.log(`Gamepad ${gamepadIndex} disconnected !`)
+  }
+
+  const buttonChangeHandler = (buttonName, down) =>  {
+    console.log(buttonName, down)
+  }
+
+  const axisChangeHandler = (axisName, value, previousValue) =>  {
+    console.log(axisName, value)
+  }
+
+  const buttonDownHandler = (buttonName) =>  {
+    console.log(buttonName, 'down')
+  }
+
+  const buttonUpHandler = (buttonName) =>  {
+    console.log(buttonName, 'up')
+  }
+
   return (
+    <Gamepad
+      onConnect={connectHandler}
+      onDisconnect={disconnectHandler}
+      onButtonChange={buttonChangeHandler}
+      onAxisChange={axisChangeHandler}
+      onButtonDown={buttonDownHandler}
+      onButtonUp={buttonUpHandler}
+    >
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
       <Header />
@@ -488,6 +521,8 @@ function App(props) {
         {faucetHint}
       </div>
 
+
+
       {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
       <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
         <Row align="middle" gutter={[4, 4]}>
@@ -528,6 +563,7 @@ function App(props) {
         </Row>
       </div>
     </div>
+    </Gamepad>
   );
 }
 
