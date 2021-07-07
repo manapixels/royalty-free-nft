@@ -1,12 +1,3 @@
-/* body {
-  margin: 0;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-} */
-
 @charset "UTF-8";
 :root {
   --space: #0E0333;
@@ -24,10 +15,6 @@ code {
   box-sizing: border-box;
 }
 
-ol, ul, dl {
-  margin-bottom: 0;
-}
-
 img {
   display: block;
   width: 100%;
@@ -38,7 +25,7 @@ body {
   color: var(--elder);
 }
 
-body {
+html {
   scroll-behavior: smooth;
 }
 
@@ -46,7 +33,7 @@ body {
   background: var(--elder);
 }
 
-body {
+html {
   color: var(--elder);
   font-family: "Poppins", sans-serif;
   font-kerning: auto;
@@ -91,22 +78,22 @@ a:hover {
 }
 
 @media (min-width: 1313px) {
-  body {
+  html {
     font-size: 140%;
   }
 }
 @media (max-width: 1312px) {
-  body {
+  html {
     font-size: 120%;
   }
 }
 @media (max-width: 992px) {
-  body {
+  html {
     font-size: 110%;
   }
 }
 @media (max-width: 688px) {
-  body {
+  html {
     font-size: 100%;
   }
 }

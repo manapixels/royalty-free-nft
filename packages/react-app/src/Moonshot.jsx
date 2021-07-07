@@ -22,7 +22,6 @@ import {
   useOnBlock,
 } from "./hooks";
 import { Header, Account, Faucet, Ramp, Contract, GasGauge, ThemeSwitch, Address } from "./components";
-import Moonshot from "./Moonshot";
 import { Transactor } from "./helpers";
 // import Hints from "./Hints";
 import { Hints, ExampleUI, Subgraph } from "./views";
@@ -80,7 +79,7 @@ const localProvider = new StaticJsonRpcProvider(localProviderUrlFromEnv);
 // 🔭 block explorer URL
 const blockExplorer = targetNetwork.blockExplorer;
 
-function App(props) {
+function Moonshot(props) {
   const mainnetProvider = scaffoldEthProvider && scaffoldEthProvider._network ? scaffoldEthProvider : mainnetInfura;
 
   const [injectedProvider, setInjectedProvider] = useState();
@@ -352,330 +351,59 @@ function App(props) {
   }
 
   return (
-    <div>
-      {/* HEADER */}
-      <header>
-        {/* left logo */}
-        <div className="header-logo">
-          <a data-kinetics-attraction href="/">
-            {/* pls load as regular svg inline with react */}
-            <object type="image/svg+xml" data="assets/images/logo-moon.svg" />
-          </a>
+    <div className="App">
+      {/* ✏️ Edit the header and change the title to your project name */}
+      <Header />
+
+      {networkDisplay}
+
+      <div style={{ width: 500, margin: "auto", marginTop: 32 }}>
+        <img src="./moonshot.gif" style={{ minWidth: 524 }} />
+
+        <div style={{ marginTop: 16 }}>
+          For the first time ever it's possible to program our values into our money. We value coordination, so why not
+          use programmable money to create better coordination tools?
         </div>
-        {/* right nav */}
-        <div className="header-navigation">
-          {/* page navigation */}
-          <nav id="pageMenu">
-            <ul>
-              <a href>
-                <li aria-current="page">Home</li>
-              </a>
-              <a href>
-                <li>Announcement</li>
-              </a>
-              <a href>
-                <li>Projects</li>
-              </a>
-              <a href>
-                <li>Discussion</li>
-              </a>
-            </ul>
-          </nav>
-          {/* mobile buger ui */}
-          <div data-kinetics-attraction className="burger">
-            <div id="openMenu" className="icon">
-              {/* pls load "assets/images/menu.svg" inline instead */}
-              <svg xmlns="http://www.w3.org/2000/svg" width={64} height={64} viewBox="0 0 64 64">
-                <line x1={16} y1={32} x2={48} y2={32} />
-                <line x1={16} y1={20} x2={48} y2={20} />
-                <line x1={16} y1={44} x2={48} y2={44} />
-              </svg>
-            </div>
-            <div id="closeMenu" className="icon hide">
-              {/* pls load "assets/images/close.svg" inline instead */}
-              <svg xmlns="http://www.w3.org/2000/svg" width={64} height={64} viewBox="0 0 64 64">
-                <line x1={16} y1={16} x2={48} y2={48} />
-                <line x1={48} y1={16} x2={16} y2={48} />
-              </svg>
-            </div>
-          </div>
-          {/* wallet */}
-          <div id="openWalletMenu" className="wallet-status" data-kinetics-attraction>
-            {/* hide if connected to a provider */}
-            <div className="icon">
-              {/* pls load "assets/images/wallet.svg" inline instead */}
-              <svg xmlns="http://www.w3.org/2000/svg" width={64} height={64} viewBox="0 0 64 64" fill="none">
-                <path d="M52 26V16a4 4 0 0 0-4-4H12a4 4 0 0 0-4 4v32a4 4 0 0 0 4 4h36a4 4 0 0 0 4-4V38" />
-                <rect x={48} y={26} width={8} height={12} />
-              </svg>
-            </div>
-            {/* hide if not connected to a provider */}
-            <div className="provider">
-              {/* example ( will probably come from walletconnect i assume ) */}
-              <img src="assets/images/metamask.svg" alt="" />
-            </div>
-          </div>
+        <div style={{ marginTop: 16 }}>
+          The moonshot collective is a group of builders & web3 community members who are looking to prototype
+          experiments in coordination (whether thats public goods, private goods, governance tools).
         </div>
-      </header>
-      {/* WALLET-MENU */}
-      <div id="walletMenu" className="wallet-menu">
-        <div id="closeWalletMenu" className="action">
-          <span>Wallet</span>
-          <div className="icon">
-            {/* pls load "assets/images/close.svg" inline instead */}
-            <svg xmlns="http://www.w3.org/2000/svg" width={64} height={64} viewBox="0 0 64 64">
-              <line x1={16} y1={16} x2={48} y2={48} />
-              <line x1={48} y1={16} x2={16} y2={48} />
-            </svg>
-          </div>
-        </div>
-        <div className="wallet-detail">
-          <div className="network">mainnet</div>
-          <div className="address">0xbadc...8d90</div>
-          <div className="balance">1000 ETH</div>
-          <div className="token">1337 MATIC</div>
-        </div>
-        <div className="action">
-          <span>Change Provider</span>
-          <div className="icon">
-            {/* pls load "assets/images/provider.svg" inline instead */}
-            <svg xmlns="http://www.w3.org/2000/svg" width={64} height={64} viewBox="0 0 64 64">
-              <polygon points="8 20 8 44 32 56 56 44 56 20 32 8 8 20" />
-              <line x1={32} y1={32} x2={56} y2={20} />
-              <line x1={32} y1={56} x2={32} y2={32} />
-              <line x1={56} y1={44} x2={32} y2={32} />
-              <line x1={8} y1={44} x2={32} y2={32} />
-              <line x1={8} y1={20} x2={32} y2={32} />
-              <line x1={32} y1={8} x2={32} y2={32} />
-            </svg>
-          </div>
-        </div>
-        <div className="action">
-          <span>Connect</span>
-          <div className="icon">
-            {/* pls load "assets/images/disconnect.svg" inline instead */}
-            <svg xmlns="http://www.w3.org/2000/svg" width={64} height={64} viewBox="0 0 64 64">
-              <path d="M49,15A24,24,0,1,1,15,15" />
-              <line x1={32} y1={8} x2={32} y2={32} />
-            </svg>
-          </div>
-        </div>
-        <div className="action">
-          <span>Disconnect</span>
-          <div className="icon">
-            {/* pls load "assets/images/disconnect.svg" inline instead */}
-            <svg xmlns="http://www.w3.org/2000/svg" width={64} height={64} viewBox="0 0 64 64">
-              <path d="M49,15A24,24,0,1,1,15,15" />
-              <line x1={32} y1={8} x2={32} y2={32} />
-            </svg>
-          </div>
-        </div>
+        <div style={{ marginTop: 16 }}>Got dev skills + want to help build the future? Get Involved:</div>
       </div>
-      {/* INTRO */}
-      <article id="intro">
-        <section className="content-intro">
-          <div>
-            <h1>What</h1>
-            <p>
-              We've now got programmable money, and for the first time ever it's possible to program our values into our
-              money. We value coordination, so why not use programmable money to create better coordination tools? The
-              moonshot collective is a collection of builders &amp; web3 community members who are looking to prototype
-              experiments in coordination (whether thats public goods, private goods, governance tools). Got dev skills
-              + want to help build the future? <br />
-              <a href="#subscribe">Get Involved.</a>
-            </p>
-          </div>
-          <figure>
-            {/* not needed to be inline */}
-            <img src="assets/images/collab-animation.svg" />
-          </figure>
-        </section>
-      </article>
-      {/* moonify filter ( transform images yellow ) */}
-      <svg>
-        <filter id="moonify">
-          <feColorMatrix
-            colorInterpolationFilters="sRGB"
-            type="matrix"
-            values="1 0 0 0 0 0 0.8 0 0 0 0 0 0 0 0 0 0 0 1 0"
-          />
-        </filter>
-      </svg>
-      {/* MEMBERS */}
-      {/* the images will be probably be replaced by a lot regular images i assume */}
-      <article id="members">
-        <section className="column">
-          <h1>Who</h1>
-        </section>
-        <section className="content-members">
-          <figure data-kinetics-attraction>
-            <a href="#">
-              <img className="moonify" src="assets/images/members/test.jpg" />
-              <figcaption>Austin</figcaption>
-            </a>
-          </figure>
-          <figure data-kinetics-attraction>
-            <a href="#">
-              <img src="assets/images/moon-40.svg" />
-              <figcaption>Kevin</figcaption>
-            </a>
-          </figure>
-          <figure data-kinetics-attraction>
-            <a href="#">
-              <img src="assets/images/moon-60.svg" />
-              <figcaption>Castall</figcaption>
-            </a>
-          </figure>
-          <figure data-kinetics-attraction>
-            <a href="#">
-              <img src="assets/images/moon-80.svg" />
-              <figcaption>Auryn</figcaption>
-            </a>
-          </figure>
-          <figure data-kinetics-attraction>
-            <a href="#">
-              <img src="assets/images/moon-100.svg" />
-              <figcaption>You</figcaption>
-            </a>
-          </figure>
-          <figure data-kinetics-attraction>
-            <a href="#">
-              <img src="assets/images/moon-20.svg" />
-              <figcaption>Austin</figcaption>
-            </a>
-          </figure>
-          <figure data-kinetics-attraction>
-            <a href="#">
-              <img src="assets/images/moon-40.svg" />
-              <figcaption>Kevin</figcaption>
-            </a>
-          </figure>
-          <figure data-kinetics-attraction>
-            <a href="#">
-              <img src="assets/images/moon-60.svg" />
-              <figcaption>Castall</figcaption>
-            </a>
-          </figure>
-          <figure data-kinetics-attraction>
-            <a href="#">
-              <img src="assets/images/moon-80.svg" />
-              <figcaption>Auryn</figcaption>
-            </a>
-          </figure>
-          <figure data-kinetics-attraction>
-            <a href="#">
-              <img src="assets/images/moon-100.svg" />
-              <figcaption>You</figcaption>
-            </a>
-          </figure>
-        </section>
-      </article>
-      {/* EXPLAIN */}
-      <article id="explain">
-        <section className="column">
-          <h1>How it works</h1>
-          <p>
-            Moonshot collective provides ideas, devs, funding as builders grow their public goods funding experiments.
-          </p>
-        </section>
-        <section className="content-explain">
-          <figure data-kinetics-attraction>
-            <object type="image/svg+xml" data="assets/images/prototype.svg" />
-            <figcaption>
-              <span>1.</span>Prototype
-            </figcaption>
-          </figure>
-          <figure data-kinetics-attraction>
-            <object type="image/svg+xml" data="assets/images/marketvalidation.svg" />
-            <figcaption>
-              <span>2.</span>Market Validation
-            </figcaption>
-          </figure>
-          <figure data-kinetics-attraction>
-            <object type="image/svg+xml" data="assets/images/growth.svg" />
-            <figcaption>
-              <span>3.</span>Growth
-            </figcaption>
-          </figure>
-          <figure data-kinetics-attraction>
-            <object type="image/svg+xml" data="assets/images/decentralize.svg" />
-            <figcaption>
-              <span>4.</span>Decentralize
-            </figcaption>
-          </figure>
-        </section>
-      </article>
-      {/* PROECTS */}
-      <article id="projects">
-        <section className="column">
-          <h1>Who</h1>
-        </section>
-        <section className="content-projects">
-          <figure data-kinetics-attraction>
-            <a href="#">
-              {/* pls load svg line with react */}
-              <object type="image/svg+xml" data="assets/images/project-3.svg" />
-              <figcaption>Buidl Guidl</figcaption>
-            </a>
-          </figure>
-          <figure data-kinetics-attraction>
-            <a href="#">
-              {/* pls load as regular svg line with react */}
-              <object type="image/svg+xml" data="assets/images/project-4.svg" />
-              <figcaption>Gitcoin</figcaption>
-            </a>
-          </figure>
-          <figure data-kinetics-attraction>
-            <a href="#">
-              {/* pls load as regular svg line with react */}
-              <object type="image/svg+xml" data="assets/images/project-5.svg" />
-              <figcaption>Scaffold.eth</figcaption>
-            </a>
-          </figure>
-          <figure data-kinetics-attraction>
-            <a href="#">
-              {/* pls load as regular svg line with react */}
-              <object type="image/svg+xml" data="assets/images/project-6.svg" />
-              <figcaption>Alumni X</figcaption>
-            </a>
-          </figure>
-          <figure data-kinetics-attraction>
-            <a href="#">
-              {/* pls load as regular svg line with react */}
-              <object type="image/svg+xml" data="assets/images/project-7.svg" />
-              <figcaption>Yours</figcaption>
-            </a>
-          </figure>
-        </section>
-      </article>
-      {/* SUBSCRIBE */}
-      <article id="subscribe">
-        <section className="column">
-          <h1>Get Involved</h1>
-          <p>Are you a builder who wants to work on public goods? Click below to join the workstream email group.</p>
-        </section>
-        <section className="content-subscribe">
-          <div className="wrapper">
-            <input type="text" name placeholder="moon@shot" />
-          </div>
-          <button data-kinetics-attraction className="btn">
-            Subscribe
-          </button>
-        </section>
-      </article>
-      <footer>
-        <div className="wrapper">
-          {/* pls load as regular svg inline with react */}
-          <figure data-kinetics-attraction>
-            <object type="image/svg+xml" data="assets/images/colorado.svg" />
-          </figure>
-          <div>
-            Built with &lt;3 in Colorado
-            <br />
-            <a href="#">Gitcoin</a> | <a href="#">Buidl Guidl</a>
-          </div>
-        </div>
-      </footer>
+
+      <div style={{ textAlign: "center", padding: 10, marginTop: 32 }}>
+        <Account
+          connectText={
+            <div>
+              <img src="./rocket_3.svg" style={{ position: "absolute", left: -54, top: -4, maxHeight: 48 }} />
+              Connect Ethereum Wallet
+            </div>
+          }
+          onlyShowButton={!isSigner}
+          address={address}
+          localProvider={localProvider}
+          userProvider={userProvider}
+          mainnetProvider={mainnetProvider}
+          price={price}
+          web3Modal={web3Modal}
+          loadWeb3Modal={loadWeb3Modal}
+          logoutOfWeb3Modal={logoutOfWeb3Modal}
+          blockExplorer={blockExplorer}
+        />
+        {faucetHint}
+      </div>
+
+      {display}
+
+      <div style={{ paddingTop: 64 }}>
+        <h1>First Meeting: Monday, July 19!!!</h1>
+      </div>
+      <div>
+        Please support the:
+        <a href="https://gitcoin.co/grants/3004/moonshot-collective" target="_blank">
+          Gitcoin Grant
+        </a>
+      </div>
     </div>
   );
 }
@@ -719,4 +447,4 @@ window.ethereum &&
       }, 1);
   });
 
-export default App;
+export default Moonshot;
