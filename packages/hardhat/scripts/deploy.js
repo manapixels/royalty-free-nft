@@ -4,36 +4,9 @@ const chalk = require("chalk");
 const { config, ethers, tenderly, run, artifacts } = require("hardhat");
 const { utils } = require("ethers");
 const R = require("ramda");
-// const facet1Artifact = require('../artifacts/contracts/facets/Ballot.sol/Ballot.json');
-// const facet2Artifact = require('../artifacts/contracts/facets/Storage.sol/Storage.json');
-// const diamondCutArtifact = require('../artifacts/contracts/DiamondCutFacet.sol/DiamondCutFacet.json');
 
 const main = async () => {
   console.log("\n\n 📡 Deploying...\n");
-
-  // const getSelector = (artifacts) => {
-  //   const facetSelectorHash = [];
-  //   for (const selector of artifacts.abi) {
-  //     let selectorHash;
-  //     if (selector.type === 'function') {
-  //       if (selector.inputs.length === 0) {
-  //         selectorHash = ethers.utils.id(selector.name + '()').slice(0, 10);
-  //       } else {
-  //         selectorHash = selector.name + '(';
-  //         for (const input of selector.inputs) {
-  //           if (input === selector.inputs[selector.inputs.length - 1]) {
-  //             selectorHash += input.type + ')';
-  //           } else {
-  //             selectorHash += input.type + ',';
-  //           }
-  //         }
-  //         selectorHash = ethers.utils.id(selectorHash).slice(0, 10);
-  //       }
-  //       facetSelectorHash.push(selectorHash);
-  //     }
-  //   }
-  //   return facetSelectorHash;
-  // };
 
   function getSelectors(contract) {
     const signatures = Object.keys(contract.interface.functions);
@@ -57,17 +30,12 @@ const main = async () => {
     Replace: 1,
     Remove: 2,
   };
-  // const yourContract = await deploy("YourContract") // <-- add in constructor args like line 19 vvvv
 
-  const facet1 = await deploy("Ballot");
-  const facet2 = await deploy("Storage");
+  const facet1 = await deploy("TestFacet1");
+  const facet2 = await deploy("TestFacet2");
   const diamondCut = await deploy("DiamondCutFacet");
   const diamondLoupe = await deploy("DiamondLoupeFacet");
-  // NOTE -> So basically in the UI we will showcase two things
-  // 1. upgrade diamond facets i.e add/remove/replace selectors in facets the flow will be like this
-  // 1.1 we will deploy the updated facet contract from the ui with contract factory in ethers
-  // 1.2 we will call diamond facet functions with arguments similar to diamondCutParams below
-  // 2. UI page to interact with the 2 sample facet functions via the diamond contract
+
   const diamondCutParams = [
     [facet1.address, FacetCutAction.Add, await getSelectors(facet1)],
     [facet2.address, FacetCutAction.Add, await getSelectors(facet2)],
