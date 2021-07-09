@@ -94,7 +94,7 @@ export default function DiamondUpgrade({
     const factory = new ContractFactory(abiFile.abi, abiFile.bytecode, localProvider.getSigner());
     const contract = await factory.deploy();
     await contract.deployed();
-    alert("Facet Deployed");
+    message.success("Facet Deployed");
     setFacet(contract.address);
   };
 
@@ -191,8 +191,7 @@ export default function DiamondUpgrade({
         facetsPayload.push(facetDetails);
       }
     }
-    console.log("facets111:", facetsPayload);
-    // setDiamondFacets(facets);
+    console.log('facet details', facetsPayload);
     setSelectors(facetsPayload);
   }
 
