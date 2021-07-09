@@ -1,3 +1,22 @@
+/*
+
+ /$$$$$$$              /$$     /$$                          /$$$$$$  /$$                  /$$$$$$  /$$           /$$
+| $$__  $$            | $$    | $$                         /$$__  $$| $$                 /$$__  $$| $$          |__/
+| $$  \ $$ /$$   /$$ /$$$$$$ /$$$$$$    /$$$$$$   /$$$$$$ | $$  \__/| $$ /$$   /$$      | $$  \__/| $$  /$$$$$$  /$$ /$$$$$$/$$$$   /$$$$$$$
+| $$$$$$$ | $$  | $$|_  $$_/|_  $$_/   /$$__  $$ /$$__  $$| $$$$    | $$| $$  | $$      | $$      | $$ |____  $$| $$| $$_  $$_  $$ /$$_____/
+| $$__  $$| $$  | $$  | $$    | $$    | $$$$$$$$| $$  \__/| $$_/    | $$| $$  | $$      | $$      | $$  /$$$$$$$| $$| $$ \ $$ \ $$|  $$$$$$
+| $$  \ $$| $$  | $$  | $$ /$$| $$ /$$| $$_____/| $$      | $$      | $$| $$  | $$      | $$    $$| $$ /$$__  $$| $$| $$ | $$ | $$ \____  $$
+| $$$$$$$/|  $$$$$$/  |  $$$$/|  $$$$/|  $$$$$$$| $$      | $$      | $$|  $$$$$$$      |  $$$$$$/| $$|  $$$$$$$| $$| $$ | $$ | $$ /$$$$$$$/
+|_______/  \______/    \___/   \___/   \_______/|__/      |__/      |__/ \____  $$       \______/ |__/ \_______/|__/|__/ |__/ |__/|_______/
+                                                                         /$$  | $$
+                                                                        |  $$$$$$/
+                                                                         \______/
+
+  https://github.com/austintgriffith/scaffold-eth/tree/butterfly-claims
+
+  BuidlGuidl.com
+
+*/
 pragma solidity >=0.6.0 <0.7.0;
 //SPDX-License-Identifier: MIT
 
@@ -5,8 +24,6 @@ pragma solidity >=0.6.0 <0.7.0;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 //learn more: https://docs.openzeppelin.com/contracts/3.x/erc721
-
-// GET LISTED ON OPENSEA: https://testnets.opensea.io/get-listed/step-two
 
 contract ButterflyClaims is ERC721  {
 
@@ -29,10 +46,21 @@ contract ButterflyClaims is ERC721  {
     _setBaseURI("https://ipfs.io/ipfs/");
   }
 
+  address payable constant public buidlguidl = payable(0x97843608a00e2bbc75ab0C1911387E002565DEDE);
+
+  uint256 public price = 0.0005 ether;
+
   function claim()
       public
+      payable
       returns (uint256)
   {
+      require(msg.value>=price,"AMT OF ETH WRONG");
+      (bool sent, ) = buidlguidl.call{value: msg.value}("");
+      require(sent, "ETH TO BG FAILED");
+
+      price = ( price * 103 ) / 100;
+
       _tokenIds.increment();
 
       uint256 id = _tokenIds.current();
@@ -41,7 +69,7 @@ contract ButterflyClaims is ERC721  {
       birth[id] = block.timestamp;
 
       //fake random from previous block, you can game this ofc
-      if(uint256(keccak256(abi.encodePacked(address(this),id,blockhash(block.number-1))))%5==1){
+      if(uint256(keccak256(abi.encodePacked(address(this),id,blockhash(block.number-1))))%12==1){
         rare[id] = true;
       }
 
@@ -58,13 +86,13 @@ contract ButterflyClaims is ERC721  {
 
       string memory base = baseURI();
 
-      if(age<3600){
+      if(age<86400){
         _tokenURI = phases[0];
-      }else if(age<3600*2){
+      }else if(age<172800){
         _tokenURI = phases[1];
-      }else if(age<3600*3){
+      }else if(age<259200){
         _tokenURI = phases[2];
-      }else if(age<3600*4){
+      }else if(age<345600){
         _tokenURI = phases[3];
       }else{
         if(rare[tokenId]){

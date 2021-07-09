@@ -9,7 +9,7 @@ import ReactJson from "react-json-view";
 import { BrowserRouter, Link, Route, Switch } from "react-router-dom";
 import Web3Modal from "web3modal";
 import "./App.css";
-import { Account, Address, AddressInput, Contract, Faucet, GasGauge, Header, Ramp, ThemeSwitch } from "./components";
+import { Balance, Account, Address, AddressInput, Contract, Faucet, GasGauge, Header, Ramp, ThemeSwitch } from "./components";
 import { DAI_ABI, DAI_ADDRESS, INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
 import {
@@ -49,9 +49,9 @@ const ipfs = ipfsAPI({ host: "ipfs.infura.io", port: "5001", protocol: "https" }
 */
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS.rinkeby // rinkeby; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS.mainnet // rinkeby; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
-const opensea = "https://testnets.opensea.io/assets/"
+const opensea = "https://opensea.io/assets/"
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -190,6 +190,9 @@ function App(props) {
   // keep track of a variable from the contract in the local React state:
   const balance = useContractReader(readContracts, "ButterflyClaims", "balanceOf", [address]);
   console.log("🤗 balance:", balance);
+
+  const claimPrice = useContractReader(readContracts, "ButterflyClaims", "price");
+  console.log("claimPrice:", claimPrice);
 
   // 📟 Listen for broadcast events
   const transferEvents = useEventListener(readContracts, "ButterflyClaims", "Transfer", localProvider, 1);
@@ -429,13 +432,18 @@ function App(props) {
             <div style={{ width: 640, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
 
               <div style={{padding:32}}>
+                <div style={{fontSize:16,padding:32}}>
+                  Support the 🏰 <a href={"https://BuidlGuidl.com"} target="_Blank">BuidlGuidl</a> and get a 🦋 Butterfly NFT
+                </div>
+
                 <Button
+                  style={{height:100}}
                   onClick={()=>{
-                    tx( writeContracts.ButterflyClaims.claim() )
+                    tx( writeContracts.ButterflyClaims.claim({value: claimPrice}) )
                   }}
                   type={"primary"}
                 >
-                 Claim
+                 Claim for <Balance value={claimPrice} price={price} fontSize={14}/>
                 </Button>
               </div>
 
