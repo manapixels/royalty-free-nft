@@ -48,6 +48,10 @@ const axios = require("axios");
     (and then use the `useExternalContractLoader()` hook!)
 */
 
+const formatAddress = s => {
+  return s.substr(0, 7) + "..." + s.substr(s.length - 4, 4);
+};
+
 const serverUrl = "https://backend.moonshotcollective.space:49834/";
 // const serverUrl = "http://localhost:49834/"
 
@@ -107,6 +111,7 @@ function App(props) {
 
   // 🏗 scaffold-eth is full of handy hooks like this one to get your balance:
   const yourLocalBalance = useBalance(localProvider, address);
+  const mainnetBalance = useBalance(injectedProvider, address);
 
   // Just plug in different 🛰 providers to get your balance on different chains:
   // const yourMainnetBalance = useBalance(mainnetProvider, address);
@@ -199,6 +204,11 @@ function App(props) {
     const provider = await web3Modal.connect();
     setInjectedProvider(new Web3Provider(provider));
   }, [setInjectedProvider]);
+
+  const disconnectWallet = useCallback(() => {
+    console.log("logging out..");
+    logoutOfWeb3Modal();
+  }, [injectedProvider]);
 
   useEffect(() => {
     if (web3Modal.cachedProvider) {
@@ -399,21 +409,29 @@ function App(props) {
               </svg>
             </div>
           </div>
+          {!isSigner && (
+            <div className="provider" onClick={loadWeb3Modal}>
+              {/* example ( will probably come from walletconnect i assume ) */}
+              <img
+                src="assets/images/metamask.svg"
+                alt=""
+                style={{ width: "48px", height: "48px", marginLeft: "1em" }}
+              />
+            </div>
+          )}
           {/* wallet */}
           <div id="openWalletMenu" className="wallet-status" data-kinetics-attraction>
             {/* hide if connected to a provider */}
-            <div className="icon">
-              {/* pls load "assets/images/wallet.svg" inline instead */}
-              <svg xmlns="http://www.w3.org/2000/svg" width={64} height={64} viewBox="0 0 64 64" fill="none">
-                <path d="M52 26V16a4 4 0 0 0-4-4H12a4 4 0 0 0-4 4v32a4 4 0 0 0 4 4h36a4 4 0 0 0 4-4V38" />
-                <rect x={48} y={26} width={8} height={12} />
-              </svg>
-            </div>
+            {isSigner && (
+              <div className="icon">
+                {/* pls load "assets/images/wallet.svg" inline instead */}
+                <svg xmlns="http://www.w3.org/2000/svg" width={64} height={64} viewBox="0 0 64 64" fill="none">
+                  <path d="M52 26V16a4 4 0 0 0-4-4H12a4 4 0 0 0-4 4v32a4 4 0 0 0 4 4h36a4 4 0 0 0 4-4V38" />
+                  <rect x={48} y={26} width={8} height={12} />
+                </svg>
+              </div>
+            )}
             {/* hide if not connected to a provider */}
-            <div className="provider">
-              {/* example ( will probably come from walletconnect i assume ) */}
-              <img src="assets/images/metamask.svg" alt="" />
-            </div>
           </div>
         </div>
       </header>
@@ -431,14 +449,15 @@ function App(props) {
         </div>
         <div className="wallet-detail">
           <div className="network">mainnet</div>
-          <div className="address">0xbadc...8d90</div>
-          <div className="balance">1000 ETH</div>
-          <div className="token">1337 MATIC</div>
+          <div className="address">{formatAddress(address)}</div>
+          <div className="balance">
+            {mainnetBalance ? parseFloat(formatEther(mainnetBalance).toString()).toFixed(2) : "..."} ETH
+          </div>
+          {/* <div className="token">1337 MATIC</div> */}
         </div>
-        <div className="action">
+        {/* <div className="action">
           <span>Change Provider</span>
           <div className="icon">
-            {/* pls load "assets/images/provider.svg" inline instead */}
             <svg xmlns="http://www.w3.org/2000/svg" width={64} height={64} viewBox="0 0 64 64">
               <polygon points="8 20 8 44 32 56 56 44 56 20 32 8 8 20" />
               <line x1={32} y1={32} x2={56} y2={20} />
@@ -449,18 +468,17 @@ function App(props) {
               <line x1={32} y1={8} x2={32} y2={32} />
             </svg>
           </div>
-        </div>
-        <div className="action">
+        </div> */}
+        {/* <div className="action">
           <span>Connect</span>
           <div className="icon">
-            {/* pls load "assets/images/disconnect.svg" inline instead */}
             <svg xmlns="http://www.w3.org/2000/svg" width={64} height={64} viewBox="0 0 64 64">
               <path d="M49,15A24,24,0,1,1,15,15" />
               <line x1={32} y1={8} x2={32} y2={32} />
             </svg>
           </div>
-        </div>
-        <div className="action">
+        </div> */}
+        <div className="action" onClick={disconnectWallet}>
           <span>Disconnect</span>
           <div className="icon">
             {/* pls load "assets/images/disconnect.svg" inline instead */}
@@ -664,7 +682,7 @@ function App(props) {
         </section>
       </article>
       <footer>
-        <div className="wrapper">
+        <div className="wrapper" style={{ marginBottom: "15px" }}>
           {/* pls load as regular svg inline with react */}
           <figure data-kinetics-attraction>
             <object type="image/svg+xml" data="assets/images/colorado.svg" />

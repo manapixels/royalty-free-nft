@@ -302,7 +302,7 @@ nav [aria-current=page]:after {
   }
 }
 .wallet-status {
-  margin-left: 2em;
+  margin-left: 1em;
   display: flex;
   align-items: center;
   gap: 0.3em;
