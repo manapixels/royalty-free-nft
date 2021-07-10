@@ -40,7 +40,6 @@ body {
 
 body {
   scroll-behavior: smooth;
-  font-size: 16px;
 }
 
 ::-moz-selection, ::selection {
