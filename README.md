@@ -83,7 +83,7 @@ The main contract that we will interact with for every transaction, the diamond 
 
 
 ##### NOTE
-- Upgradability only works for facets which were initially deployed with the diamond
+- Upgradability only works for facets which were initially deployed with the diamond if you are performing a delete operation
 - Currently to decode the selector signature hash to string and displaying on UI we are using this [api](https://www.4byte.directory/docs/) so there are cases where a particular selector's text signature isn't available hence isn't display on ui but the upgradability works fine
 - For interacting with the diamond facets via the diamond contract please refer to this [branch](https://github.com/austintgriffith/scaffold-eth/tree/diamond-standard) for simplicity the 2 branches have been made separate.
 
