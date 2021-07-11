@@ -22,6 +22,8 @@ import {
 // import Hints from "./Hints";
 import { ExampleUI, Hints, Subgraph } from "./views";
 
+import ReactPlayer from 'react-player'
+
 const { ethers } = require("ethers");
 /*
     Welcome to 🏗 scaffold-eth !
@@ -80,6 +82,8 @@ const walletLinkProvider = walletLink.makeWeb3Provider(
     `https://mainnet.infura.io/v3/${INFURA_ID}`,
     1,
 );
+
+
 
 /*
   Web3 modal helps us "connect" external wallets:
@@ -194,6 +198,8 @@ function App(props) {
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
   console.log("🏷 Resolved austingriffith.eth as:",addressFromENS)
   */
+
+  const [ progress, setProgress ] = useState()
 
   //
   // 🧫 DEBUG 👨🏻‍🔬
@@ -429,13 +435,27 @@ function App(props) {
                 and give you a form to interact with it locally
             */}
 
-            <Contract
-              name="YourContract"
-              signer={userSigner}
-              provider={localProvider}
-              address={address}
-              blockExplorer={blockExplorer}
-            />
+            <div style={{padding:32}}>
+              <ReactPlayer
+                  playing={true}
+                  controls={true}
+                  width={"100%"}
+                  url="ws://localhost:8000/live/ship.flv"
+                  onProgress={(p)=>{console.log("PROGRESS",p)}}
+              />
+            </div>
+
+
+            {/*
+              <Contract
+                name="YourContract"
+                signer={userSigner}
+                provider={localProvider}
+                address={address}
+                blockExplorer={blockExplorer}
+              />
+            */}
+
           </Route>
           <Route path="/hints">
             <Hints

@@ -44,6 +44,8 @@
     "react-blockies": "^1.4.1",
     "react-css-theme-switcher": "^0.2.2",
     "react-dom": "^16.14.0",
+    "react-flv-player": "^1.0.9",
+    "react-player": "^2.9.0",
     "react-qr-reader": "^2.2.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^3.4.3",
