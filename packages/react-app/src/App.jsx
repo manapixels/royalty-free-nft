@@ -546,13 +546,16 @@ function App(props) {
           <div>
             <h1>What</h1>
             <p>
-              We've now got programmable money, and for the first time ever it's possible to program our values into our
+              For the first time ever, it is possible to program our values into our
               money. We value coordination, so why not use programmable money to create better coordination tools? The
               moonshot collective is a collection of builders &amp; web3 community members who are looking to prototype
-              experiments in coordination (whether thats public goods, private goods, governance tools). Got dev skills
-              + want to help build the future? <br />
-              <a href="#subscribe">Get Involved.</a>
+              experiments in coordination (whether thats public goods, private goods, governance tools).
             </p>
+            <div style={{fontSize:22, marginTop:32}}>Got dev skills
+            + want to help build the future?</div>
+            <div style={{fontSize:32, marginTop:32}}>
+            <a href="#subscribe">Get Involved.</a>
+            </div>
           </div>
           <figure>
             {/* not needed to be inline */}
@@ -682,7 +685,7 @@ function App(props) {
         </section>
         <section className="content-projects">
           <figure data-kinetics-attraction>
-            <a href="#">
+            <a href="https://buidlguidl.com">
               {/* pls load svg line with react */}
               {/* <object type="image/svg+xml" data="assets/images/project-3.svg" /> */}
               <SVG src="assets/images/project-3.svg" />
@@ -690,7 +693,7 @@ function App(props) {
             </a>
           </figure>
           <figure data-kinetics-attraction>
-            <a href="#">
+            <a href="https://gitcoin.co">
               {/* pls load as regular svg line with react */}
               <SVG src="assets/images/project-4.svg" />
               {/* <object type="image/svg+xml" data="assets/images/project-4.svg" /> */}
@@ -698,7 +701,7 @@ function App(props) {
             </a>
           </figure>
           <figure data-kinetics-attraction>
-            <a href="#">
+            <a href="http://scaffoldeth.io">
               {/* pls load as regular svg line with react */}
               <SVG src="assets/images/project-5.svg" />
               {/* <object type="image/svg+xml" data="assets/images/project-5.svg" /> */}
@@ -770,7 +773,7 @@ function App(props) {
           <div>
             Built with &lt;3 in Colorado
             <br />
-            <a href="#">Gitcoin</a> | <a href="#">Buidl Guidl</a>
+            <a href="https://gitcoin.co">Gitcoin</a> | <a href="https://buidlguidl.com">Buidl Guidl</a>
           </div>
         </div>
       </footer>
