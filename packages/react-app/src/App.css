@@ -132,10 +132,20 @@ article {
   background-color: var(--violet);
   color: var(--space);
   user-select: none;
+  min-width: 400px;
 }
 .btn:hover {
   color: var(--space);
   animation: button-animation 3s ease-in-out infinite;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+}
+
+.btn:disabled:hover {
+  cursor: not-allowed;
+  animation: none;
 }
 
 @keyframes button-animation {
@@ -319,9 +329,11 @@ nav [aria-current=page]:after {
   display: flex;
   align-items: center;
   gap: 0.3em;
+  cursor: pointer;
 }
 .provider {
   cursor: pointer;
+  margin-left: 1em;
 }
 .wallet-status .provider img {
   display: block;
@@ -536,6 +548,7 @@ nav [aria-current=page]:after {
   display: block;
   width: 100%;
   margin-bottom: 2em;
+  height: 200px;
 }
 .content-explain figure figcaption {
   text-align: center;

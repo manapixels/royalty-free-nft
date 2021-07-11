@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
+import Loader from "react-loader-spinner";
 import "antd/dist/antd.css";
 import { StaticJsonRpcProvider, JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import "./App.css";
@@ -10,6 +11,9 @@ import { useUserAddress } from "eth-hooks";
 import { formatEther, parseEther } from "@ethersproject/units";
 import { useThemeSwitcher } from "react-css-theme-switcher";
 import ReactMarkdown from "react-markdown";
+import { ReactSVG } from "react-svg";
+import SVG from "react-inlinesvg";
+import classnames from "classnames";
 import {
   useExchangePrice,
   useGasPrice,
@@ -27,6 +31,9 @@ import { Transactor } from "./helpers";
 // import Hints from "./Hints";
 import { Hints, ExampleUI, Subgraph } from "./views";
 import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS } from "./constants";
+import { LogoMoon } from "./icons";
+
+import LogoMoonSvg from "./icons/logo-moon.svg";
 
 const axios = require("axios");
 /*
@@ -175,31 +182,6 @@ function App(props) {
     yourLocalBalance /* yourMainnetBalance, readContracts, writeContracts, mainnetDAIContract */,
   ]);
 
-  let networkDisplay = "";
-  if (localChainId && selectedChainId && localChainId != selectedChainId) {
-    networkDisplay = (
-      <div style={{ zIndex: 2, position: "absolute", right: 0, top: 0, padding: 16 }}>
-        <Alert
-          message="⚠️ Wrong Network"
-          description={
-            <div>
-              You have <b>{NETWORK(selectedChainId).name}</b> selected and you need to be on{" "}
-              <b>{NETWORK(localChainId).name}</b>.
-            </div>
-          }
-          type="error"
-          closable={false}
-        />
-      </div>
-    );
-  } else {
-    networkDisplay = (
-      <div style={{ zIndex: -1, position: "absolute", right: 154, top: 8, padding: 16, color: targetNetwork.color }}>
-        {targetNetwork.name}
-      </div>
-    );
-  }
-
   const loadWeb3Modal = useCallback(async () => {
     const provider = await web3Modal.connect();
     setInjectedProvider(new Web3Provider(provider));
@@ -257,109 +239,155 @@ function App(props) {
 
   const [result, setResult] = useState();
 
-  const [email, setEmail] = useState();
+  const [email, setEmail] = useState("");
 
-  let display = "";
-  if (result) {
-    // maybe you want to check of the backend supplied a transaction id to look up?
-    // let possibleTxId = result.substr(-66)
-    // console.log("possibleTxId",possibleTxId)
-    // let extraLink = ""
-    // if(possibleTxId.indexOf("0x")==0){
-    //  extraLink = <a href={blockExplorer+"tx/"+possibleTxId} target="_blank">view transaction on etherscan</a>
-    // }else{
-    //  possibleTxId=""
-    // }
+  const display = "";
+  // if (result) {
+  // maybe you want to check of the backend supplied a transaction id to look up?
+  // let possibleTxId = result.substr(-66)
+  // console.log("possibleTxId",possibleTxId)
+  // let extraLink = ""
+  // if(possibleTxId.indexOf("0x")==0){
+  //  extraLink = <a href={blockExplorer+"tx/"+possibleTxId} target="_blank">view transaction on etherscan</a>
+  // }else{
+  //  possibleTxId=""
+  // }
 
-    // maybe you want to parse and display a youtube if the link is to a video?
-    if (result.indexOf("https://youtu.be/") == 0) {
-      display = (
-        <div style={{ marginTop: 32 }}>
-          <div className="video-responsive">
-            <iframe
-              width="853"
-              height="480"
-              src={`https://www.youtube.com/embed/${result.replace("https://youtu.be/", "")}`}
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              title="Embedded youtube"
-            />
-          </div>
-        </div>
-      );
-    } else {
-      display = (
-        <div style={{ marginTop: 32 }}>
-          <ReactMarkdown>{result}</ReactMarkdown>
-        </div>
-      );
+  // maybe you want to parse and display a youtube if the link is to a video?
+  //   if (result.indexOf("https://youtu.be/") == 0) {
+  //     display = (
+  //       <div style={{ marginTop: 32 }}>
+  //         <div className="video-responsive">
+  //           <iframe
+  //             width="853"
+  //             height="480"
+  //             src={`https://www.youtube.com/embed/${result.replace("https://youtu.be/", "")}`}
+  //             frameBorder="0"
+  //             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  //             allowFullScreen
+  //             title="Embedded youtube"
+  //           />
+  //         </div>
+  //       </div>
+  //     );
+  //   } else {
+  //     display = (
+  //       <div style={{ marginTop: 32 }}>
+  //         <ReactMarkdown>{result}</ReactMarkdown>
+  //       </div>
+  //     );
+  //   }
+  // } else if (isSigner) {
+  //   display = (
+  //     <div>
+  //       <div style={{ width: 400, margin: "auto", marginTop: 32 }}>
+  //         <div>Enter your email to receive updates:</div>
+  //         <Input
+  //           placeholder="your@email.com"
+  //           value={email}
+  //           onChange={e => {
+  //             setEmail(e.target.value);
+  //           }}
+  //         />
+  //       </div>
+  //       <Button
+  //         disabled={!email}
+  //         loading={loading}
+  //         style={{ marginTop: 32 }}
+  //         type="primary"
+  //         onClick={async () => {
+  //           setLoading(true);
+  //           try {
+  //             const msgToSign = await axios.get(serverUrl);
+  //             console.log("msgToSign", msgToSign);
+  //             if (msgToSign.data && msgToSign.data.length > 32) {
+  //               // <--- traffic escape hatch?
+  //               let currentLoader = setTimeout(() => {
+  //                 setLoading(false);
+  //               }, 4000);
+  //               const message = msgToSign.data.replace("**EMAIL**", email);
+  //               const sig = await userProvider.send("personal_sign", [message, address]);
+  //               clearTimeout(currentLoader);
+  //               currentLoader = setTimeout(() => {
+  //                 setLoading(false);
+  //               }, 4000);
+  //               console.log("sig", sig);
+  //               const res = await axios.post(serverUrl, {
+  //                 email,
+  //                 address,
+  //                 message,
+  //                 signature: sig,
+  //               });
+  //               clearTimeout(currentLoader);
+  //               setLoading(false);
+  //               console.log("RESULT:", res);
+  //               if (res.data) {
+  //                 setResult(res.data);
+  //               }
+  //             } else {
+  //               setLoading(false);
+  //               setResult(
+  //                 "😅 Sorry, the server is overloaded. ⏳ Maybe just email austin@ethereum.org and I'll add you to the list manually 😅",
+  //               );
+  //             }
+  //           } catch (e) {
+  //             message.error(" Sorry, the server is overloaded. 🧯🚒🔥");
+  //             console.log("FAILED TO GET...");
+  //           }
+  //         }}
+  //       >
+  //         <span style={{ marginRight: 8 }}>🔏</span> <span style={{ marginRight: 8 }}>sign as </span>
+  //         <Address noLink style={{ zIndex: -1 }} value={address} fontSize={16} ensProvider={mainnetProvider} />
+  //       </Button>
+  //     </div>
+  //   );
+  // }
+
+  const signAndSubscribe = async () => {
+    setLoading(true);
+    try {
+      const msgToSign = await axios.get(serverUrl);
+      console.log("msgToSign", msgToSign);
+      if (msgToSign.data && msgToSign.data.length > 32) {
+        // <--- traffic escape hatch?
+        // let currentLoader = setTimeout(() => {
+        //   setLoading(false);
+        // }, 4000);
+        const message = msgToSign.data.replace("**EMAIL**", email);
+        const sig = await userProvider.send("personal_sign", [message, address]);
+        // clearTimeout(currentLoader);
+        // currentLoader = setTimeout(() => {
+        //   setLoading(false);
+        // }, 4000);
+        console.log("sig", sig);
+        const res = await axios.post(serverUrl, {
+          email,
+          address,
+          message,
+          signature: sig,
+        });
+        // clearTimeout(currentLoader);
+        setLoading(false);
+        setEmail("");
+        console.log("RESULT:", res);
+        if (res.data) {
+          setResult(res.data);
+        }
+      } else {
+        setLoading(false);
+        setResult(
+          "😅 Sorry, the server is overloaded. ⏳ Maybe just email austin@ethereum.org and I'll add you to the list manually 😅",
+        );
+      }
+    } catch (e) {
+      setLoading(false);
+      message.error(" Sorry, the server is overloaded. 🧯🚒🔥");
+      console.log("FAILED TO GET...");
     }
-  } else if (isSigner) {
-    display = (
-      <div>
-        <div style={{ width: 400, margin: "auto", marginTop: 32 }}>
-          <div>Enter your email to receive updates:</div>
-          <Input
-            placeholder="your@email.com"
-            value={email}
-            onChange={e => {
-              setEmail(e.target.value);
-            }}
-          />
-        </div>
-        <Button
-          disabled={!email}
-          loading={loading}
-          style={{ marginTop: 32 }}
-          type="primary"
-          onClick={async () => {
-            setLoading(true);
-            try {
-              const msgToSign = await axios.get(serverUrl);
-              console.log("msgToSign", msgToSign);
-              if (msgToSign.data && msgToSign.data.length > 32) {
-                // <--- traffic escape hatch?
-                let currentLoader = setTimeout(() => {
-                  setLoading(false);
-                }, 4000);
-                const message = msgToSign.data.replace("**EMAIL**", email);
-                const sig = await userProvider.send("personal_sign", [message, address]);
-                clearTimeout(currentLoader);
-                currentLoader = setTimeout(() => {
-                  setLoading(false);
-                }, 4000);
-                console.log("sig", sig);
-                const res = await axios.post(serverUrl, {
-                  email,
-                  address,
-                  message,
-                  signature: sig,
-                });
-                clearTimeout(currentLoader);
-                setLoading(false);
-                console.log("RESULT:", res);
-                if (res.data) {
-                  setResult(res.data);
-                }
-              } else {
-                setLoading(false);
-                setResult(
-                  "😅 Sorry, the server is overloaded. ⏳ Maybe just email austin@ethereum.org and I'll add you to the list manually 😅",
-                );
-              }
-            } catch (e) {
-              message.error(" Sorry, the server is overloaded. 🧯🚒🔥");
-              console.log("FAILED TO GET...");
-            }
-          }}
-        >
-          <span style={{ marginRight: 8 }}>🔏</span> <span style={{ marginRight: 8 }}>sign as </span>
-          <Address noLink style={{ zIndex: -1 }} value={address} fontSize={16} ensProvider={mainnetProvider} />
-        </Button>
-      </div>
-    );
-  }
+  };
+
+  const [walletMenu, setWalletMenu] = useState(false);
+  const [pageMenu, setPageMenu] = useState(false);
 
   return (
     <div>
@@ -369,13 +397,17 @@ function App(props) {
         <div className="header-logo">
           <a data-kinetics-attraction href="/">
             {/* pls load as regular svg inline with react */}
-            <object type="image/svg+xml" data="assets/images/logo-moon.svg" />
+            {/* <object type="image/svg+xml" data="assets/images/logo-moon.svg" /> */}
+            {/* <LogoMoon /> */}
+            {/* <img src={LogoMoonSvg} /> */}
+            {/* <ReactSVG src="assets/images/logo-moon.svg" /> */}
+            <SVG src="assets/images/logo-moon.svg" height="auto" />
           </a>
         </div>
         {/* right nav */}
         <div className="header-navigation">
           {/* page navigation */}
-          <nav id="pageMenu">
+          <nav id="pageMenu" className={pageMenu && "visible"}>
             <ul>
               <a href>
                 <li aria-current="page">Home</li>
@@ -393,42 +425,53 @@ function App(props) {
           </nav>
           {/* mobile buger ui */}
           <div data-kinetics-attraction className="burger">
-            <div id="openMenu" className="icon">
+            <div id="openMenu" className={classnames("icon", pageMenu && "hide")} onClick={() => setPageMenu(true)}>
               {/* pls load "assets/images/menu.svg" inline instead */}
-              <svg xmlns="http://www.w3.org/2000/svg" width={64} height={64} viewBox="0 0 64 64">
+              <SVG src="assets/images/menu.svg" />
+              {/* <svg xmlns="http://www.w3.org/2000/svg" width={64} height={64} viewBox="0 0 64 64">
                 <line x1={16} y1={32} x2={48} y2={32} />
                 <line x1={16} y1={20} x2={48} y2={20} />
                 <line x1={16} y1={44} x2={48} y2={44} />
-              </svg>
+              </svg> */}
             </div>
-            <div id="closeMenu" className="icon hide">
+            <div id="closeMenu" className={classnames("icon", !pageMenu && "hide")} onClick={() => setPageMenu(false)}>
               {/* pls load "assets/images/close.svg" inline instead */}
-              <svg xmlns="http://www.w3.org/2000/svg" width={64} height={64} viewBox="0 0 64 64">
+              <SVG src="assets/images/close.svg" />
+              {/* <svg xmlns="http://www.w3.org/2000/svg" width={64} height={64} viewBox="0 0 64 64">
                 <line x1={16} y1={16} x2={48} y2={48} />
                 <line x1={48} y1={16} x2={16} y2={48} />
-              </svg>
+              </svg> */}
             </div>
           </div>
-          {!isSigner && (
-            <div className="provider" onClick={loadWeb3Modal}>
+          {isSigner && (
+            <div
+              id="openWalletMenu"
+              className="wallet-status"
+              data-kinetics-attraction
+              onClick={() => setWalletMenu(true)}
+            >
               {/* example ( will probably come from walletconnect i assume ) */}
-              <img
+              <SVG src="assets/images/metamask.svg" width="48px" height="48px" />
+              {/* <img
+                id="openWalletMenu"
                 src="assets/images/metamask.svg"
                 alt=""
-                style={{ width: "48px", height: "48px", marginLeft: "1em" }}
-              />
+                style={{ width: "48px", height: "48px", marginLeft: "0em" }}
+              /> */}
             </div>
           )}
           {/* wallet */}
-          <div id="openWalletMenu" className="wallet-status" data-kinetics-attraction>
+          {/* <div id="openWalletMenu" className="wallet-status" data-kinetics-attraction> */}
+          <div className="provider" onClick={loadWeb3Modal}>
             {/* hide if connected to a provider */}
-            {isSigner && (
+            {!isSigner && (
               <div className="icon">
                 {/* pls load "assets/images/wallet.svg" inline instead */}
-                <svg xmlns="http://www.w3.org/2000/svg" width={64} height={64} viewBox="0 0 64 64" fill="none">
+                <SVG src="assets/images/wallet.svg" />
+                {/* <svg xmlns="http://www.w3.org/2000/svg" width={64} height={64} viewBox="0 0 64 64" fill="none">
                   <path d="M52 26V16a4 4 0 0 0-4-4H12a4 4 0 0 0-4 4v32a4 4 0 0 0 4 4h36a4 4 0 0 0 4-4V38" />
                   <rect x={48} y={26} width={8} height={12} />
-                </svg>
+                </svg> */}
               </div>
             )}
             {/* hide if not connected to a provider */}
@@ -436,23 +479,30 @@ function App(props) {
         </div>
       </header>
       {/* WALLET-MENU */}
-      <div id="walletMenu" className="wallet-menu">
-        <div id="closeWalletMenu" className="action">
+      <div id="walletMenu" className={classnames("wallet-menu", walletMenu && "visible")}>
+        <div id="closeWalletMenu" className="action" onClick={() => setWalletMenu(false)}>
           <span>Wallet</span>
           <div className="icon">
             {/* pls load "assets/images/close.svg" inline instead */}
-            <svg xmlns="http://www.w3.org/2000/svg" width={64} height={64} viewBox="0 0 64 64">
+            <SVG src="assets/images/close.svg" width="64px" height="64px" />
+            {/* <svg xmlns="http://www.w3.org/2000/svg" width={64} height={64} viewBox="0 0 64 64">
               <line x1={16} y1={16} x2={48} y2={48} />
               <line x1={48} y1={16} x2={16} y2={48} />
-            </svg>
+            </svg> */}
           </div>
         </div>
-        <div className="wallet-detail">
-          <div className="network">mainnet</div>
-          <div className="address">{formatAddress(address)}</div>
-          <div className="balance">
-            {mainnetBalance ? parseFloat(formatEther(mainnetBalance).toString()).toFixed(2) : "..."} ETH
-          </div>
+        <div className="wallet-detail" style={selectedChainId !== 1 ? { background: "none" } : null}>
+          {selectedChainId === 1 ? (
+            <>
+              <div className="network">mainnet</div>
+              <div className="address">{formatAddress(address)}</div>
+              <div className="balance">
+                {mainnetBalance ? parseFloat(formatEther(mainnetBalance).toString()).toFixed(2) : "..."} ETH
+              </div>
+            </>
+          ) : (
+            <div>Wrong chain. Please connect to mainnet.</div>
+          )}
           {/* <div className="token">1337 MATIC</div> */}
         </div>
         {/* <div className="action">
@@ -482,10 +532,11 @@ function App(props) {
           <span>Disconnect</span>
           <div className="icon">
             {/* pls load "assets/images/disconnect.svg" inline instead */}
-            <svg xmlns="http://www.w3.org/2000/svg" width={64} height={64} viewBox="0 0 64 64">
+            <SVG src="assets/images/disconnect.svg" />
+            {/* <svg xmlns="http://www.w3.org/2000/svg" width={64} height={64} viewBox="0 0 64 64">
               <path d="M49,15A24,24,0,1,1,15,15" />
               <line x1={32} y1={8} x2={32} y2={32} />
-            </svg>
+            </svg> */}
           </div>
         </div>
       </div>
@@ -598,25 +649,26 @@ function App(props) {
         </section>
         <section className="content-explain">
           <figure data-kinetics-attraction>
-            <object type="image/svg+xml" data="assets/images/prototype.svg" />
+            <SVG src="assets/images/prototype.svg" />
             <figcaption>
               <span>1.</span>Prototype
             </figcaption>
           </figure>
           <figure data-kinetics-attraction>
-            <object type="image/svg+xml" data="assets/images/marketvalidation.svg" />
+            <SVG src="assets/images/marketvalidation.svg" />
+            {/* <object type="image/svg+xml" data="assets/images/marketvalidation.svg" /> */}
             <figcaption>
               <span>2.</span>Market Validation
             </figcaption>
           </figure>
           <figure data-kinetics-attraction>
-            <object type="image/svg+xml" data="assets/images/growth.svg" />
+            <SVG src="assets/images/growth.svg" />
             <figcaption>
               <span>3.</span>Growth
             </figcaption>
           </figure>
           <figure data-kinetics-attraction>
-            <object type="image/svg+xml" data="assets/images/decentralize.svg" />
+            <SVG src="assets/images/decentralize.svg" />
             <figcaption>
               <span>4.</span>Decentralize
             </figcaption>
@@ -632,35 +684,40 @@ function App(props) {
           <figure data-kinetics-attraction>
             <a href="#">
               {/* pls load svg line with react */}
-              <object type="image/svg+xml" data="assets/images/project-3.svg" />
+              {/* <object type="image/svg+xml" data="assets/images/project-3.svg" /> */}
+              <SVG src="assets/images/project-3.svg" />
               <figcaption>Buidl Guidl</figcaption>
             </a>
           </figure>
           <figure data-kinetics-attraction>
             <a href="#">
               {/* pls load as regular svg line with react */}
-              <object type="image/svg+xml" data="assets/images/project-4.svg" />
+              <SVG src="assets/images/project-4.svg" />
+              {/* <object type="image/svg+xml" data="assets/images/project-4.svg" /> */}
               <figcaption>Gitcoin</figcaption>
             </a>
           </figure>
           <figure data-kinetics-attraction>
             <a href="#">
               {/* pls load as regular svg line with react */}
-              <object type="image/svg+xml" data="assets/images/project-5.svg" />
+              <SVG src="assets/images/project-5.svg" />
+              {/* <object type="image/svg+xml" data="assets/images/project-5.svg" /> */}
               <figcaption>Scaffold.eth</figcaption>
             </a>
           </figure>
           <figure data-kinetics-attraction>
             <a href="#">
               {/* pls load as regular svg line with react */}
-              <object type="image/svg+xml" data="assets/images/project-6.svg" />
+              <SVG src="assets/images/project-6.svg" />
+              {/* <object type="image/svg+xml" data="assets/images/project-6.svg" /> */}
               <figcaption>Alumni X</figcaption>
             </a>
           </figure>
           <figure data-kinetics-attraction>
             <a href="#">
               {/* pls load as regular svg line with react */}
-              <object type="image/svg+xml" data="assets/images/project-7.svg" />
+              <SVG src="assets/images/project-7.svg" />
+              {/* <object type="image/svg+xml" data="assets/images/project-7.svg" /> */}
               <figcaption>Yours</figcaption>
             </a>
           </figure>
@@ -673,19 +730,42 @@ function App(props) {
           <p>Are you a builder who wants to work on public goods? Click below to join the workstream email group.</p>
         </section>
         <section className="content-subscribe">
-          <div className="wrapper">
-            <input type="text" name placeholder="moon@shot" />
-          </div>
-          <button data-kinetics-attraction className="btn">
-            Subscribe
-          </button>
+          {isSigner ? (
+            <>
+              <div className="wrapper">
+                <input
+                  type="text"
+                  name
+                  placeholder="moon@shot"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                />
+              </div>
+              <button
+                data-kinetics-attraction
+                className="btn"
+                disabled={email.indexOf("@") === -1 || loading}
+                type="button"
+                onClick={signAndSubscribe}
+              >
+                {!loading ? "Sign and subscribe" : "Loading.."}
+              </button>
+              <p style={{ marginTop: "20px" }}>{result}</p>
+              {/* <span style={{ marginRight: 8 }}>🔏</span> <span style={{ marginRight: 8 }}>sign as </span>
+              <Address noLink style={{ zIndex: -1 }} value={address} fontSize={16} ensProvider={mainnetProvider} /> */}
+            </>
+          ) : (
+            <button data-kinetics-attraction className="btn" onClick={loadWeb3Modal}>
+              Connect wallet
+            </button>
+          )}
         </section>
       </article>
       <footer>
-        <div className="wrapper" style={{ marginBottom: "15px" }}>
+        <div className="wrapper" style={{ marginBottom: "40px" }}>
           {/* pls load as regular svg inline with react */}
           <figure data-kinetics-attraction>
-            <object type="image/svg+xml" data="assets/images/colorado.svg" />
+            <SVG src="assets/images/colorado.svg" />
           </figure>
           <div>
             Built with &lt;3 in Colorado
