@@ -7,7 +7,7 @@
 install and start:
 
 ```bash
-git clone
+git clone https://github.com/austintgriffith/scaffold-eth.git streaming-video
 cd streaming-video
 git checkout streaming-video
 yarn install
