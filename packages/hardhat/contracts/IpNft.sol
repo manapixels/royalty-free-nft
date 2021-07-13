@@ -42,4 +42,12 @@ contract IpNft is ERC721, Ownable {
       licensor = newLicensor;
 
   }
+  /**  
+    * @dev Change cost of License
+    * @param newLicenseCost New price for license
+  **/
+  function changeLicenseCost(uint256 newLicenseCost) public returns (uint256) {
+      licenseCost = newLicenseCost;
+      return licenseCost;
+  }
 }
