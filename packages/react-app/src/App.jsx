@@ -19,7 +19,7 @@ import {
   useUserSigner,
 } from "./hooks";
 // import Hints from "./Hints";
-import { ExampleUI, Hints, Subgraph } from "./views";
+import { GTCStarterView, Hints, Subgraph } from "./views";
 
 const { ethers } = require("ethers");
 /*
@@ -339,14 +339,14 @@ function App(props) {
               Hints
             </Link>
           </Menu.Item>
-          <Menu.Item key="/exampleui">
+          <Menu.Item key="/gtc-starter">
             <Link
               onClick={() => {
-                setRoute("/exampleui");
+                setRoute("/gtc-starter");
               }}
-              to="/exampleui"
+              to="/gtc-starter"
             >
-              ExampleUI
+              GTC Starter Kit
             </Link>
           </Menu.Item>
           <Menu.Item key="/mainnetdai">
@@ -402,8 +402,8 @@ function App(props) {
               price={price}
             />
           </Route>
-          <Route path="/exampleui">
-            <ExampleUI
+          <Route path="/gtc-starter">
+            <GTCStarterView
               address={address}
               userSigner={userSigner}
               mainnetProvider={mainnetProvider}
