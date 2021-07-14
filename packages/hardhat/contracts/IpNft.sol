@@ -1,6 +1,10 @@
 pragma solidity >=0.6.0 <0.7.0;
 //SPDX-License-Identifier: MIT
 
+/// @title NFT contract for licensening IP
+/// @author elocremarc
+
+
 //import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
@@ -8,7 +12,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract IpNft is ERC721, Ownable {
 
-  address licensor = msg.sender;
+  address licensor = owner();
   uint256 licenseCost = 10000000000000000;
 
   using Counters for Counters.Counter;
@@ -33,20 +37,19 @@ contract IpNft is ERC721, Ownable {
 
       return id;
   }
-   /**
-     * @dev Change the licensor
+    /**
+     * @dev Change the licensor and owner of the contract
      * @param newLicensor address of the new licensor 
      **/
-  function changeLicensor(address newLicensor) public {
-      require(msg.sender == licensor);
-      licensor = newLicensor;
+  function changeLicensor(address newLicensor) public onlyOwner {
+      _transferOwnership(newLicensor);
 
   }
   /**  
     * @dev Change cost of License
     * @param newLicenseCost New price for license
   **/
-  function changeLicenseCost(uint256 newLicenseCost) public returns (uint256) {
+  function changeLicenseCost(uint256 newLicenseCost) public onlyOwner returns (uint256) {
       licenseCost = newLicenseCost;
       return licenseCost;
   }
