@@ -42,7 +42,7 @@ contract IpNft is ERC721, Ownable {
      * @param newLicensor address of the new licensor 
      **/
   function changeLicensor(address newLicensor) public onlyOwner {
-      _transferOwnership(newLicensor);
+      transferOwnership(newLicensor);
 
   }
   /**  
