@@ -388,7 +388,7 @@ function App(props) {
               }}
               to="/hints"
             >
-              Hints
+              IP NFT
             </Link>
           </Menu.Item>
           <Menu.Item key="/exampleui">
@@ -440,11 +440,12 @@ function App(props) {
             />
           </Route>
           <Route path="/hints">
-            <Hints
+            <Contract
+              name="IpNft"
+              signer={userSigner}
+              provider={localProvider}
               address={address}
-              yourLocalBalance={yourLocalBalance}
-              mainnetProvider={mainnetProvider}
-              price={price}
+              blockExplorer={blockExplorer}
             />
           </Route>
           <Route path="/exampleui">

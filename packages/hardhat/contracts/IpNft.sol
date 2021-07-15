@@ -4,7 +4,6 @@ pragma solidity >=0.6.0 <0.7.0;
 /// @title NFT contract for licensening IP
 /// @author elocremarc
 
-
 //import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
@@ -18,7 +17,7 @@ contract IpNft is ERC721, Ownable {
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
 
-  constructor(address license, string memory IpName, string memory IpSymbol, string memory IpURI )
+  constructor( string memory IpName, string memory IpSymbol, string memory IpURI )
   
     public ERC721(IpName, IpSymbol) {
     _setBaseURI(IpURI);
@@ -43,7 +42,6 @@ contract IpNft is ERC721, Ownable {
      **/
   function changeLicensor(address newLicensor) public onlyOwner {
       transferOwnership(newLicensor);
-
   }
   /**  
     * @dev Change cost of License

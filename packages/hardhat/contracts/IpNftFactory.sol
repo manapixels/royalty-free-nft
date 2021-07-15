@@ -6,6 +6,8 @@ pragma solidity >=0.6.0 <0.7.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./IpNft.sol";
 
+import "./interface/IIpNft.sol";
+
 contract IpNftFactory is Ownable{
     constructor() public{}
 
@@ -20,9 +22,10 @@ contract IpNftFactory is Ownable{
      * @param IpURI URI of licensed data
      **/
     function newIpNft(string memory IpName, string memory IpSymbol, string memory IpURI) public returns (address[] memory){
-        IpNft newIpNft = new IpNft(msg.sender, IpName, IpSymbol,IpURI);
+        IpNft newIpNft = new IpNft( IpName, IpSymbol,IpURI);
         IpNftContracts[address(newIpNft)] = true;
         IpNftContractList.push(address(newIpNft));
+        IIpNft(address(newIpNft)).changeLicensor(msg.sender);
         emit NewIpNft( address(newIpNft),  msg.sender, IpName, IpSymbol);
         return IpNftContractList;
     }
