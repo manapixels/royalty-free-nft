@@ -22,11 +22,11 @@ contract IpNftFactory is Ownable{
      * @param IpURI URI of licensed data
      **/
     function newIpNft(string memory IpName, string memory IpSymbol, string memory IpURI) public returns (address[] memory){
-        IpNft newIpNft = new IpNft( IpName, IpSymbol,IpURI);
-        IpNftContracts[address(newIpNft)] = true;
-        IpNftContractList.push(address(newIpNft));
-        IIpNft(address(newIpNft)).changeLicensor(msg.sender);
-        emit NewIpNft( address(newIpNft),  msg.sender, IpName, IpSymbol);
+        IpNft _newIpNft = new IpNft( IpName, IpSymbol,IpURI);
+        IpNftContracts[address(_newIpNft)] = true;
+        IpNftContractList.push(address(_newIpNft));
+        IIpNft(address(_newIpNft)).changeLicensor(msg.sender);
+        emit NewIpNft( address(_newIpNft),  msg.sender, IpName, IpSymbol);
         return IpNftContractList;
     }
 

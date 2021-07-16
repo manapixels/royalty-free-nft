@@ -2,6 +2,8 @@ const { ethers } = require("hardhat");
 const { use, expect } = require("chai");
 const { solidity } = require("ethereum-waffle");
 
+require("chai").use(require("chai-as-promised")).should();
+
 use(solidity);
 
 describe("Royalty Free NFT", function () {
@@ -51,21 +53,34 @@ describe("Royalty Free NFT", function () {
       it("Should have proper symbol", async function () {
         expect(await childContract1.symbol()).to.equal("Test");
       });
-      it("Should have proper URI", async function () {
+      it("Should have proper base URI", async function () {
         expect(await childContract1.baseURI()).to.equal("ipfs://");
       });
-      it("Should mint a licnese for correct price", async function () {
-        await childContract1.connect(licensee).licenseIP({
-          value: BigInt(ethers.utils.parseEther("0.01")),
+      describe("Should mint NFT as a license", async function () {
+        it("Should mint a licnese for correct price", async function () {
+          await childContract1.connect(licensee).licenseIP({
+            value: BigInt(ethers.utils.parseEther("0.01")),
+          }).should.be.fulfilled;
         });
-      });
-      it("Should have proper token URI", async function () {
-        expect(await childContract1.tokenURI(1)).to.equal(
-          "ipfs://QmTwx4sLHk432eDqe54CX3Jij2isStJDpe6ey8eBRTYFZq"
-        );
-      });
-      it("Should have NFT owned by licensee address", async function () {
-        expect(await childContract1.ownerOf("1")).to.equal(licensee.address);
+
+        it("Should reject a licnese for to low of price", async function () {
+          await childContract1.connect(licensee).licenseIP({
+            value: BigInt(ethers.utils.parseEther("0.09")),
+          }).should.be.rejected;
+        });
+        it("Should reject a licnese for to high of price", async function () {
+          await childContract1.connect(licensee).licenseIP({
+            value: BigInt(ethers.utils.parseEther("0.011")),
+          }).should.be.rejected;
+        });
+        it("Should have proper token URI", async function () {
+          expect(await childContract1.tokenURI(1)).to.equal(
+            "ipfs://QmTwx4sLHk432eDqe54CX3Jij2isStJDpe6ey8eBRTYFZq"
+          );
+        });
+        it("Should have license owned by licensee address", async function () {
+          expect(await childContract1.ownerOf("1")).to.equal(licensee.address);
+        });
       });
     });
   });
