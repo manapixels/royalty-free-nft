@@ -55,6 +55,9 @@ describe("Royalty Free NFT", function () {
           value: BigInt(ethers.utils.parseEther("0.01")),
         });
       });
+      it("Should have NFT owned by licensee address", async function () {
+        expect(await childContract1.ownerOf("1")).to.equal(licensee.address);
+      });
     });
   });
 });
