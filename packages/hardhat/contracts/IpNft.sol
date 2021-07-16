@@ -17,7 +17,7 @@ contract IpNft is ERC721, Ownable {
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
 
-  constructor( string memory IpName, string memory IpSymbol, string memory IpURI )
+  constructor(string memory IpName, string memory IpSymbol, string memory IpURI )
   
     public ERC721(IpName, IpSymbol) {
     _setBaseURI(IpURI);

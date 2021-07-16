@@ -50,11 +50,11 @@ describe("Royalty Free NFT", function () {
       it("Should have proper URI", async function () {
         expect(await childContract1.baseURI()).to.equal("google.com");
       });
-      // it("Should mint a licnese", async function () {
-      //   await childContract1
-      //     .connect(licensee)
-      //     .licenseIP({ value: ethers.utils.parseEther(0.01) });
-      // });
+      it("Should mint a licnese for correct price", async function () {
+        await childContract1.connect(licensee).licenseIP({
+          value: BigInt(ethers.utils.parseEther("0.01")),
+        });
+      });
     });
   });
 });
