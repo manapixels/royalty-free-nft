@@ -27,7 +27,11 @@ describe("Royalty Free NFT", function () {
     });
     describe("Deploy Child Contract", function () {
       it("Should generate new contract", async function () {
-        const newIpNftArgs = ["Test", "Test", "google.com"];
+        const newIpNftArgs = [
+          "Test",
+          "Test",
+          "QmTwx4sLHk432eDqe54CX3Jij2isStJDpe6ey8eBRTYFZq",
+        ];
         await IpNftFactory.connect(licensor).newIpNft(...newIpNftArgs);
         childContractAddress1 = await IpNftFactory.getChildren();
         expect(
@@ -48,12 +52,17 @@ describe("Royalty Free NFT", function () {
         expect(await childContract1.symbol()).to.equal("Test");
       });
       it("Should have proper URI", async function () {
-        expect(await childContract1.baseURI()).to.equal("google.com");
+        expect(await childContract1.baseURI()).to.equal("ipfs://");
       });
       it("Should mint a licnese for correct price", async function () {
         await childContract1.connect(licensee).licenseIP({
           value: BigInt(ethers.utils.parseEther("0.01")),
         });
+      });
+      it("Should have proper token URI", async function () {
+        expect(await childContract1.tokenURI(1)).to.equal(
+          "ipfs://QmTwx4sLHk432eDqe54CX3Jij2isStJDpe6ey8eBRTYFZq"
+        );
       });
       it("Should have NFT owned by licensee address", async function () {
         expect(await childContract1.ownerOf("1")).to.equal(licensee.address);

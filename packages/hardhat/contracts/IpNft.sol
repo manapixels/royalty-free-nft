@@ -13,6 +13,7 @@ contract IpNft is ERC721, Ownable {
 
   address licensor = owner();
   uint256 licenseCost = 10000000000000000;
+  string [] IP;
 
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
@@ -20,9 +21,12 @@ contract IpNft is ERC721, Ownable {
   constructor(string memory IpName, string memory IpSymbol, string memory IpURI )
   
     public ERC721(IpName, IpSymbol) {
-    _setBaseURI(IpURI);
+    _setBaseURI("ipfs://");
+    IP.push(IpURI);
+
+
   }
- 
+  
   ///@dev Mint Licensee a License
   function licenseIP()
       public payable
@@ -30,9 +34,10 @@ contract IpNft is ERC721, Ownable {
   {
       require(msg.value == licenseCost);
       _tokenIds.increment();
-
       uint256 id = _tokenIds.current();
       _mint(msg.sender, id);
+      _setTokenURI(id, 
+      IP[0]);
 
       return id;
   }
