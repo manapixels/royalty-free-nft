@@ -14,8 +14,8 @@ export type { ERC165Upgradeable } from "./ERC165Upgradeable";
 export type { IERC165Upgradeable } from "./IERC165Upgradeable";
 export type { IIpNft } from "./IIpNft";
 export type { IpNft } from "./IpNft";
-export type { MyToken } from "./MyToken";
 export type { Multicall } from "./Multicall";
+export type { YourContract } from "./YourContract";
 
 export { AccessControlUpgradeable__factory } from "./factories/AccessControlUpgradeable__factory";
 export { IAccessControlUpgradeable__factory } from "./factories/IAccessControlUpgradeable__factory";
@@ -30,5 +30,5 @@ export { ERC165Upgradeable__factory } from "./factories/ERC165Upgradeable__facto
 export { IERC165Upgradeable__factory } from "./factories/IERC165Upgradeable__factory";
 export { IIpNft__factory } from "./factories/IIpNft__factory";
 export { IpNft__factory } from "./factories/IpNft__factory";
-export { MyToken__factory } from "./factories/MyToken__factory";
 export { Multicall__factory } from "./factories/Multicall__factory";
+export { YourContract__factory } from "./factories/YourContract__factory";
