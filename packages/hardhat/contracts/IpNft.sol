@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.2;
+pragma solidity >=0.6.0 <0.8.4;
 
-import "@openzeppelin/contracts-upgradeable@4.2.0/token/ERC721/ERC721Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable@4.2.0/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable@4.2.0/security/PausableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable@4.2.0/access/AccessControlUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable@4.2.0/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable@4.2.0/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable@4.2.0/utils/CountersUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 
-contract MyToken is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, PausableUpgradeable, AccessControlUpgradeable, ERC721BurnableUpgradeable {
+contract IpNft is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeable, PausableUpgradeable, AccessControlUpgradeable, ERC721BurnableUpgradeable {
     using CountersUpgradeable for CountersUpgradeable.Counter;
     
     address public licensor;
@@ -25,7 +25,6 @@ contract MyToken is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeabl
         string memory IpBrandSymbol,
         string memory IpURI
         ) initializer public {
-        licensor = msg.sender;
         licenseCost = 10000000000000000;
         IP.push(IpURI);
         __ERC721_init(IpBrandName, IpBrandSymbol);
@@ -36,7 +35,7 @@ contract MyToken is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeabl
 
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(PAUSER_ROLE, msg.sender);
-        _setupRole(MINTER_ROLE, msg.sender);
+        //_setupRole(MINTER_ROLE, msg.sender);
         
     }
     
@@ -52,7 +51,7 @@ contract MyToken is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeabl
      * - the caller must have the `MINTER_ROLE`.
      */
     function licenseIp() public payable virtual returns (uint256) {
-        require(hasRole(MINTER_ROLE, _msgSender()), "ERC721PresetMinterPauserAutoId: must have minter role to mint");
+        //change to pull payment
         require(msg.value == licenseCost);
         // We cannot just use balanceOf to create the new tokenId because tokens
         // can be burned (destroyed), so we need a separate counter.
@@ -67,7 +66,9 @@ contract MyToken is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeabl
      * @param newLicensor address of the new licensor
      **/
     function changeLicensor(address newLicensor) public {
-        grantRole(MINTER_ROLE, newLicensor);
+        grantRole(DEFAULT_ADMIN_ROLE, newLicensor);
+        grantRole(PAUSER_ROLE, newLicensor);
+
     }
 
     /**
@@ -141,4 +142,4 @@ contract MyToken is Initializable, ERC721Upgradeable, ERC721URIStorageUpgradeabl
     function safeTransferFrom() public pure {
         revert("Transfer Disabled Buy new License");
     }
-}
+} 
