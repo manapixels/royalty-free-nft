@@ -23,10 +23,8 @@ interface IpNftFactoryInterface extends ethers.utils.Interface {
   functions: {
     "IpNftContracts(address)": FunctionFragment;
     "getChildren()": FunctionFragment;
-    "newIpNft(string,string,string)": FunctionFragment;
-    "owner()": FunctionFragment;
-    "renounceOwnership()": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
+    "initialize()": FunctionFragment;
+    "newLicensorContract(string,string,string)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -38,17 +36,12 @@ interface IpNftFactoryInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "newIpNft",
-    values: [string, string, string]
-  ): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
+    functionFragment: "initialize",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [string]
+    functionFragment: "newLicensorContract",
+    values: [string, string, string]
   ): string;
 
   decodeFunctionResult(
@@ -59,24 +52,17 @@ interface IpNftFactoryInterface extends ethers.utils.Interface {
     functionFragment: "getChildren",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "newIpNft", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
+    functionFragment: "newLicensorContract",
     data: BytesLike
   ): Result;
 
   events: {
-    "NewIpNft(address,address,string,string)": EventFragment;
-    "OwnershipTransferred(address,address)": EventFragment;
+    "NewLicenseToken(address,address,string,string,string)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "NewIpNft"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "NewLicenseToken"): EventFragment;
 }
 
 export class IpNftFactory extends BaseContract {
@@ -127,21 +113,14 @@ export class IpNftFactory extends BaseContract {
 
     getChildren(overrides?: CallOverrides): Promise<[string[]]>;
 
-    newIpNft(
+    initialize(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    newLicensorContract(
       IpBrandName: string,
       IpBrandSymbol: string,
       IpURI: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    owner(overrides?: CallOverrides): Promise<[string]>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    transferOwnership(
-      newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
@@ -150,21 +129,14 @@ export class IpNftFactory extends BaseContract {
 
   getChildren(overrides?: CallOverrides): Promise<string[]>;
 
-  newIpNft(
+  initialize(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  newLicensorContract(
     IpBrandName: string,
     IpBrandSymbol: string,
     IpURI: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  owner(overrides?: CallOverrides): Promise<string>;
-
-  renounceOwnership(
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  transferOwnership(
-    newOwner: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -173,45 +145,32 @@ export class IpNftFactory extends BaseContract {
 
     getChildren(overrides?: CallOverrides): Promise<string[]>;
 
-    newIpNft(
+    initialize(overrides?: CallOverrides): Promise<void>;
+
+    newLicensorContract(
       IpBrandName: string,
       IpBrandSymbol: string,
       IpURI: string,
       overrides?: CallOverrides
     ): Promise<string[]>;
-
-    owner(overrides?: CallOverrides): Promise<string>;
-
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
-    transferOwnership(
-      newOwner: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
   };
 
   filters: {
-    NewIpNft(
+    NewLicenseToken(
       IpNftContractAddress?: null,
       licensee?: null,
       IpBrandName?: null,
-      IpBrandSymbol?: null
+      IpBrandSymbol?: null,
+      IpURI?: null
     ): TypedEventFilter<
-      [string, string, string, string],
+      [string, string, string, string, string],
       {
         IpNftContractAddress: string;
         licensee: string;
         IpBrandName: string;
         IpBrandSymbol: string;
+        IpURI: string;
       }
-    >;
-
-    OwnershipTransferred(
-      previousOwner?: string | null,
-      newOwner?: string | null
-    ): TypedEventFilter<
-      [string, string],
-      { previousOwner: string; newOwner: string }
     >;
   };
 
@@ -220,21 +179,14 @@ export class IpNftFactory extends BaseContract {
 
     getChildren(overrides?: CallOverrides): Promise<BigNumber>;
 
-    newIpNft(
+    initialize(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    newLicensorContract(
       IpBrandName: string,
       IpBrandSymbol: string,
       IpURI: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    owner(overrides?: CallOverrides): Promise<BigNumber>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    transferOwnership(
-      newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
@@ -247,21 +199,14 @@ export class IpNftFactory extends BaseContract {
 
     getChildren(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    newIpNft(
+    initialize(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    newLicensorContract(
       IpBrandName: string,
       IpBrandSymbol: string,
       IpURI: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    renounceOwnership(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    transferOwnership(
-      newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
