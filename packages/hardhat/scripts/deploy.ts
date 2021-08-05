@@ -18,21 +18,26 @@ async function main() {
   fs.unlinkSync(`${config.paths.artifacts}/contracts/contractAddress.ts`);
 
   // We get the contract to deploy
-  const YourContract = await ethers.getContractFactory("IpNft");
-  const contract = await YourContract.deploy("Hello, Hardhat!");
+  const IpNftFactory = await ethers.getContractFactory("IpNftFactory");
+  const contract = await IpNftFactory.deploy();
   await contract.deployed();
-  saveFrontendFiles(contract, "IpNft");
-  console.log("IpNft deployed to:", contract.address);
+  saveFrontendFiles(contract, "IpNftFactory");
+  console.log("IpNftFactory deployed to:", contract.address);
 
-  const MulticallContract = await ethers.getContractFactory("Multicall");
-  const multicallContract = await MulticallContract.deploy();
-  await multicallContract.deployed();
-  saveFrontendFiles(multicallContract, "MulticallContract");
-  console.log("Multicall deployed to:", multicallContract.address);
+  // const MulticallContract = await ethers.getContractFactory('Multicall');
+  // const multicallContract = await MulticallContract.deploy();
+  // await multicallContract.deployed();
+  // saveFrontendFiles(multicallContract, "MulticallContract");
+  // console.log('Multicall deployed to:', multicallContract.address);
 }
 
 // https://github.com/nomiclabs/hardhat-hackathon-boilerplate/blob/master/scripts/deploy.js
 function saveFrontendFiles(contract: Contract, contractName: string) {
+  console.log(
+    "save frontend files",
+    `${config.paths.artifacts}/contracts/contractAddress.ts`,
+    config
+  );
   fs.appendFileSync(
     `${config.paths.artifacts}/contracts/contractAddress.ts`,
     `export const ${contractName} = '${contract.address}'\n`
