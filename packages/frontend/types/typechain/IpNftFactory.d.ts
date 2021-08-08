@@ -12,6 +12,7 @@ import {
   BaseContract,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   CallOverrides,
 } from "ethers";
 import { BytesLike } from "@ethersproject/bytes";
@@ -22,47 +23,80 @@ import { TypedEventFilter, TypedEvent, TypedListener } from "./commons";
 interface IpNftFactoryInterface extends ethers.utils.Interface {
   functions: {
     "IpNftContracts(address)": FunctionFragment;
+    "_pushIP(string)": FunctionFragment;
+    "fetchIpNftItems()": FunctionFragment;
+    "fetchItemsCreated()": FunctionFragment;
+    "fetchMyNFTs()": FunctionFragment;
     "getChildren()": FunctionFragment;
-    "initialize()": FunctionFragment;
-    "newLicensorContract(string,string,string)": FunctionFragment;
+    "newIpNftItem(address,uint256,uint256,string,string,string)": FunctionFragment;
+    "newIpNftLicense(address,uint256)": FunctionFragment;
   };
 
   encodeFunctionData(
     functionFragment: "IpNftContracts",
     values: [string]
   ): string;
+  encodeFunctionData(functionFragment: "_pushIP", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "fetchIpNftItems",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "fetchItemsCreated",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "fetchMyNFTs",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "getChildren",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "initialize",
-    values?: undefined
+    functionFragment: "newIpNftItem",
+    values: [string, BigNumberish, BigNumberish, string, string, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "newLicensorContract",
-    values: [string, string, string]
+    functionFragment: "newIpNftLicense",
+    values: [string, BigNumberish]
   ): string;
 
   decodeFunctionResult(
     functionFragment: "IpNftContracts",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "_pushIP", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "fetchIpNftItems",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "fetchItemsCreated",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "fetchMyNFTs",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "getChildren",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "newLicensorContract",
+    functionFragment: "newIpNftItem",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "newIpNftLicense",
     data: BytesLike
   ): Result;
 
   events: {
-    "NewLicenseToken(address,address,string,string,string)": EventFragment;
+    "IpNftItemCreated(uint256,address,uint256,address,address,uint256,string,string,string,bool)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "NewLicenseToken"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "IpNftItemCreated"): EventFragment;
 }
 
 export class IpNftFactory extends BaseContract {
@@ -111,65 +145,373 @@ export class IpNftFactory extends BaseContract {
   functions: {
     IpNftContracts(arg0: string, overrides?: CallOverrides): Promise<[boolean]>;
 
-    getChildren(overrides?: CallOverrides): Promise<[string[]]>;
-
-    initialize(
+    _pushIP(
+      IpURI: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    newLicensorContract(
+    fetchIpNftItems(
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        ([
+          BigNumber,
+          string,
+          BigNumber,
+          string,
+          string,
+          BigNumber,
+          string,
+          string,
+          string,
+          boolean
+        ] & {
+          itemId: BigNumber;
+          IpNftContractAddress: string;
+          tokenId: BigNumber;
+          licensee: string;
+          owner: string;
+          licenseCost: BigNumber;
+          IpBrandName: string;
+          IpBrandSymbol: string;
+          IpURI: string;
+          sold: boolean;
+        })[]
+      ]
+    >;
+
+    fetchItemsCreated(
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        ([
+          BigNumber,
+          string,
+          BigNumber,
+          string,
+          string,
+          BigNumber,
+          string,
+          string,
+          string,
+          boolean
+        ] & {
+          itemId: BigNumber;
+          IpNftContractAddress: string;
+          tokenId: BigNumber;
+          licensee: string;
+          owner: string;
+          licenseCost: BigNumber;
+          IpBrandName: string;
+          IpBrandSymbol: string;
+          IpURI: string;
+          sold: boolean;
+        })[]
+      ]
+    >;
+
+    fetchMyNFTs(
+      overrides?: CallOverrides
+    ): Promise<
+      [
+        ([
+          BigNumber,
+          string,
+          BigNumber,
+          string,
+          string,
+          BigNumber,
+          string,
+          string,
+          string,
+          boolean
+        ] & {
+          itemId: BigNumber;
+          IpNftContractAddress: string;
+          tokenId: BigNumber;
+          licensee: string;
+          owner: string;
+          licenseCost: BigNumber;
+          IpBrandName: string;
+          IpBrandSymbol: string;
+          IpURI: string;
+          sold: boolean;
+        })[]
+      ]
+    >;
+
+    getChildren(overrides?: CallOverrides): Promise<[string[]]>;
+
+    newIpNftItem(
+      IpNftContractAddress: string,
+      tokenId: BigNumberish,
+      licenseCost: BigNumberish,
       IpBrandName: string,
       IpBrandSymbol: string,
       IpURI: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    newIpNftLicense(
+      IpNftContractAddress: string,
+      itemId: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
   };
 
   IpNftContracts(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
-  getChildren(overrides?: CallOverrides): Promise<string[]>;
-
-  initialize(
+  _pushIP(
+    IpURI: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  newLicensorContract(
+  fetchIpNftItems(
+    overrides?: CallOverrides
+  ): Promise<
+    ([
+      BigNumber,
+      string,
+      BigNumber,
+      string,
+      string,
+      BigNumber,
+      string,
+      string,
+      string,
+      boolean
+    ] & {
+      itemId: BigNumber;
+      IpNftContractAddress: string;
+      tokenId: BigNumber;
+      licensee: string;
+      owner: string;
+      licenseCost: BigNumber;
+      IpBrandName: string;
+      IpBrandSymbol: string;
+      IpURI: string;
+      sold: boolean;
+    })[]
+  >;
+
+  fetchItemsCreated(
+    overrides?: CallOverrides
+  ): Promise<
+    ([
+      BigNumber,
+      string,
+      BigNumber,
+      string,
+      string,
+      BigNumber,
+      string,
+      string,
+      string,
+      boolean
+    ] & {
+      itemId: BigNumber;
+      IpNftContractAddress: string;
+      tokenId: BigNumber;
+      licensee: string;
+      owner: string;
+      licenseCost: BigNumber;
+      IpBrandName: string;
+      IpBrandSymbol: string;
+      IpURI: string;
+      sold: boolean;
+    })[]
+  >;
+
+  fetchMyNFTs(
+    overrides?: CallOverrides
+  ): Promise<
+    ([
+      BigNumber,
+      string,
+      BigNumber,
+      string,
+      string,
+      BigNumber,
+      string,
+      string,
+      string,
+      boolean
+    ] & {
+      itemId: BigNumber;
+      IpNftContractAddress: string;
+      tokenId: BigNumber;
+      licensee: string;
+      owner: string;
+      licenseCost: BigNumber;
+      IpBrandName: string;
+      IpBrandSymbol: string;
+      IpURI: string;
+      sold: boolean;
+    })[]
+  >;
+
+  getChildren(overrides?: CallOverrides): Promise<string[]>;
+
+  newIpNftItem(
+    IpNftContractAddress: string,
+    tokenId: BigNumberish,
+    licenseCost: BigNumberish,
     IpBrandName: string,
     IpBrandSymbol: string,
     IpURI: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  newIpNftLicense(
+    IpNftContractAddress: string,
+    itemId: BigNumberish,
+    overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     IpNftContracts(arg0: string, overrides?: CallOverrides): Promise<boolean>;
 
+    _pushIP(IpURI: string, overrides?: CallOverrides): Promise<void>;
+
+    fetchIpNftItems(
+      overrides?: CallOverrides
+    ): Promise<
+      ([
+        BigNumber,
+        string,
+        BigNumber,
+        string,
+        string,
+        BigNumber,
+        string,
+        string,
+        string,
+        boolean
+      ] & {
+        itemId: BigNumber;
+        IpNftContractAddress: string;
+        tokenId: BigNumber;
+        licensee: string;
+        owner: string;
+        licenseCost: BigNumber;
+        IpBrandName: string;
+        IpBrandSymbol: string;
+        IpURI: string;
+        sold: boolean;
+      })[]
+    >;
+
+    fetchItemsCreated(
+      overrides?: CallOverrides
+    ): Promise<
+      ([
+        BigNumber,
+        string,
+        BigNumber,
+        string,
+        string,
+        BigNumber,
+        string,
+        string,
+        string,
+        boolean
+      ] & {
+        itemId: BigNumber;
+        IpNftContractAddress: string;
+        tokenId: BigNumber;
+        licensee: string;
+        owner: string;
+        licenseCost: BigNumber;
+        IpBrandName: string;
+        IpBrandSymbol: string;
+        IpURI: string;
+        sold: boolean;
+      })[]
+    >;
+
+    fetchMyNFTs(
+      overrides?: CallOverrides
+    ): Promise<
+      ([
+        BigNumber,
+        string,
+        BigNumber,
+        string,
+        string,
+        BigNumber,
+        string,
+        string,
+        string,
+        boolean
+      ] & {
+        itemId: BigNumber;
+        IpNftContractAddress: string;
+        tokenId: BigNumber;
+        licensee: string;
+        owner: string;
+        licenseCost: BigNumber;
+        IpBrandName: string;
+        IpBrandSymbol: string;
+        IpURI: string;
+        sold: boolean;
+      })[]
+    >;
+
     getChildren(overrides?: CallOverrides): Promise<string[]>;
 
-    initialize(overrides?: CallOverrides): Promise<void>;
-
-    newLicensorContract(
+    newIpNftItem(
+      IpNftContractAddress: string,
+      tokenId: BigNumberish,
+      licenseCost: BigNumberish,
       IpBrandName: string,
       IpBrandSymbol: string,
       IpURI: string,
       overrides?: CallOverrides
-    ): Promise<string[]>;
+    ): Promise<void>;
+
+    newIpNftLicense(
+      IpNftContractAddress: string,
+      itemId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
-    NewLicenseToken(
-      IpNftContractAddress?: null,
+    IpNftItemCreated(
+      itemId?: BigNumberish | null,
+      IpNftContractAddress?: string | null,
+      tokenId?: BigNumberish | null,
       licensee?: null,
+      owner?: null,
+      licenseCost?: null,
       IpBrandName?: null,
       IpBrandSymbol?: null,
-      IpURI?: null
+      IpURI?: null,
+      sold?: null
     ): TypedEventFilter<
-      [string, string, string, string, string],
+      [
+        BigNumber,
+        string,
+        BigNumber,
+        string,
+        string,
+        BigNumber,
+        string,
+        string,
+        string,
+        boolean
+      ],
       {
+        itemId: BigNumber;
         IpNftContractAddress: string;
+        tokenId: BigNumber;
         licensee: string;
+        owner: string;
+        licenseCost: BigNumber;
         IpBrandName: string;
         IpBrandSymbol: string;
         IpURI: string;
+        sold: boolean;
       }
     >;
   };
@@ -177,17 +519,33 @@ export class IpNftFactory extends BaseContract {
   estimateGas: {
     IpNftContracts(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
-    getChildren(overrides?: CallOverrides): Promise<BigNumber>;
-
-    initialize(
+    _pushIP(
+      IpURI: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    newLicensorContract(
+    fetchIpNftItems(overrides?: CallOverrides): Promise<BigNumber>;
+
+    fetchItemsCreated(overrides?: CallOverrides): Promise<BigNumber>;
+
+    fetchMyNFTs(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getChildren(overrides?: CallOverrides): Promise<BigNumber>;
+
+    newIpNftItem(
+      IpNftContractAddress: string,
+      tokenId: BigNumberish,
+      licenseCost: BigNumberish,
       IpBrandName: string,
       IpBrandSymbol: string,
       IpURI: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    newIpNftLicense(
+      IpNftContractAddress: string,
+      itemId: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
   };
 
@@ -197,17 +555,33 @@ export class IpNftFactory extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getChildren(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    initialize(
+    _pushIP(
+      IpURI: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    newLicensorContract(
+    fetchIpNftItems(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    fetchItemsCreated(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    fetchMyNFTs(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getChildren(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    newIpNftItem(
+      IpNftContractAddress: string,
+      tokenId: BigNumberish,
+      licenseCost: BigNumberish,
       IpBrandName: string,
       IpBrandSymbol: string,
       IpURI: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    newIpNftLicense(
+      IpNftContractAddress: string,
+      itemId: BigNumberish,
+      overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
   };
 }
