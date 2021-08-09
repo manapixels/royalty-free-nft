@@ -12,6 +12,8 @@ dotenv.config();
 // const MNEMONIC = fs.readFileSync("../../.envrc").toString().trim();
 const MUMBAI_API_KEY = process.env.MUMBAI_API_KEY;
 const MNEMONIC = process.env.MNEMONIC as string;
+const defaultNetwork = "mumbai";
+
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
 task("accounts", "Prints the list of accounts", async (_args, hre) => {
@@ -84,7 +86,7 @@ const config: HardhatUserConfig = {
       }
     ]
   },
-  defaultNetwork: "hardhat",
+  defaultNetwork,
   networks: {
     hardhat: {
       chainId: 1337

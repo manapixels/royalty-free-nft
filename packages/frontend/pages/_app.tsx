@@ -1,5 +1,8 @@
 import { ApolloProvider } from '@apollo/client'
-import { ChainId, Config, DAppProvider,
+import {
+  ChainId,
+  Config,
+  DAppProvider,
   // MULTICALL_ADDRESSES,
 } from '@usedapp/core'
 import type { AppProps } from 'next/app'
@@ -14,12 +17,14 @@ import './_app.scss'
 
 // scaffold-eth's INFURA_ID, SWAP IN YOURS FROM https://infura.io/dashboard/ethereum
 export const INFURA_ID = '460f40a260564ac4a4f4b3fffb032dad'
+export const MUMBAI_API_KEY = process.env.MUMBAI_API_KEY
 
 const config: Config = {
   readOnlyUrls: {
     [ChainId.Ropsten]: `https://ropsten.infura.io/v3/${INFURA_ID}`,
     [ChainId.Hardhat]: 'http://localhost:8545',
     [ChainId.Localhost]: 'http://localhost:8545',
+    [ChainId.Mumbai]: `https://polygon-mumbai.g.alchemy.com/v2/${MUMBAI_API_KEY}`,
   },
   supportedChains: [
     ChainId.Mainnet,
@@ -30,6 +35,7 @@ const config: Config = {
     ChainId.xDai,
     ChainId.Localhost,
     ChainId.Hardhat,
+    ChainId.Mumbai,
   ],
   // multicallAddresses: {
   //   ...MULTICALL_ADDRESSES,
