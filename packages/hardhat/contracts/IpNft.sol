@@ -21,10 +21,15 @@ contract IpNft is ERC721, ERC721URIStorage, Ownable {
     constructor(
         string memory IpBrandName,
         string memory IpBrandSymbol,
-        string memory IpURI
+        string memory IpURI,
+        address Creator
     ) public ERC721(IpBrandName, IpBrandSymbol) {
         _baseURI();
         IP.push(IpURI);
+        uint256 id = 0;
+        _mint(Creator, id);
+        _setTokenURI(id, IP[0]);
+        transferOwnership(Creator);
     }
 
     // @dev push a new IP to the contract
@@ -43,10 +48,16 @@ contract IpNft is ERC721, ERC721URIStorage, Ownable {
     {
         super._burn(tokenId);
     }
-  
-    /** @dev disable Transfer of NFT to ensure no secondary market can function */ 
+
+    /** @dev Transfer Master token Transfer Licensor/Contract Owner */ 
     function transferFrom(address from, address to, uint256 tokenId) public override {
-        revert("Transfer Disabled Buy new License");
+
+        if ( tokenId == 0 ) {
+            changeLicensor(to);
+        _transfer(from, to, tokenId);    
+        }
+        else {
+        revert("Transfer Disabled buy new License");}
     }
     /** @dev disable Transfer of NFT to ensure no secondary market can function */ 
     function safeTransferFrom(address from, address to,uint256 tokenId) public override {

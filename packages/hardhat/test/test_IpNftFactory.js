@@ -13,11 +13,13 @@ describe("Royalty Free NFT", function () {
   let childContract1;
   let owner;
   let licensor;
+  let newLicensor;
   let licensee;
   let nonLicensee;
 
   beforeEach(async function () {
-    [owner, licensor, licensee, nonLicensee] = await ethers.getSigners();
+    [owner, licensor, newLicensor, licensee, nonLicensee] =
+      await ethers.getSigners();
     const parentContract = await ethers.getContractFactory("IpNftFactory");
     IpNftFactory = await parentContract.deploy();
   });
@@ -32,7 +34,7 @@ describe("Royalty Free NFT", function () {
       const newIpNftArgs = [
         "Test",
         "Test",
-        "QmTwx4sLHk432eDqe54CX3Jij2isStJDpe6ey8eBRTYFZq"
+        "QmTwx4sLHk432eDqe54CX3Jij2isStJDpe6ey8eBRTYFZq",
       ];
       await IpNftFactory.connect(licensor).newIpNft(...newIpNftArgs);
       childContractAddress1 = await IpNftFactory.getChildren();
@@ -57,18 +59,18 @@ describe("Royalty Free NFT", function () {
   describe("Should mint NFT as a license", async function () {
     it("Should mint a license for correct price", async function () {
       await childContract1.connect(licensee).licenseIP({
-        value: BigInt(ethers.utils.parseEther("0.01"))
+        value: BigInt(ethers.utils.parseEther("0.01")),
       }).should.be.fulfilled;
     });
 
     it("Should reject a license for to low of price", async function () {
       await childContract1.connect(licensee).licenseIP({
-        value: BigInt(ethers.utils.parseEther("0.009"))
+        value: BigInt(ethers.utils.parseEther("0.009")),
       }).should.be.rejected;
     });
     it("Should reject a license for to high of price", async function () {
       await childContract1.connect(licensee).licenseIP({
-        value: BigInt(ethers.utils.parseEther("0.011"))
+        value: BigInt(ethers.utils.parseEther("0.011")),
       }).should.be.rejected;
     });
     it("Should have proper token URI", async function () {
@@ -79,21 +81,26 @@ describe("Royalty Free NFT", function () {
     it("Should have license owned by licensee address", async function () {
       expect(await childContract1.ownerOf("1")).to.equal(licensee.address);
     });
-
-    it("Should have Transfer function disabled", async function () {
-      await childContract1.connect(licensee).transferFrom({
-        from: licensee.address,
-        to: nonLicensee.address,
-        tokenId: 1
-      }).should.be.rejected;
+  });
+  describe("NFT Contract is tradable and ownable via its Master Token", function () {
+    it("Should Transfer Owner with Master Token Transfer", async function () {
+      await childContract1
+        .connect(licensor)
+        .transferFrom(licensor.address, newLicensor.address, 0).should.be
+        .fulfilled;
+    });
+    it("Should have Master token owned by newLicensor address", async function () {
+      expect(await childContract1.ownerOf("0")).to.equal(newLicensor.address);
+    });
+    it("Should have New Owner", async function () {
+      expect(await childContract1.owner()).to.equal(newLicensor.address);
     });
 
-    it("Should have safeTransfer function disabled", async function () {
-      await childContract1.connect(licensee).transferOwnership({
-        from: licensee.address,
-        to: nonLicensee.address,
-        tokenId: 1
-      }).should.be.rejected;
+    it("Should not be able to Transfer Master Token as old Lincensor", async function () {
+      await childContract1
+        .connect(licensor)
+        .transferFrom(licensee.address, nonLicensee.address, 0).should.be
+        .rejected;
     });
   });
 });
