@@ -10,10 +10,11 @@ import type { AppProps } from 'next/app'
 import React from 'react'
 // import { MulticallContract } from '../artifacts/contracts/contractAddress'
 import { useApollo } from '../lib/apolloClient'
-import "./_app.scss"
+import './_app.scss'
 
 // scaffold-eth's INFURA_ID, SWAP IN YOURS FROM https://infura.io/dashboard/ethereum
 export const INFURA_ID = '460f40a260564ac4a4f4b3fffb032dad'
+export const MUMBAI_API_KEY = process.env.MUMBAI_API_KEY
 
 const config: Config = {
   readOnlyUrls: {
@@ -45,18 +46,18 @@ const theme = extendTheme({
   //     900: "#1a202c",
   //   },
   // },
-  components: { 
-    Button: { 
-      baseStyle: { 
+  components: {
+    Button: {
+      baseStyle: {
         position: 'relative',
-        _focus: { boxShadow: '0 0 0 3px rgba(0, 0, 0, 0.2)' }
+        _focus: { boxShadow: '0 0 0 3px rgba(0, 0, 0, 0.2)' },
       },
       variants: {
-        "white": {
+        white: {
           color: '#000',
           background: '#FFF',
         },
-        "white-selected": {
+        'white-selected': {
           color: '#000',
           background: '#FFF',
           _after: {
@@ -68,13 +69,13 @@ const theme = extendTheme({
             width: '.7rem',
             height: '.15rem',
             background: '#000',
-          }
+          },
         },
-        "black": {
+        black: {
           color: '#FFF',
           background: '#000',
         },
-        "black-selected": {
+        'black-selected': {
           color: '#FFF',
           background: '#000',
           _after: {
@@ -88,7 +89,7 @@ const theme = extendTheme({
             background: '#FFF',
           },
         },
-        "gray-selected": {
+        'gray-selected': {
           color: '#000',
           background: 'var(--chakra-colors-gray-100)',
           _after: {
@@ -100,9 +101,9 @@ const theme = extendTheme({
             width: '.7rem',
             height: '.15rem',
             background: '#000',
-          }
+          },
         },
-        "press-down": {
+        'press-down': {
           color: '#000',
           border: '0.15rem solid #000',
           background: '#fff',
@@ -113,7 +114,7 @@ const theme = extendTheme({
             content: '""',
             position: 'absolute',
             width: '100%',
-            height: '100%', 
+            height: '100%',
             top: '0',
             left: '0',
             transform: 'scale(0)',
@@ -121,12 +122,12 @@ const theme = extendTheme({
           },
           _active: {
             top: '3px',
-            boxShadow: 'none'
-          }
-        }
+            boxShadow: 'none',
+          },
+        },
       },
-    }
-  }
+    },
+  },
 })
 
 const MyApp = ({ Component, pageProps }: AppProps): JSX.Element => {
