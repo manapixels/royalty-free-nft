@@ -2,10 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Heading } from '@chakra-ui/react'
 import Layout from '../components/layout/Layout'
 import Dropzone from 'react-dropzone'
-import Resizer from "react-image-file-resizer";
-//@ts-ignore
-import browserImageSize from 'browser-image-size'
-import {PhotoSample, Photo, GalleryIndex} from '../types/Types'
+import { Photo, GalleryIndex} from '../types/Types'
 import { Buckets, PushPathResult, PrivateKey, WithKeyInfoOptions, KeyInfo } from '@textile/hub'
 import {
   Button,
@@ -24,7 +21,7 @@ function Sell(): JSX.Element {
   const [buckets, setBuckets] = useState(null);
   const [bucketKey, setbucketKey] = useState(null);
   const [identity, setIdentity] = useState(null);
-  const [photos, setPhotos] = useState([]);
+  const [multimedia, setMultimedia] = useState([]);
   const [loading, setLoading] = useState(true);
   const [links, setLinks] = useState(null);
   const [index1, setIndex1] = useState({
@@ -44,21 +41,6 @@ const publicGallery = '<!doctype html><html lang=en><meta charset=utf-8><meta na
 'const json=await index.json()\n' +
 'return json.original}\n' +
 'window.addEventListener("DOMContentLoaded",function(){loadIndex()});</script>';
-  const resizeFile = (file) =>
-  new Promise<any>((resolve) => {
-    Resizer.imageFileResizer(
-      file,
-      300,
-      300,
-      "JPEG",
-      100,
-      0,
-      (uri) => {
-        resolve(uri);
-      },
-      "base64"
-    );
-  });
   useEffect(() => {
     async function settingIdentity2() {
       const {buckets, bucketKey} = await getBucketKey();
@@ -135,14 +117,11 @@ async function galleryFromIndex(index: GalleryIndex){
         str += String.fromCharCode(parseInt(value[i]));
       }
       const json: Photo = JSON.parse(str)
-      const photo = index.paths.length > 1 ? json.preview : json.original
-      setPhotos([
-        ...photos,
+      setMultimedia([
+        ...multimedia,
         {
-          src:`${ipfsGateway}/ipfs/${photo.cid}`,
-          width: photo.width,
-          height: photo.height,
-          key: photo.name,
+          src:`${ipfsGateway}/ipfs/${json.cid}`,
+          key: json.name,
         }
       ])
     }
@@ -210,21 +189,17 @@ async function getPhotoIndex(): Promise<GalleryIndex>{
       await buckets.pushPath(bucketKey, path, buf)
     } catch(e){
       /* eslint-disable no-console */
-      console.log("exceptioni");
-      /* eslint-disable no-console */
       console.log(e);
     }
   }
 
   async function onDrop(acceptedFiles: File[]) {
-    if (photos.length > 50) {
+    if (multimedia.length > 50) {
       throw new Error('Gallery at maximum size')
     }
     if (acceptedFiles.length > 5) {
       throw new Error('Max 5 images at a time')
     }
-    /* eslint-disable no-console */
-    console.log(acceptedFiles)
     for (const accepted of acceptedFiles) {
       await handleNewFile(accepted)
     }
@@ -260,7 +235,7 @@ async function getPhotoIndex(): Promise<GalleryIndex>{
     // Authorize the user and your insecure keys with getToken
     await buckets.getToken(identity)
     
-    const buck = await buckets.getOrCreate('io.textile.dropzone')
+    const buck = await buckets.getOrCreate('RoyaltyFreeNft')
     if (!buck.root) {
       throw new Error('Failed to open bucket')
     }
@@ -300,20 +275,18 @@ async function getPhotoIndex(): Promise<GalleryIndex>{
      * @param name 
      * @param limits 
      */
-   async function processAndStore(image: File, path: string, name: string, limits?: {maxWidth: number, maxHeight: number}): Promise<PhotoSample> {
-    /* eslint-disable no-console */
-    console.log(limits)
-    /* eslint-disable no-console */
-    console.log(resizeFile(image))
-    const finalImage = image
-    const size = await browserImageSize(finalImage)
+   async function processAndStore(file: File, path: string, name: string, realName: string): Promise<Photo> {
+    // const size = await browserImageSize(finalImage)
     const location = `${path}${name}`
-    const raw = await insertFile(finalImage, location)
+    const raw = await insertFile(file, location)
     const metadata = {
       cid: raw.path.cid.toString(),
-      name: name,
-      path: location,
-      ...size
+      name: realName,
+      fileType: file.name.split('.').pop(),
+      filePreview: location, 
+      FileUrl: null,
+      tags: null,
+      category: null,
     }
     /* eslint-disable no-console */
     console.log("metadata")
@@ -327,55 +300,25 @@ async function getPhotoIndex(): Promise<GalleryIndex>{
       throw new Error('insertFile - No bucket client or root key')
     }
     const buckets1: Buckets = buckets
-    /* eslint-disable no-console */
-    console.log("bucketKey")
-    /* eslint-disable no-console */
-    console.log(bucketKey)
-    /* eslint-disable no-console */
-    console.log("path")
-    /* eslint-disable no-console */
-    console.log(path)
-    /* eslint-disable no-console */
-    console.log("file")
-    /* eslint-disable no-console */
-    console.log(file)
     
     return await buckets1.pushPath(bucketKey, path, file.stream())
   }
   
   async function handleNewFile(file: File){
-    const preview = {
-      maxWidth: 800,
-      maxHeight: 800
-    }
-    const thumb = {
-      maxWidth: 200,
-      maxHeight: 200
-    }
     if (!buckets || !bucketKey) {
       console.error('handleNewFile - No bucket client or root key')
       return
     }
-    const imageSchema: {[key: string]: any} = {}
+    const multiMediaSchema: {[key: string]: any} = {}
     const now = new Date().getTime()
-    imageSchema['date'] = now
-    imageSchema['name'] = `${file.name}`
     const filename = `${now}_${file.name}`
-    console.log("file")
-    /* eslint-disable no-console */
-    console.log(file)
-    /* eslint-disable no-console */
-    console.log("filename")
-    /* eslint-disable no-console */
-    console.log(filename)
-    /* eslint-disable no-console */
-    imageSchema['original'] = await processAndStore(file, 'originals/', filename)
+    multiMediaSchema[identity.toString()] = await processAndStore(file, identity.toString() + '/', filename, `${file.name}`)
     
-    imageSchema['preview'] = await processAndStore(file, 'previews/', filename, preview)
+    // imageSchema['preview'] = await processAndStore(file, 'previews/', filename, preview)
   
-    imageSchema['thumb'] = await processAndStore(file, 'thumbs/', filename, thumb)
+    // imageSchema['thumb'] = await processAndStore(file, 'thumbs/', filename, thumb)
   
-    const metadata = Buffer.from(JSON.stringify(imageSchema, null, 2))
+    const metadata = Buffer.from(JSON.stringify(multiMediaSchema, null, 2))
     const metaname = `${now}_${file.name}.json`
     const path = `metadata/${metaname}`;
     
@@ -387,10 +330,10 @@ async function getPhotoIndex(): Promise<GalleryIndex>{
     console.log(raw.path.cid.toString())
     })()
   
-    const photo = photos.length > 1 ? imageSchema['preview'] : imageSchema['original']
-    setPhotos(photo)
+    const photo = multimedia.length > 1 ? multiMediaSchema['preview'] : multiMediaSchema['original']
+    setMultimedia(photo)
     /* eslint-disable no-console */
-    console.log(photos)
+    console.log(multimedia)
     setIndex1({
       ...index1,
       paths: [...index1.paths, path]

@@ -1,19 +1,14 @@
 import { Buckets, Identity, UserAuth } from '@textile/hub'
 import { PhotoProps } from 'react-photo-gallery'
 
-export interface PhotoSample {
-  cid: string
-  name: string
-  path: string
-  width: number
-  height: number
-}
 export interface Photo {
-  date: number
+  cid: string
+  fileType: string
+  filePreview: string
+  FileUrl: string
   name: string
-  original: PhotoSample
-  preview: PhotoSample
-  thumb: PhotoSample
+  tags: string
+  category: string
 }
 
 export interface GalleryIndex {
