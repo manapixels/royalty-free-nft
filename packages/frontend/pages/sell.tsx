@@ -3,6 +3,7 @@ import { Heading } from '@chakra-ui/react'
 import Layout from '../components/layout/Layout'
 import Dropzone from 'react-dropzone'
 import Resizer from "react-image-file-resizer";
+//@ts-ignore
 import browserImageSize from 'browser-image-size'
 import {PhotoSample, Photo, GalleryIndex} from '../types/Types'
 import { Buckets, PushPathResult, PrivateKey, WithKeyInfoOptions, KeyInfo } from '@textile/hub'
@@ -11,8 +12,7 @@ import {
 } from '@chakra-ui/react'
 
 const keyInfo: KeyInfo = {
-  key: 'bslg36pqnurdiujqywjblx2n2xa',
-  secret: 'bk3utwoapucrzyxmaugdbwygzurniokyvretfqui'
+  key: 'bslg36pqnurdiujqywjblx2n2xa'
 }
 
 const keyInfoOptions: WithKeyInfoOptions = {
@@ -24,8 +24,9 @@ function Sell(): JSX.Element {
   const [buckets, setBuckets] = useState(null);
   const [bucketKey, setbucketKey] = useState(null);
   const [identity, setIdentity] = useState(null);
-  const [photos, setPhotos] = useState(null);
+  const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [links, setLinks] = useState(null);
   const [index1, setIndex1] = useState({
     author: '',
     date: 0,
@@ -44,7 +45,7 @@ const publicGallery = '<!doctype html><html lang=en><meta charset=utf-8><meta na
 'return json.original}\n' +
 'window.addEventListener("DOMContentLoaded",function(){loadIndex()});</script>';
   const resizeFile = (file) =>
-  new Promise((resolve) => {
+  new Promise<any>((resolve) => {
     Resizer.imageFileResizer(
       file,
       300,
@@ -59,15 +60,44 @@ const publicGallery = '<!doctype html><html lang=en><meta charset=utf-8><meta na
     );
   });
   useEffect(() => {
+    async function settingIdentity2() {
+      const {buckets, bucketKey} = await getBucketKey();
+      setBuckets(buckets)
+      setbucketKey(bucketKey)
+    }
+    settingIdentity2();
+  }, [identity])
+
+  useEffect(() => {
+    async function settingIdentity1() {
+      await getBucketLinks();
+    }
+    settingIdentity1();
+    const index = (async (): Promise<GalleryIndex> => {
+      return await getPhotoIndex();
+    })(); 
+    
+    if (index) {
+      (async () => {
+        await galleryFromIndex(await index);
+        setIndex1(await index);
+        setLoading(false)
+      })(); 
+    }
+  }, [buckets, bucketKey])
+
+  useEffect(() => {
     // Clear your user during development
     // await localStorage.clear()
-    const identity = getIdentity();
-    // const identity = (async () => {
-    //   await getIdentity();
+    async function settingIdentity3() {
+      const identity1 = await getIdentity();
+      setIdentity(identity1);
+    }
+    settingIdentity3();
+    // const identity1 = (async () => {
+    //   setIdentity(await getIdentity());
     // })();
 
-    /* eslint-disable no-console */
-    setIdentity(identity)
     // you might want to do the I18N setup here
   
     // this.setState({ 
@@ -75,38 +105,30 @@ const publicGallery = '<!doctype html><html lang=en><meta charset=utf-8><meta na
     // })
   
     // get their photo bucket
-    async function getBucketThings() {
-      const {buckets, bucketKey} = await getBucketKey();
-      setBuckets(buckets)
-      setbucketKey(bucketKey)
-    }
-    getBucketThings();
   
-    (async () => {
-      await getBucketLinks();
-    })();
+  
+    // (async () => {
+    //   await getBucketLinks();
+    // })();
     
-    const index = (async (): Promise<GalleryIndex> => {
-      return await getPhotoIndex();
-    })(); 
-    if (index) {
-      async () => {
-        await galleryFromIndex(await index);
-        setIndex1(await index);
-        setLoading(false)
-      }; 
-    }
-  });
+    
+  }, []);
 
 async function galleryFromIndex(index: GalleryIndex){
     if (!buckets || !bucketKey) {
       console.error('galleryFromIndex - No bucket client or root key')
       return
     }
+    /* eslint-disable no-console */
+    console.log('gacda')
+    /* eslint-disable no-console */
+    console.log(index)
     for (const path of index.paths) {
       const metadata = await buckets.pullPath(bucketKey, path)
       /* eslint-disable no-console */
       console.log(await buckets.links(bucketKey))
+      /* eslint-disable no-console */
+      console.log(links)
       const { value } = await metadata.next();
       let str = "";
       for (let i = 0; i < value.length; i++) {
@@ -114,17 +136,15 @@ async function galleryFromIndex(index: GalleryIndex){
       }
       const json: Photo = JSON.parse(str)
       const photo = index.paths.length > 1 ? json.preview : json.original
-      this.setState({ 
-        photos: [
-          ...photos,
-          {
-            src:`${ipfsGateway}/ipfs/${photo.cid}`,
-            width: photo.width,
-            height: photo.height,
-            key: photo.name,
-          }
-        ]
-      })
+      setPhotos([
+        ...photos,
+        {
+          src:`${ipfsGateway}/ipfs/${photo.cid}`,
+          width: photo.width,
+          height: photo.height,
+          key: photo.name,
+        }
+      ])
     }
   }
 
@@ -155,10 +175,17 @@ async function getPhotoIndex(): Promise<GalleryIndex>{
       return
     }
     const buf = Buffer.from(publicGallery)
-    await buckets.pushPath(bucketKey, 'index.html', buf)
+    /* eslint-disable no-console */
+    console.log("initpublicgallery")
+    /* eslint-disable no-console */
+    console.log(buf);
+    (async () => {
+      await buckets.pushPath(bucketKey, 'index.html', buf)
+    })()
   }
 
   async function initIndex(){
+    
     if (!identity) {
       console.error('Identity not set')
       return
@@ -179,7 +206,14 @@ async function getPhotoIndex(): Promise<GalleryIndex>{
     }
     const buf = Buffer.from(JSON.stringify(index, null, 2))
     const path = `index.json`
-    await buckets.pushPath(bucketKey, path, buf)
+    try{
+      await buckets.pushPath(bucketKey, path, buf)
+    } catch(e){
+      /* eslint-disable no-console */
+      console.log("exceptioni");
+      /* eslint-disable no-console */
+      console.log(e);
+    }
   }
 
   async function onDrop(acceptedFiles: File[]) {
@@ -189,11 +223,19 @@ async function getPhotoIndex(): Promise<GalleryIndex>{
     if (acceptedFiles.length > 5) {
       throw new Error('Max 5 images at a time')
     }
+    /* eslint-disable no-console */
+    console.log(acceptedFiles)
     for (const accepted of acceptedFiles) {
       await handleNewFile(accepted)
     }
-    storeIndex(index1)
   }
+
+  useEffect(() => {
+    async function method(){
+      storeIndex(index1)
+  }
+    method()
+ }, [index1]);
   
   async function getBucketLinks(){
     if (!buckets || !bucketKey) {
@@ -201,18 +243,20 @@ async function getPhotoIndex(): Promise<GalleryIndex>{
       return
     }
     const links = await buckets.links(bucketKey)
-    this.setState({
+    setLinks({
       ...links
     })
   }
   
   async function getBucketKey(){
+    /* eslint-disable no-console */
+    console.log("identity")
+    /* eslint-disable no-console */
+    console.log(identity)
     if (!identity) {
       throw new Error('Identity not set')
     }
     const buckets = await Buckets.withKeyInfo(keyInfo, keyInfoOptions)
-    /* eslint-disable no-console */
-    console.log(buckets)
     // Authorize the user and your insecure keys with getToken
     await buckets.getToken(identity)
     
@@ -257,7 +301,11 @@ async function getPhotoIndex(): Promise<GalleryIndex>{
      * @param limits 
      */
    async function processAndStore(image: File, path: string, name: string, limits?: {maxWidth: number, maxHeight: number}): Promise<PhotoSample> {
-    const finalImage = limits ? await resizeFile(image) : image
+    /* eslint-disable no-console */
+    console.log(limits)
+    /* eslint-disable no-console */
+    console.log(resizeFile(image))
+    const finalImage = image
     const size = await browserImageSize(finalImage)
     const location = `${path}${name}`
     const raw = await insertFile(finalImage, location)
@@ -267,14 +315,31 @@ async function getPhotoIndex(): Promise<GalleryIndex>{
       path: location,
       ...size
     }
+    /* eslint-disable no-console */
+    console.log("metadata")
+    /* eslint-disable no-console */
+    console.log(metadata)
     return metadata
   }
   
-  async function insertFile(file: any, path: string): Promise<PushPathResult> {
+  async function insertFile(file: File, path: string): Promise<PushPathResult> {
     if (!buckets || !bucketKey) {
       throw new Error('insertFile - No bucket client or root key')
     }
     const buckets1: Buckets = buckets
+    /* eslint-disable no-console */
+    console.log("bucketKey")
+    /* eslint-disable no-console */
+    console.log(bucketKey)
+    /* eslint-disable no-console */
+    console.log("path")
+    /* eslint-disable no-console */
+    console.log(path)
+    /* eslint-disable no-console */
+    console.log("file")
+    /* eslint-disable no-console */
+    console.log(file)
+    
     return await buckets1.pushPath(bucketKey, path, file.stream())
   }
   
@@ -296,7 +361,14 @@ async function getPhotoIndex(): Promise<GalleryIndex>{
     imageSchema['date'] = now
     imageSchema['name'] = `${file.name}`
     const filename = `${now}_${file.name}`
-    
+    console.log("file")
+    /* eslint-disable no-console */
+    console.log(file)
+    /* eslint-disable no-console */
+    console.log("filename")
+    /* eslint-disable no-console */
+    console.log(filename)
+    /* eslint-disable no-console */
     imageSchema['original'] = await processAndStore(file, 'originals/', filename)
     
     imageSchema['preview'] = await processAndStore(file, 'previews/', filename, preview)
@@ -308,26 +380,21 @@ async function getPhotoIndex(): Promise<GalleryIndex>{
     const path = `metadata/${metaname}`;
     
     (async () => {
-      await buckets.pushPath(bucketKey, path, metadata);
+      const raw = await buckets.pushPath(bucketKey, path, metadata);
+    /* eslint-disable no-console */
+    console.log("raw")
+    /* eslint-disable no-console */
+    console.log(raw.path.cid.toString())
     })()
   
     const photo = photos.length > 1 ? imageSchema['preview'] : imageSchema['original']
     setPhotos(photo)
-    // this.setState({ 
-    //   index: {
-    //     ...this.state.index,
-    //     paths: [...this.state.index.paths, path]
-    //   },
-    //   photos: [
-    //     ...this.state.photos,
-    //     {
-    //       src: `${this.ipfsGateway}/ipfs/${photo.cid}`,
-    //       width: photo.width,
-    //       height: photo.height,
-    //       key: photo.name,
-    //     }
-    //   ]
-    // })
+    /* eslint-disable no-console */
+    console.log(photos)
+    setIndex1({
+      ...index1,
+      paths: [...index1.paths, path]
+    })
   }
   
   function renderDropzone() : JSX.Element {
