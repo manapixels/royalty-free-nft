@@ -70,8 +70,8 @@ const publicGallery = '<!doctype html><html lang=en><meta charset=utf-8><meta na
 
   useEffect(() => {
     // Clear your user during development
-    // await localStorage.clear()
     async function settingIdentity3() {
+      // await localStorage.clear()
       const identity1 = await getIdentity();
       setIdentity(identity1);
     }
@@ -101,10 +101,6 @@ async function galleryFromIndex(index: GalleryIndex){
       console.error('galleryFromIndex - No bucket client or root key')
       return
     }
-    /* eslint-disable no-console */
-    console.log('gacda')
-    /* eslint-disable no-console */
-    console.log(index)
     for (const path of index.paths) {
       const metadata = await buckets.pullPath(bucketKey, path)
       /* eslint-disable no-console */
@@ -230,7 +226,11 @@ async function getPhotoIndex(): Promise<GalleryIndex>{
     console.log(identity)
     if (!identity) {
       throw new Error('Identity not set')
+    } else{
+      /* eslint-disable no-console */
+      console.log("Identity was set")
     }
+
     const buckets = await Buckets.withKeyInfo(keyInfo, keyInfoOptions)
     // Authorize the user and your insecure keys with getToken
     await buckets.getToken(identity)
@@ -330,7 +330,7 @@ async function getPhotoIndex(): Promise<GalleryIndex>{
     console.log(raw.path.cid.toString())
     })()
   
-    const photo = multimedia.length > 1 ? multiMediaSchema['preview'] : multiMediaSchema['original']
+    const photo = multimedia[identity.toString()]
     setMultimedia(photo)
     /* eslint-disable no-console */
     console.log(multimedia)
