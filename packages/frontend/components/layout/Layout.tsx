@@ -8,6 +8,9 @@ import {
   Container,
   Flex,
   Image,
+  Input,
+  InputGroup,
+  InputLeftElement,
   Link,
   Menu,
   MenuButton,
@@ -15,11 +18,14 @@ import {
   MenuList,
   SimpleGrid,
   Text,
+  Tooltip,
 } from '@chakra-ui/react'
+import { IconSearch, IconCaretDown, IconFlare } from '@tabler/icons'
 import { useEthers, useNotifications } from '@usedapp/core'
 import blockies from 'blockies-ts'
 import NextLink from 'next/link'
 import React from 'react'
+import { useRouter } from 'next/router'
 // import Balance from '../Balance'
 import NavLink from '../NavLink'
 import ConnectWallet from '../ConnectWallet'
@@ -59,8 +65,10 @@ interface LayoutProps {
  * Component
  */
 const Layout = ({ children, customMeta }: LayoutProps): JSX.Element => {
+
   const { account, deactivate } = useEthers()
   const { notifications } = useNotifications()
+  const router = useRouter()
 
   let blockieImageSrc
   if (typeof window !== 'undefined') {
@@ -72,55 +80,54 @@ const Layout = ({ children, customMeta }: LayoutProps): JSX.Element => {
       <Head customMeta={customMeta} />
       <header>
         <Container maxWidth="container.xl">
-          <SimpleGrid
-            columns={[1, 1, 2, 2, 2]}
+          <Flex
             alignItems="center"
             justifyContent="space-between"
-            py="8"
+            pt="5"
+            pb="12"
           >
-            <Flex py={[4, null, null, 0]} grow={1}>
+            <Flex py={[4, null, null, 0]} grow={1} alignItems="center">
               <Link href="/">
                 <Image
                   height="35px"
                   src="/images/logo-with-wordmark.svg"
                   alt="Royalty Free NFT"
-                  pr={5}
+                  mr={7}
                 />
               </Link>
-              <NextLink href="/" passHref>
-                <Link px="4" py="1">
-                  Home
-                </Link>
-              </NextLink>
-              <NextLink href="/graph-example" passHref>
-                <Link px="4" py="1">
-                Graph Example
-                </Link>
-              </NextLink>
-              <NextLink href="/signature-example" passHref>
-                <Link px="4" py="1">
-                Signature Example
-                </Link>
-              </NextLink>
+
+              <Box padding=".15rem" border="1px solid #000" borderRadius=".4rem" mr="1.5rem">
+                <NavLink to="/buy" style={{ padding: '.45rem var(--chakra-space-4)', height: 'auto'}}>Buy</NavLink>
+                <NavLink to={`${router.route}?sell=true`} style={{ padding: '.45rem var(--chakra-space-4)', height: 'auto'}}>Sell</NavLink>
+                <NavLink to="/dao" style={{ padding: '.45rem var(--chakra-space-4)', height: 'auto'}}>DAO</NavLink>
+              </Box>
+
+              <InputGroup width="21rem">
+                <InputLeftElement
+                  pointerEvents="none"
+                  color="gray.300"
+                  fontSize="1.2em">
+                  <IconSearch />
+                </InputLeftElement>
+                <Input placeholder="Search by licensors or content name" borderColor="gray.400" />
+              </InputGroup>
+
+
             </Flex>
+
+            <Tooltip label="Your voting power (out of 100%) is dependent on rolling monthly sales of your content" aria-label="A tooltip">
+              <Button px=".9rem" mr=".6rem"><IconFlare stroke={1} style={{ marginRight: '.2rem'}} />4</Button>
+            </Tooltip>
 
             <Flex
               order={[-1, null, null, 2]}
               alignItems={'center'}
               justifyContent={['flex-start', null, null, 'flex-end']}
             >
-              {/* <Balance /> */}
-
-              <NavLink to="/buy" px="2" py="1" style={{ textDecoration: 'none' }}>
-                <Button colorScheme="gray">Buy</Button>
-              </NavLink>
-              <NavLink to="/sell" px="2" py="1" style={{ textDecoration: 'none' }}>
-                <Button colorScheme="gray">Sell</Button>
-              </NavLink>
-
               {account ? (
                 <Menu placement="bottom-end">
-                  <MenuButton as={Button} ml="4" pl="1">
+                  <MenuButton as={Button} pl="1">
+                    
                     <Flex alignItems="center">
                       <Image
                         style={{ display: 'inline-block' }}
@@ -132,9 +139,18 @@ const Layout = ({ children, customMeta }: LayoutProps): JSX.Element => {
                       <span style={{ display: 'inline-block' }}>
                         {truncateHash(account)}
                     </span>
+                    <IconCaretDown color="var(--chakra-colors-gray-500)" size={20} stroke={1} />
                     </Flex>
+                    
                   </MenuButton>
                   <MenuList>
+                  <MenuItem
+                      onClick={() => {
+                        router.push('/buy/licensor/xx')
+                      }}
+                    >
+                      View seller profile
+                    </MenuItem>
                     <MenuItem
                       onClick={() => {
                         deactivate()
@@ -148,7 +164,7 @@ const Layout = ({ children, customMeta }: LayoutProps): JSX.Element => {
                 <ConnectWallet />
               )}
             </Flex>
-          </SimpleGrid>
+          </Flex>
         </Container>
       </header>
       <main>
