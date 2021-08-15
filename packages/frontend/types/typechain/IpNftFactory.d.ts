@@ -193,14 +193,14 @@ export class IpNftFactory extends BaseContract {
   filters: {
     NewIpNft(
       IpNftContractAddress?: null,
-      licensee?: null,
+      licensor?: null,
       IpBrandName?: null,
       IpBrandSymbol?: null
     ): TypedEventFilter<
       [string, string, string, string],
       {
         IpNftContractAddress: string;
-        licensee: string;
+        licensor: string;
         IpBrandName: string;
         IpBrandSymbol: string;
       }

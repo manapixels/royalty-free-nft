@@ -3,18 +3,18 @@ import { Alert, AlertIcon, Box, Heading, Text } from '@chakra-ui/react'
 import Layout from '../components/layout/Layout'
 
 const COMPOUND_MARKETS = gql`
-  query GetAllMarkets {
-    markets(first: 10) {
+  query GetAllIpNfts {
+    ipNfts(first: 10) {
       id
-      underlyingName
-      underlyingSymbol
-      underlyingPriceUSD
+      licensor
     }
   }
 `
 
 function GraphExampleIndex(): JSX.Element {
   const { loading, error, data } = useQuery(COMPOUND_MARKETS)
+
+  console.log(data)
 
   return (
     <Layout>
@@ -35,15 +35,11 @@ function GraphExampleIndex(): JSX.Element {
       )}
       {!loading &&
         !error &&
-        data.markets.map(
-          ({ id, underlyingName, underlyingSymbol, underlyingPriceUSD }) => (
-            <Box key={id} mt="8">
-              <Text>Name: {underlyingName}</Text>
-              <Text>Symbol: {underlyingSymbol}</Text>
-              <Text>Price: ${underlyingPriceUSD}</Text>
-            </Box>
-          )
-        )}
+        data.ipNfts.map(({ id, licesor }) => (
+          <Box key={id} mt="8">
+            <Text>Name: {licensor}</Text>
+          </Box>
+        ))}
     </Layout>
   )
 }

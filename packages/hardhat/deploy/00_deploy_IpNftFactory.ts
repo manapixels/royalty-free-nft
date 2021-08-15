@@ -16,6 +16,20 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     log: true
   });
+
+  const newIpNftArgs = [
+    "Test",
+    "Test",
+    contract.address
+  ];
+
+  const ipfnt = await deploy("IpNft", {
+    from: deployer,
+    log: true,
+    args: newIpNftArgs
+  });
+
+
 };
 
 export default func;

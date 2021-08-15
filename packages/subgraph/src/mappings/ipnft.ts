@@ -3,13 +3,13 @@ import {
   ApprovalForAll as ApprovalForAllEvent,
   OwnershipTransferred as OwnershipTransferredEvent,
   Transfer as TransferEvent
-} from "../generated/IpNft_subgraph/IpNft_subgraph"
+} from "../../generated/templates/IpNft/IpNft"
 import {
   Approval,
   ApprovalForAll,
   OwnershipTransferred,
   Transfer
-} from "../generated/schema"
+} from "../../generated/schema"
 
 export function handleApproval(event: ApprovalEvent): void {
   let entity = new Approval(

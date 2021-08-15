@@ -13,7 +13,8 @@ function createApolloClient() {
     ssrMode: typeof window === 'undefined',
     link: new HttpLink({
       // Server URL (must be absolute)
-      uri: 'https://api.thegraph.com/subgraphs/name/graphprotocol/compound-v2',
+      //uri: 'https://api.thegraph.com/subgraphs/name/graphprotocol/compound-v2',
+      uri: 'http://localhost:8000/subgraphs/name/scaffold-eth/your-contract',
       // Additional fetch() options like `credentials` or `headers`
       credentials: 'same-origin',
     }),

@@ -16,7 +16,7 @@ contract IpNftFactory is Ownable {
     address[] IpNftContractList;
     event NewIpNft(
         address IpNftContractAddress,
-        address licensee,
+        address licensor,
         string IpBrandName,
         string IpBrandSymbol
     );

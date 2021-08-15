@@ -1,21 +1,21 @@
-specVersion: 0.0.1
+specVersion: 0.0.2
 schema:
-  file: ./src/schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: IpNftFactory
     network: localhost
     source:
-      address: "{{localhost_IpNftFactoryAddress}}"
+      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
       abi: Factory
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.2
       language: wasm/assemblyscript
-      file: ./src/mappings/factory.ts
+      file: IpNftFactory/IpNftFactory.wasm
       abis:
         - name: Factory
-          file: ./abis/localhost_IpNftFactory.json
+          file: IpNftFactory/abis/localhost_IpNftFactory.json
       entities:
         - IpNft
         - OwnershipTransferred
@@ -24,7 +24,6 @@ dataSources:
           handler: handleNewIpNft
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleOwnerShipTransferred
-
 templates:
   - kind: ethereum/contract
     name: IpNft
@@ -35,10 +34,10 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.2
       language: wasm/assemblyscript
-      file: ./src/mappings/ipnft.ts
+      file: templates/IpNft/IpNft.wasm
       abis:
         - name: IpNft
-          file: ./abis/localhost_IpNft.json
+          file: IpNft/abis/localhost_IpNft.json
       entities:
         - Approval
         - ApprovalForAll
