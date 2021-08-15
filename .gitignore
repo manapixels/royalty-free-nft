@@ -31,6 +31,7 @@ packages/hardhat/*.txt
 packages/hardhat/cache
 packages/hardhat/artifacts
 packages/hardhat/deployments
+packages/hardhat/.env
 
 ## Frontend Files ##
 # testing

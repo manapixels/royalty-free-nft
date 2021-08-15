@@ -1,10 +1,11 @@
 import { gql, useQuery } from '@apollo/client'
 import { Alert, AlertIcon, Box, Heading, Text } from '@chakra-ui/react'
+import hardhatContracts from '../contracts/hardhat_contracts.json'
 import Layout from '../components/layout/Layout'
 
 const COMPOUND_MARKETS = gql`
   query GetAllIpNfts {
-    ipNfts(first: 10) {
+    ipNfts(licensor: "eq") {
       id
       licensor
     }
@@ -14,6 +15,8 @@ const COMPOUND_MARKETS = gql`
 function GraphExampleIndex(): JSX.Element {
   const { loading, error, data } = useQuery(COMPOUND_MARKETS)
 
+  const contract =
+    hardhatContracts['31337']['localhost']['contracts']['IpNftFactory']
   console.log(data)
 
   return (

@@ -8,7 +8,12 @@
     "compile": "hardhat compile",
     "deploy": "hardhat deploy --export-all ../frontend/contracts/hardhat_contracts.json",
     "postdeploy": "hardhat run scripts/publish.js",
-    "test": "hardhat test --network hardhat"
+    "test": "hardhat test --network hardhat",
+    "accounts": "hardhat accounts",
+    "balance": "hardhat balance",
+    "send": "hardhat send",
+    "generate": "hardhat generate",
+    "account": "hardhat account"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers",
@@ -30,6 +35,7 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.2.0",
-    "dotenv": "^10.0.0"
+    "dotenv": "^10.0.0",
+    "qrcode-terminal": "^0.12.0"
   }
 }
