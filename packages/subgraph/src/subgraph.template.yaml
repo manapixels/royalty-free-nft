@@ -1,25 +1,32 @@
-specVersion: 0.0.2
+specVersion: 0.0.1
 schema:
   file: ./src/schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: YourContract
-    network: localhost
+    name: IpNft
+    network: mumbai
     source:
-      address: "{{localhost_YourContractAddress}}"
-      abi: YourContract
-      startBlock: 1
+      address: "{{localhost_IpNftFactoryAddress}}"
+      abi: IpNft
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.2
       language: wasm/assemblyscript
       entities:
-        - Purpose
-        - Sender
+        - Approval
+        - ApprovalForAll
+        - OwnershipTransferred
+        - Transfer
       abis:
-        - name: YourContract
-          file: ./abis/localhost_YourContract.json
+        - name: IpNft
+          file: ./abis/localhost_IpNftFactory.json
       eventHandlers:
-        - event: SetPurpose(address,string)
-          handler: handleSetPurpose
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
       file: ./src/mapping.ts
