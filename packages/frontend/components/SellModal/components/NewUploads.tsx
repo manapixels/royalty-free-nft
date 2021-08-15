@@ -384,6 +384,7 @@ function NewUploads(): JSX.Element {
       const raw = await buckets.pushPath(bucketKey, path, metadata)
       /* eslint-disable no-console */
       console.log('raw', raw)
+      interactWithContract(raw.path.path)
     })()
 
     setIndex1({
@@ -414,9 +415,7 @@ function NewUploads(): JSX.Element {
           </UnorderedList>
         </GridItem>
         <GridItem colSpan={2}>
-          <Button onClick={() => interactWithContract('/test/path/')}>
-            Test Contract
-          </Button>
+          {/* <Button onClick={() => interactWithContract('/test/path/')}>Test Contract</Button> */}
           <UploadBox style={{ cursor: 'pointer' }}>
             <Dropzone
               onDrop={onDrop}
@@ -450,14 +449,14 @@ function NewUploads(): JSX.Element {
             </Dropzone>
           </UploadBox>
         </GridItem>
-        <GridItem>
+        {/* <GridItem>
           <Box mt="5">
             {multimedia &&
               multimedia.map((item) => (
                 <Image src={item.src} alt={item.name} key={item.src} />
               ))}
           </Box>
-        </GridItem>
+        </GridItem> */}
       </Grid>
     </>
   )
