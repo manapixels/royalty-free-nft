@@ -15,6 +15,6 @@
     "jsx": "preserve",
     "checkJs": false
   },
-  "exclude": ["node_modules", ".next", "out"],
+  "exclude": ["node_modules", ".next", "out", "./types/typechain"],
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.js"]
 }
