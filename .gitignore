@@ -42,3 +42,12 @@ packages/frontend/out/
 packages/frontend/build
 # contracts
 # packages/frontend/artifacts/*
+
+## Subgraph Files ##
+packages/subgraph/subgraph.yaml
+packages/subgraph/generated
+packages/subgraph/abis/*
+packages/hardhat/*.txt
+packages/subgraph/config/config.json
+
+packages/services/graph-node/data

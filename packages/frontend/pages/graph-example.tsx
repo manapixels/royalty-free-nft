@@ -4,7 +4,7 @@ import Layout from '../components/layout/Layout'
 
 const COMPOUND_MARKETS = gql`
   query GetAllMarkets {
-    markets(first: 5) {
+    markets(first: 10) {
       id
       underlyingName
       underlyingSymbol

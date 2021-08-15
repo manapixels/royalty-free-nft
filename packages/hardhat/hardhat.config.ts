@@ -23,6 +23,11 @@ task("accounts", "Prints the list of accounts", async (_args, hre) => {
   }
 });
 
+//
+// Select the network you want to deploy to here:
+//
+const defaultNetwork = "localhost";
+
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
@@ -30,10 +35,10 @@ task("accounts", "Prints the list of accounts", async (_args, hre) => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 const config: HardhatUserConfig = {
+  defaultNetwork,
   namedAccounts: {
     deployer: {
-      default: "mumbai",
-      mumbai: "0xCC78280A93267D7E646e03207194510e0f09CF06"
+      default: 0,
     }
   },
   solidity: {
@@ -85,10 +90,9 @@ const config: HardhatUserConfig = {
       }
     ]
   },
-  defaultNetwork: "hardhat",
   networks: {
-    hardhat: {
-      chainId: 1337
+    localhost: {
+      url: "http://localhost:8545",
     },
     mumbai: {
       chainId: 80001,

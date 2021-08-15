@@ -32,7 +32,6 @@ contract IpNft is ERC721, ERC721URIStorage, Ownable {
         IP.push(IpURI);
     }
 
-
     function _baseURI() internal pure override returns (string memory) {
         return "ipfs://";
     }
@@ -43,13 +42,22 @@ contract IpNft is ERC721, ERC721URIStorage, Ownable {
     {
         super._burn(tokenId);
     }
-  
-    /** @dev disable Transfer of NFT to ensure no secondary market can function */ 
-    function transferFrom(address from, address to, uint256 tokenId) public override {
+
+    /** @dev disable Transfer of NFT to ensure no secondary market can function */
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public override {
         revert("Transfer Disabled Buy new License");
     }
-    /** @dev disable Transfer of NFT to ensure no secondary market can function */ 
-    function safeTransferFrom(address from, address to,uint256 tokenId) public override {
+
+    /** @dev disable Transfer of NFT to ensure no secondary market can function */
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public override {
         revert("Transfer Disabled Buy new License");
     }
 
@@ -61,6 +69,7 @@ contract IpNft is ERC721, ERC721URIStorage, Ownable {
     {
         return super.tokenURI(tokenId);
     }
+
     /**
      * @dev Mint Licensee a License
      * @return token id of license
