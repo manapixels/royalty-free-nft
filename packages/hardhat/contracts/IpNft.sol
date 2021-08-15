@@ -34,7 +34,7 @@ contract IpNft is ERC721, ERC721URIStorage, Ownable {
 
 
     function _baseURI() internal pure override returns (string memory) {
-        return "ipfs://";
+        return "https://ipfs.io/";
     }
 
     function _burn(uint256 tokenId)
